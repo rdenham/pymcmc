@@ -36,7 +36,6 @@ class StochasticSearch:
     regressors in a regression
     Only works with the g_prior"""
     def __init__(self, yvec, xmat, prior):
-        assert(len(prior) == 2)
         self.nobs = yvec.shape[0]
         self.kreg = xmat.shape[1]
         self.yvec = yvec
@@ -54,11 +53,36 @@ class StochasticSearch:
         self.work = np.zeros((self.kreg, 6), order ='F')
         self.ifo = np.array(0, dtype ='i')
         self.ifo2 = np.array(0, dtype ='i')
-        self.work[:, 0] = prior[0]
-        self.g = prior[1]
+        if prior[0] == 'g_prior':
+            self.work[:, 0] = prior[1]
+            self.g = prior[2]
+            self.__samplegam = self.__sim_gamma_gprior
+        elif prior[0] == 'normal_inverted_gamma':
+            self.R = np.asfortranarray(prior[1])
+            self.D = prior[2]
+            self.nu = prior[3]
+            self.nus = prior[4]
+            self.logdetR = 2.0 * np.sum(np.diag(np.linalg.cholesky(self.R)))
+            self.vxy = self.xgy
+            self.vobar = self.xgxg
+            self.vubar = self.work2
+            self.nuobar = self.nu + self.kreg
+            self.__samplegam = self.__sim_gamma_nig
 
         # internal storage for stochastic search
         self.store = [[], []]
+
+    def __sim_gamma_gprior(self):
+        ssreg(self.ypy, self.g, self.xpx, self.xpy,
+              self.xgxg, self.xgy, self.gam, \
+              self.ru, self.work, self.work2,
+              self.ifo, self.ifo2, self.nobs)
+
+    def __sim_gamma_nig(self):
+        initialise_vubar(self.vubar, self.gam, self.D, self.R)  
+        ssreg_nig(self.ypy, self.logdetR, self.nus, self.vxy, self.vobar,
+                 self.vubar, self.gam, self.xpx, self.xpy, self.D,
+                 self.R, self.nuobar, self.ru)
 
 
     def sample_gamma(self, store):
@@ -67,16 +91,11 @@ class StochasticSearch:
         # self.gam = gamvec.astype('i')
         self.ru = np.random.rand(self.kreg)
         
-        # pdb.set_trace()
-        ssreg(self.ypy, self.g, self.xpx, self.xpy,
-              self.xgxg, self.xgy, self.gam, \
-              self.ru, self.work, self.work2,
-              self.ifo, self.ifo2, self.nobs)
-        # assert(self.ifo2 == 0)
-        # assert(self.ifo == 0)
+        self.__samplegam()
         if it>= burn:
             self.update_store()
         return self.gam
+
 
     def update_store(self):
         """function updates internal storage for gamma"""
@@ -178,7 +197,7 @@ class BayesRegression:
         self.xpx = np.dot(self.xmat.T, self.xmat)
         self.xpy = np.dot(self.xmat.T, yvec)
         self.kreg = self.xmat.shape[1]
-        self.lndetxpx = np.log(np.linalg.det(self.xpx))
+        self.lndetxpx = np.sum(np.log(np.diag(np.linalg.cholesky(self.xpx))))
         self.vobar = np.zeros((self.kreg, self.kreg))
         self.betaobar = np.zeros(self.kreg)
         self.updateind_xmat = 0
@@ -279,7 +298,7 @@ incorectly specified"
                                              self.__posterior_sigma_mean
                         self.__log_marginal_likelihood = self.__log_marginal_likelihood_gprior
 
-    def log_probability(self, scale, beta, **kwargs):
+    def log_candidate_probability(self, scale, beta, **kwargs):
         return self.__log_cand_prob(scale, beta, **kwargs)
 
     def __calculate_jeffreys(self):
@@ -287,9 +306,9 @@ incorectly specified"
         if  self.updateind_xmat == 1 or self.updateind_yvec == 1:
             self.xpy = np.dot(self.xmat.transpose(), self.yvec)
             if self.updateind_xmat == 1: 
-                if self.calclndetxpx_ind == 1:
-                    self.lndetxpx = np.log(np.linalg.det(self.xpx))
                 self.xpx = np.dot(self.xmat.transpose(), self.xmat)
+                if self.calclndetxpx_ind == 1:
+                    self.lndetxpx = np.sum(np.log(np.diag(np.linalg.cholesky(self.xpx))))
             self.updateind_xmat = 0
             self.updateind_yvec = 0
 
@@ -306,9 +325,9 @@ incorectly specified"
         if  self.updateind_xmat == 1 or self.updateind_yvec == 1:
             self.xpy = np.dot(self.xmat.transpose(), self.yvec)
             if self.updateind_xmat == 1: 
-                if self.calclndetxpx_ind == 1:
-                    self.lndetxpx = np.log(np.linalg.det(self.xpx))
                 self.xpx = np.dot(self.xmat.transpose(), self.xmat)
+                if self.calclndetxpx_ind == 1:
+                    self.lndetxpx = np.sum(np.log(np.diag(np.linalg.cholesky(self.xpx))))
             self.updateind_xmat = 0
             self.updateind_yvec = 0
         self.vobar = self.vubar + self.xpx
@@ -325,9 +344,9 @@ incorectly specified"
         if  self.updateind_xmat == 1 or self.updateind_yvec == 1:
             self.xpy = np.dot(self.xmat.transpose(), self.yvec)
             if self.updateind_xmat == 1: 
-                if self.calclndetxpx_ind == 1:
-                    self.lndetxpx = np.log(np.linalg.det(self.xpx))
                 self.xpx = np.dot(self.xmat.transpose(), self.xmat)
+                if self.calclndetxpx_ind == 1:
+                    self.lndetxpx = np.sum(np.log(np.diag(np.linalg.cholesky(self.xpx))))
             self.updateind_xmat = 0
             self.updateind_yvec = 0
         self.betahat = np.linalg.solve(self.xpx, self.xpy)
