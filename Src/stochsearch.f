@@ -44,7 +44,7 @@ c     k = the number of regressors
       integer n,k,gam(k),ifo, ifo2
       real*8 xpy(k), g, xpx(k,k), xgy(k),xgxg(k,k),ru(k),ypy
       real*8 w(k,6),w2(k,k), pgamnum,pgamdenom
-      integer qgam, sumgam,i,j
+      integer qgam, sumgam,i
       real*8 probdenom
 
 cf2py intent(inout) gam
@@ -217,5 +217,147 @@ c     function extracts the rows in xpy that correspond to ones in gam
           s=1
       enddo
       end
+
+c     functions for the normal inverted gamma prior
+     
+c     subroutine samples gamma for normal-inverted gamma prior
+      subroutine ssreg_nig(ypy,ldr,vs,vxy,vobar,vubar,gam,xpx,xpy,v,r,
+     + nuo,ru,k)
+
+      implicit none
+      integer k,gam(k),gami,ifo,ifo2,nuo,i
+      real*8 vobar(k,k),vubar(k,k),xpx(k,k),xpy(k),v(k,2),r(k,k)
+      real*8 vxy(k),ldr,ypy,vs
+      real*8 pgamnum,pgamdenom,ru(k),probdenom,marg
+
+cf2py intent(in) ypy
+cf2py intent(in) ldr
+cf2py intent(in) vs
+cf2py intent(in) vxy
+cf2py intent(in) vobar
+cf2py intent(in) vubar
+cf2py intent(in) gam
+cf2py intent(in) xpx
+cf2py intent(in) xpy
+cf2py intent(in) v
+cf2py intent(in) r
+cf2py intent(in) gam
+cf2py intent(in) nuo
+cf2py intent(in) ru
+cf2py intent(in) k
+
+      do i=2,k
+          if (gam(i).eq.1) then
+              gami=-1
+              pgamnum=marg(ypy,ldr,vs,vxy,vobar,vubar,gam,xpx,xpy,v,
+     + r,gami,ifo,nuo,k)
+              gam(i)=0
+              gami=i
+              pgamdenom=marg(ypy,ldr,vs,vxy,vobar,vubar,gam,xpx,xpy,v,
+     + r,gami,ifo2,nuo,k)
+              pgamdenom=probdenom(pgamnum,pgamdenom)
+              if (ru(i)>pgamdenom.or.ifo2.ne.0.or.ifo.ne.0) then
+                  gam(i)=1
+                  call update_vubar(vubar,gam,v,r,gami,k)
+              endif
+          else
+              gami=-1
+              pgamnum=marg(ypy,ldr,vs,vxy,vobar,vubar,gam,xpx,xpy,v,
+     + r,gami,ifo,nuo,k)
+              gam(i)=1
+              gami=i
+              pgamdenom=marg(ypy,ldr,vs,vxy,vobar,vubar,gam,xpx,xpy,v,
+     + r,gami,ifo2,nuo,k)
+              pgamdenom=probdenom(pgamnum,pgamdenom)
+              if (ru(i)>pgamdenom.or.ifo2.ne.0.or.ifo.ne.0) then
+                  gam(i)=0
+                  call update_vubar(vubar,gam,v,r,gami,k)
+              endif
+          endif
+      enddo
+      end
+
+
+      
+
+c     subroutine to initialise vubar
+      subroutine initialise_vubar(vubar,gam,v,r,k)
+      implicit none
+      integer k,gam(k),i,j
+      real*8 vubar(k,k),r(k,k),v(k,2)
+
+cf2py intent(inout) vubar
+cf2py intent(in) gam
+cf2py intent(in) v
+cf2py intent(in) r
+cf2py intent(in) k
+
+      do j=1,k
+          do i=1,k
+              vubar(i,j)=v(i,gam(i)+1)*r(i,j)*v(j,gam(j)+1)
+          enddo
+      enddo
+      end
+
+
+
+c     subroutine updates vubar for a change in gamma
+      subroutine update_vubar(vubar,gam,v,r,gami,k)
+      implicit none
+      integer k,gam(k),gami,i,j
+      real*8 vubar(k,k),r(k,k),v(k,2),tmp
+
+      do j=1,k
+          vubar(gami,j)=v(gami,gam(gami)+1)*r(gami,j)
+      enddo
+      do i=1,k
+          tmp=v(gami,gam(gami)+1)*vubar(i,gami)
+          vubar(i,gami)=tmp
+      enddo
+      end
+
+c     subroutine calculates marginal likelihood
+      real*8 function marg(ypy,ldr,vs,vxy,vobar,vubar,gam,xpx,xpy,v,r,
+     + gami,ifo,nuo,k)
+      implicit none
+      integer k,gam(k),gami,ifo,nuo,i
+      real*8 vobar(k,k),vubar(k,k),xpx(k,k),xpy(k),v(k,2),r(k,k)
+      real*8 alpha,beta,vxy(k),ddot,vso,ldr,lndetvu,ypy,vs
+      real*8 lndetvo
+        
+      if (gami.ne.-1) then
+          call update_vubar(vubar,gam,v,r,gami,k)
+      endif
+      alpha=1.0
+      do i=1,k
+          call dcopy(k,vubar(:,i),1,vobar(:,i),1)
+          call daxpy(k,alpha,xpx(:,i),1,vobar(:,i),1)
+      enddo
+
+      call dpotrf('u',k,vobar,k,ifo)
+      if (ifo.eq.0) then
+          call dcopy(k,xpy,1,vxy,1)
+          call dtrsv('u','t','n',k,vobar,k,vxy,1)
+          beta=0.0
+          vso=vs+ypy-ddot(k,vxy,1,vxy,1)
+          lndetvu=0.0
+          do i=1,k
+              lndetvu=lndetvu+log(v(i,gam(i)+1))
+          enddo
+
+          lndetvo=0.0
+          do i=1,k
+              lndetvo=lndetvo+log(vobar(i,i))
+          enddo
+
+          marg=lndetvu+0.5*ldr-lndetvo-dble(nuo)/2.0*log(vso/2.0)
+      else
+          marg=-1.0D256
+      endif
+      return
+      end
+
+
+
 
 
