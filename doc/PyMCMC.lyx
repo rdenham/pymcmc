@@ -1,0 +1,6490 @@
+#LyX 1.6.5 created this file. For more info see http://www.lyx.org/
+\lyxformat 345
+\begin_document
+\begin_header
+\textclass article
+\begin_preamble
+\makeatother
+
+\usepackage{babel}
+
+\makeatother
+
+\usepackage{babel}
+
+\makeatother
+
+\usepackage{babel}
+
+
+
+\makeatother
+
+\usepackage{babel}
+
+\makeatother
+
+\usepackage{babel}
+\end_preamble
+\use_default_options false
+\language english
+\inputencoding latin9
+\font_roman default
+\font_sans default
+\font_typewriter default
+\font_default_family default
+\font_sc false
+\font_osf false
+\font_sf_scale 100
+\font_tt_scale 100
+
+\graphics default
+\paperfontsize 12
+\spacing single
+\use_hyperref false
+\papersize default
+\use_geometry false
+\use_amsmath 1
+\use_esint 1
+\cite_engine basic
+\use_bibtopic false
+\paperorientation portrait
+\secnumdepth 3
+\tocdepth 3
+\paragraph_separation indent
+\defskip medskip
+\quotes_language english
+\papercolumns 1
+\papersides 1
+\paperpagestyle default
+\tracking_changes false
+\output_changes false
+\author "" 
+\author "" 
+\end_header
+
+\begin_body
+
+\begin_layout Title
+A Python Package for Bayesian estimation using Markov chain Monte Carlo
+\end_layout
+
+\begin_layout Author
+C.
+ M.
+ Strickland
+\begin_inset Foot
+status collapsed
+
+\begin_layout Plain Layout
+Corresponding Author: Mathematical Sciences, CPO Box 2434, Queensland University
+ of Technology, Queensland, 4001, Australla.
+ Email: christopher.strickland@qut.edu.au.
+ Phone: 91 7 3138 2310
+\end_layout
+
+\end_inset
+
+, R.
+ Denham, C.
+ Alston., K.
+ L.
+ Mengersen
+\end_layout
+
+\begin_layout Abstract
+Markov chain Monte Carlo (MCMC) estimation provides a solution to the complex
+ integretion problems that are faced in the Bayesian analysis of statistical
+ problems.
+ Implementing MCMC algorithms is, however, code intensive and extremely
+ time consuming.
+ We have developed a Python package, which is called PyMCMC, that aids in
+ the construction of MCMC samplers and helps significantly reduce the likelihood
+ of coding error as well as remove the necessity of repetitive code.
+ PyMCMC contains classes for the Gibbs sampler, Metropolis Hastrings, independen
+t Metropolis Hastings, random walk Metropolis Hastings, orientational bias
+ Monte Carlo, Slice Sampler and a module for Bayesian Regression analysis.
+ PyMCMC is straightforward to optimise taking advantage of the Python libraries
+ Numpy and Scipy as well as being easily extensible with C or Fortran.
+ PyMCMC proves to ease the construction of complex algorithms as well as
+ provide a code efficient interface for the user.
+\end_layout
+
+\begin_layout Section
+Introduction
+\end_layout
+
+\begin_layout Standard
+The most common approach that is used in the estimation of Bayesian Models
+ is Markov chain Monte Carlo (MCMC).
+ In practice, MCMC algorithms usually need to be tailored to the problem
+ of interest to ensure good results.
+ Issues such as block size and parameterisation can have a dramatic effect
+ on the convergence of MCMC sampling schemes.
+ In particular, 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "LuiKongWong1994"
+
+\end_inset
+
+ show theoretically that jointly sampling parameters in a Gibbs scheme leads
+ to a reduction in correlation in the associated Markov chain in comparison
+ to individually sampling parameters.
+ This is demonstrated in practical applications in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "CarterKohn1994"
+
+\end_inset
+
+ and 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "KimShephardChib1998"
+
+\end_inset
+
+, amongst others.
+ Reducing the correlation in the Markov chain enables it to move more freely
+ over the parameter space and as such enables it to escape from local modes
+ in the posterior distribution.
+ Parameterisation can also have a dramatic effect on the convergence of
+ MCMC samplers; see for example 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "GelfandSahuCarlin1995"
+
+\end_inset
+
+, 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "RobersSahu1997"
+
+\end_inset
+
+, 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "PittShepard1999"
+
+\end_inset
+
+, 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "RobertMengersen1999"
+
+\end_inset
+
+, 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "FruwirthSchnatter2004"
+
+\end_inset
+
+ and Strickland 
+\emph on
+et al.
+ 
+\emph default
+(2008) 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "StricklandMartinForbes2008"
+
+\end_inset
+
+, for relevant work.
+\end_layout
+
+\begin_layout Standard
+PyMCMC is a Python module that is designed to simplify the construction
+ of MCMC samplers, without sacrificing flexibility or performance.
+ It contains objects for Gibbs sampling and various Metropolis algorithms
+ as well as the slice sampler.
+ The user can simply piece together the algorithms required and can easily
+ include their own optimised modules where necessary.
+ Essentially, this reduces the chance of coding error and importantly greatly
+ speeds up the construction of efficient MCMC samplers.
+ This is achieved by taking advantage of the flexibility of Python, which
+ allows for the implementation of very general code.
+ It is also extremely easy to include modules from compiled languages such
+ as C and Fortran.
+ This is very important to many practioners who are forced by the size of
+ their problems to write there MCMC programs entirely in compiled languages,
+ such as C/C++ and Fortran in order to obtain the necessary speed for feasible
+ practical analysis.
+ With Python, the user can simply compile Fortran code using a module called
+ F2py and use the subroutines directly from Python.
+ F2py can also be used to directly call C routines with the aid of Fortran
+ signiture file.
+ This enables the user to use PyMCMC and Python as a rapid application developme
+nt environment, yet still achieve the speed of Fortran or C by writing only
+ very small segments of their own code in a compiled language.
+ It should be mentioned that for most reasonable sized problems PyMCMC is
+ sufficiently fast for practical MCMC analysis without the need for specialised
+ modules.
+\end_layout
+
+\begin_layout Section
+Bayesian Analysis
+\end_layout
+
+\begin_layout Standard
+Bayesian analysis quantifies information about the unknown parameter vector
+ of interest, 
+\begin_inset Formula $\bm{\theta},$
+\end_inset
+
+ for a given data set, 
+\begin_inset Formula $\bm{y},$
+\end_inset
+
+ through the joint posterior probability denstion function (pdf), 
+\begin_inset Formula $p(\bm{\theta}|\bm{y}),$
+\end_inset
+
+ which is defined such that 
+\begin_inset Formula \begin{equation}
+p(\bm{\theta}|\bm{y})\propto p(\bm{y}|\bm{\theta})\times p(\bm{\theta}),\label{eq:joint post}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $p(\bm{y}|\bm{\theta})$
+\end_inset
+
+ denotes the pdf of 
+\begin_inset Formula $\bm{y}$
+\end_inset
+
+ given 
+\begin_inset Formula $\bm{\theta}$
+\end_inset
+
+ and 
+\begin_inset Formula $p(\bm{\theta})$
+\end_inset
+
+ is the prior pdf for 
+\begin_inset Formula $\bm{\theta}.$
+\end_inset
+
+ The most common approach used in the estimation of 
+\begin_inset Formula $\bm{\theta}$
+\end_inset
+
+ is Markov chain Monte Carlo.
+\end_layout
+
+\begin_layout Subsection
+Markov chain Monte Carlo Methods and Implementation
+\end_layout
+
+\begin_layout Standard
+PyMCMC includes numerous algorithms for the development of MCMC samplers.
+ In particular, methods are implemented for the Gibbs sampler, the Metropolis
+ Hastings (MH) algorithm, independent MH, random walk MH, orientational
+ bias Monte Carlo (OBMC) and slice sampler.
+ PyMCMC also includes a module for the Bayesian analysis of the linear regresssi
+on model.
+ This module contains classes that can be used both in conjunction with
+ the MCMC algorithms, as a part of Gibbs or hyprid Gibbs sampling schemes,
+ and also seperately for the direct analysis of the linear regression model.
+ In the following subsections, a brief description of each algorithm is
+ included and a description of the interface in PyMCMC in included.
+\end_layout
+
+\begin_layout Subsubsection
+The Gibbs sampler
+\end_layout
+
+\begin_layout Standard
+The Gibbs sampler gained prominence in the statistical literature when it
+ was introduced in 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "GelfandSmith1990"
+
+\end_inset
+
+.
+ The Gibbs sampler simplyfies the task of sampling from the posterior distributi
+on in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:joint post"
+
+\end_inset
+
+), by breaking down the possibly complex and high dimensional problem in
+ to a set of problems of lower dimension.
+ Essentially if we partition 
+\begin_inset Formula $\bm{\theta}$
+\end_inset
+
+ into 
+\begin_inset Formula $s$
+\end_inset
+
+ blocks, that is 
+\begin_inset Formula $\bm{\bm{\theta}}=\left(\bm{\theta}_{1},\bm{\theta}_{2},\ldots,\bm{\theta}_{s}\right)^{\prime},$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+then the 
+\begin_inset Formula $j^{th}$
+\end_inset
+
+
+\begin_inset space \space{}
+\end_inset
+
+step for the Gibbs sampler is given by:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "Gibbs sampler algorithm"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Sample
+\series bold
+
+\begin_inset space \space{}
+\end_inset
+
+
+\series default
+
+\begin_inset Formula $\bm{\theta}_{1}^{j}$
+\end_inset
+
+ from 
+\begin_inset Formula $p\left(\bm{\theta}_{1}|\bm{y,}\bm{\theta}_{2}^{j-1},\bm{\theta}_{3}^{j-1},\ldots,\bm{\theta}_{s}^{j-1}\right),$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Sample 
+\begin_inset Formula $\bm{\theta}_{2}^{j}$
+\end_inset
+
+ from 
+\begin_inset Formula $p\left(\bm{\theta}_{2}|\bm{y,}\bm{\theta}_{1}^{j},\bm{\theta}_{3}^{j-1},\bm{\theta}_{4}^{j-1},\ldots,\bm{\theta}_{s}^{j-1}\right),$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Standard
+\begin_inset Formula $\vdots$
+\end_inset
+
+
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Sample 
+\begin_inset Formula $\bm{\theta}_{s}^{j}$
+\end_inset
+
+ from 
+\begin_inset Formula $p\left(\bm{\theta}_{s}|\bm{y,}\bm{\theta}_{1}^{j},\bm{\theta}_{2}^{j},\ldots,\bm{\theta}_{s-1}^{j}\right).$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+PyMCMC contains a class for Gibbs sampling.
+ To use this class the user has to define functions to sample from each
+ block of the Gibbs sampler.
+ That is a function for each of 
+\begin_inset Formula $\bm{\theta}_{i},$
+\end_inset
+
+ for 
+\begin_inset Formula $i=1,\dots,s.$
+\end_inset
+
+ The user may define their own functions, which may be defined using the
+ Metroplis based or slice sampling algorithms defined as a part of PyMCMC.
+ To initialise the class the user needs to supply: 
+\end_layout
+
+\begin_layout Enumerate
+nit - the number of iterations.
+ 
+\end_layout
+
+\begin_layout Enumerate
+burn - the burnin length of the MCMC sampler 
+\end_layout
+
+\begin_layout Enumerate
+data - a dictionary (Python data structure) containing any data, functions
+ or objects that the user would like to have access to when defining the
+ functions that sample from each block of the Gibbs sampler.
+ 
+\end_layout
+
+\begin_layout Enumerate
+blocks - a list (Python data structure) containing functions that are used
+ to sample from the full conditional posterior distributions of interest.
+ 
+\end_layout
+
+\begin_layout Standard
+Several functions are defined as a part of the class.
+ Specifically: 
+\end_layout
+
+\begin_layout Enumerate
+sampler() - Used to execute the Gibbs sampler.
+ 
+\end_layout
+
+\begin_layout Enumerate
+get_mean_cov(listname) - returns the posterior covariance matrix for the
+ parameters named in listname, where listname is a list that contains the
+ parameter names of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+get_mean_var(name) - returns the estimate from the MCMC estimation for the
+ posterior mean and variance for the parameter defined by 'name'.
+ 
+\end_layout
+
+\begin_layout Enumerate
+set_number_decimals(num) - sets the number of decimal places for the output.
+ 
+\end_layout
+
+\begin_layout Enumerate
+output(kwargs) - Used to produce output from the Gibbs sampler.
+ This function has optional arguments.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+parameters - tuple or list of output parameters the user wants printed to
+ the screen.
+ 
+\end_layout
+
+\begin_layout Itemize
+range - tuple or list of parameters that the user wants printed to screen.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+plot(blockname,kwargs) - Create summary plots of the MCMC sampler.
+ By default, a plot of the marginal posterior density, an ACF plot and a
+ trace plot are produced for each parameter in the block.
+ The plotting page is divided into a number of subfigures.
+ By default, the number of number of columns are approximately equal to
+ the square root of the total number of subfigures divided by the number
+ of different plot types.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+blockname The name of the parameter for which summary plots are to be generated.
+ 
+\end_layout
+
+\begin_layout Itemize
+kwargs - an optional dictionary containing information to control the summary
+ plots.
+ The available keys are summarised below:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+elements: a list of integers specifying which elements are to be plotted.
+ For example, if the blockname is beta and 
+\begin_inset Formula $\beta=(\beta_{0},\beta_{1}\ldots\beta_{n})$
+\end_inset
+
+ you may specify elements as 
+\family typewriter
+elements = [0,2,5].
+ 
+\family default
+ 
+\end_layout
+
+\begin_layout Itemize
+plottypes: a list giving the type of plot for each parameter.
+ By default the plots are density, acf and trace.
+ A single string is also acceptable.
+ 
+\end_layout
+
+\begin_layout Itemize
+filename: A string providing the name of an output file for the plot.
+ As a plot of a block may be made up of a number of sub figures, the output
+ name will be modified to give a separate filename for each subfigure.
+ For example, if the filename is passed as 
+\begin_inset Quotes eld
+\end_inset
+
+plot.png
+\begin_inset Quotes erd
+\end_inset
+
+, this will be interpreted as 
+\begin_inset Quotes eld
+\end_inset
+
+plot%03d.png
+\begin_inset Quotes erd
+\end_inset
+
+, and will produce the files plot001.png, plot002.png, etc.
+ The type of file is determined by the extension of the filename, but the
+ output format will also depend on the plotting backend being used.
+ If the filename does not have a suffix, a default format will be chosen
+ based on the graphics backend.
+ Most backends support png, pdf, ps, eps and svg, but see the documentation
+ for matplotlib for more details.
+ 
+\end_layout
+
+\begin_layout Itemize
+individual: A boolean option.
+ If true, then each sub plot will be done on an individual page.
+ 
+\end_layout
+
+\begin_layout Itemize
+rows: Integer specifying the number of rows of subfigures on a plotting
+ page.
+ 
+\end_layout
+
+\begin_layout Itemize
+cols: Integer specifying the number of columns of subfigures on a plotting
+ page.
+ 
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Enumerate
+CODAoutput(kwargs) - Output the results in a format suitable for reading
+ in using CODA.
+ By default, there will be two files created, coda.txt and coda.ind.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+kwargs -an optional dictionary controlling the CODA output.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+filename: A string to provide an alternative filename for the output.
+ If the file has an extension, this will form the basis for the data file,
+ and the index file will be named by replacing the extension with ind.
+ If no extension is in the filename, then two files will be created and
+ named by adding the extensions .txt and .ind to the given filename.
+ 
+\end_layout
+
+\begin_layout Itemize
+parameters: a string, a list or a dictionary to specify the items written
+ to file.
+ It can be a string such as 'alpha' or it can be a list (eg ['alpha','beta'])
+ or it can be a dictionary (eg {'alpha':{'range':[0,1,5]}}, If you supply
+ a dictionary, the key is the parameter name.
+ You can also have a range key with a range of elements.
+ If the range isn't supplied, we assume that we want all the elements.
+ You can use, for example, parameters = {'beta':{'range':[0,2,4]}} 
+\end_layout
+
+\begin_layout Itemize
+thin: integer specifying how to thin the output.
+ 
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Subsubsection
+Metropolis Hastings
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Metropolis-Hastings"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A particularly useful algorithm that is often used as a part of MCMC samplers
+ is the MH algorithm.
+ Such as algorithm is useful when we cannot easily sample directly from
+ 
+\begin_inset Formula $p(\bm{\theta}|\bm{y}),$
+\end_inset
+
+ and we have a candidate density 
+\begin_inset Formula $q(\bm{\theta}|\bm{y})=q(\bm{\theta}|\bm{y},\bm{\theta}^{j-1})$
+\end_inset
+
+, which in practice is close to 
+\begin_inset Formula $p(\bm{\theta}|\bm{y}$
+\end_inset
+
+), and can easily be sampled from.
+ The MH algorithm at the 
+\begin_inset Formula $j^{th}$
+\end_inset
+
+ iteration for 
+\begin_inset Formula $j=1,2,\dots,M$
+\end_inset
+
+ is given by the following steps:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+placement H
+wide false
+sideways false
+status open
+
+\begin_layout Enumerate
+Draw a candidate 
+\begin_inset Formula $\bm{\bm{\theta}}^{\ast}$
+\end_inset
+
+from the density 
+\begin_inset Formula $q\left(\bm{\bm{\theta}}|\bm{y},\bm{\theta}^{j-1}\right),$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Accept 
+\begin_inset Formula $\bm{\theta}^{j}=\bm{\theta}^{\ast}$
+\end_inset
+
+ with probability equal to 
+\begin_inset Formula $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\theta}^{j-1}|\bm{y}\right)}/\frac{q\left(\bm{\theta}^{\ast}|\bm{y},\bm{\theta}^{j-1}\right)}{q\left(\bm{\theta}^{j-1}|\bm{y},\bm{\theta}^{*}\right)}\right\} ,$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Otherwise accept 
+\begin_inset Formula $\bm{\theta}^{j}=\bm{\theta}^{j-1}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Metropolis Hastings
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+PyMCMC includes a class for the MH algorithm.
+ To initialise the class the user needs to define: 
+\end_layout
+
+\begin_layout Enumerate
+func - Is a user defined function that returns a sample for the parameter
+ of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+actualprob - Is a user defined function that returns the log probability
+ of the parameters of interest evaluated using the target density.
+ 
+\end_layout
+
+\begin_layout Enumerate
+probcandgprev - Is a user defined function that returns the log of 
+\begin_inset Formula $q\left(\bm{\theta}^{\ast}|\bm{y},\bm{\theta}^{j-1}\right).$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+probprevgcand - Is a user defined function that returns the log of 
+\begin_inset Formula $q\left(\bm{\theta}^{j-1}|\bm{y},\bm{\theta}^{*}\right).$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+init_theta - Initial value for the parameters of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+name - The name of the parameter of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+kwargs - Optional arguments
+\end_layout
+
+\begin_layout Itemize
+store - 'all' (default), stores every iterate for the parameter of interest.
+ This is required for certain calculations.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+'none', does not store any of the iterates fro the parameter of interest.
+ 
+\end_layout
+
+\begin_layout Itemize
+fixed_parameter - is used if the user wants to fix the parameter value that
+ is returned.
+ This is used for testing MCMC sampling schemes.
+ This command will override any other functionality.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Independent Metropolis Hastings
+\end_layout
+
+\begin_layout Standard
+The independent MH algorithm is a special case of the MH algorithm described
+ in Section 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Metropolis-Hastings"
+
+\end_inset
+
+.
+ Specifically the independent MH algorithm is applicable when we have a
+ candidate density 
+\begin_inset Formula $q(\bm{\theta}|\bm{y})=q(\bm{\theta}|\bm{y},\bm{\theta}^{j-1})$
+\end_inset
+
+.
+ The independent MH algorithm at the 
+\begin_inset Formula $j^{th}$
+\end_inset
+
+ iteration for 
+\begin_inset Formula $j=1,2,\ldots,M$
+\end_inset
+
+ is given by the following steps:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Enumerate
+Draw a candidate 
+\begin_inset Formula $\bm{\bm{\theta}}^{\ast}$
+\end_inset
+
+from the density 
+\begin_inset Formula $q\left(\bm{\bm{\theta}}|\bm{y}\right),$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Accept 
+\begin_inset Formula $\bm{\theta}^{j}=\bm{\theta}^{\ast}$
+\end_inset
+
+ with probability equal to 
+\begin_inset Formula $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\theta}^{j-1}|\bm{y}\right)}/\frac{q\left(\bm{\theta}^{\ast}|\bm{y}\right)}{q\left(\bm{\theta}^{j-1}|\bm{y}\right)}\right\} ,$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Otherwise accept 
+\begin_inset Formula $\bm{\theta}^{j}=\bm{\theta}^{j-1}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "Independent MH algorithm"
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+PyMCMC contains a class for the independent Metropolis Hastings.
+ To initialise the class the user needs to define: 
+\end_layout
+
+\begin_layout Enumerate
+func - Is a user defined function that returns a sample for the parameter
+ of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+actualprob - Is a user defined function that returns the log probability
+ of the parameters of interest evaluated using the target density.
+ 
+\end_layout
+
+\begin_layout Enumerate
+candprob - Is a user defined function that returns the log probability of
+ the parameters of interest evaluated using the canditate density.
+ 
+\end_layout
+
+\begin_layout Enumerate
+init_theta - Initial value for the parameters of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+name - The name of the parameter of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+kwargs - Optional arguments:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+store - 'all' (default), stores every iterate for the parameter of interest.
+ This is required for certain calculations.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+'none', does not store any of the iterates fro the parameter of interest.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+fixed_parameter - is used if the user wants to fix the parameter value that
+ is returned.
+ This is used for testing MCMC sampling schemes.
+ This command will override any other functionality.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Random Walk Metropolis Hastings 
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+protect
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset Newline newline
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+A useful and simple way to construct an MH candidate distribution is via
+\begin_inset Formula \begin{equation}
+\bm{\theta}^{\ast}=\bm{\theta}^{j-1}+\bm{\bm{\varepsilon}},\label{random walk candidate}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $\bm{\varepsilon}$
+\end_inset
+
+ is a random disturbance vector.
+ If 
+\begin_inset Formula $\bm{\varepsilon}$
+\end_inset
+
+ has a distribution that is symmetric about zero then the MH algorithm has
+ a specific form that is referred to as the random walk
+\series bold
+
+\begin_inset space \space{}
+\end_inset
+
+
+\series default
+MH algorithm.
+ In this case, note that the candidate density is both independent of 
+\begin_inset Formula $\bm{y}$
+\end_inset
+
+ and, due to symmetry, 
+\series bold
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\series default
+
+\begin_inset Formula $q\left(\bm{\theta}^{\ast}|\bm{\theta}^{j-1}\right)=q\left(\bm{\theta}^{j-1}|\bm{\theta}^{\ast}\right)$
+\end_inset
+
+.
+ The random walk MH algorithm at the 
+\begin_inset Formula $j^{th}$
+\end_inset
+
+ iteration for 
+\begin_inset Formula $j=1,2,\ldots,M$
+\end_inset
+
+ is given
+\emph on
+
+\begin_inset space \space{}
+\end_inset
+
+
+\emph default
+by the following steps:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Enumerate
+Draw a candidate 
+\begin_inset Formula $\bm{\theta}^{\ast}$
+\end_inset
+
+ from equation (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "random walk candidate"
+
+\end_inset
+
+) where the random disturbance 
+\begin_inset Formula $\bm{\varepsilon}$
+\end_inset
+
+ has a distribution symmetric about zero.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Accept 
+\begin_inset Formula $\bm{\theta}^{j}=\bm{\theta}^{\ast}$
+\end_inset
+
+ with probability equal to 
+\begin_inset Formula $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\theta}^{j-1}|\bm{y}\right)}\right\} $
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Otherwise accept 
+\begin_inset Formula $\bm{\theta}^{j}=\bm{\theta}^{j-1}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Random Walk Metropolis Hastings
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A typical choice for the distribution of 
+\begin_inset Formula $\bm{\bm{\varepsilon}}$
+\end_inset
+
+ is a Normal distribution,
+\emph on
+
+\begin_inset space \space{}
+\end_inset
+
+
+\emph default
+that is 
+\begin_inset Formula $\bm{\varepsilon\sim}i.i.d.$
+\end_inset
+
+ 
+\begin_inset Formula $\bm{N}\left(0,\bm{\Omega}\right)\ $
+\end_inset
+
+where the covariance matrix 
+\begin_inset Formula $\bm{\Omega}$
+\end_inset
+
+ is viewed as a tuning parameter.
+ PyMCMC includes a class for the random walk MH algorithm, named RWMH.
+ To initialise the class the user must specify: 
+\end_layout
+
+\begin_layout Enumerate
+post - Is a user defined function for the log of full conditional posterior
+ distribution for the parameters of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+csig - The scale parameter for the random walk MH algorithm.
+ 
+\end_layout
+
+\begin_layout Enumerate
+init_theta - The initial value for the parameter of interest 
+\end_layout
+
+\begin_layout Enumerate
+name - The name of the parameter of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+kwargs - Optional arguments:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+store - 'all' (default), stores every iterate for the parameter of interest.
+ This is required for certain calculations.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+'none', does not store any of the iterates fro the parameter of interest.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+fixed_parameter - is used if the user wants to fix the parameter value that
+ is returned.
+ This is used for testing MCMC sampling schemes.
+ This command will override any other functionality.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Orientational Bias Monte Carlo
+\end_layout
+
+\begin_layout Standard
+If 
+\begin_inset Formula $q\left(\bm{\theta}|\bm{y},\bm{\theta}^{j-1}\right)$
+\end_inset
+
+ is a symmetric function then a possible specification for 
+\begin_inset Formula $\lambda\left(\bm{\theta}|\bm{y},\bm{\theta}^{j-1}\right)$
+\end_inset
+
+ is 
+\begin_inset Formula $\lambda\left(\bm{\theta}|\bm{y},\bm{\theta}^{j-1}\right)=q\left(\bm{\theta}|\bm{y},\bm{\theta}^{j-1}\right)^{-1}$
+\end_inset
+
+.
+ This leads to the OBMC algorithm for the 
+\begin_inset Formula $j^{th}$
+\end_inset
+
+ iteration as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Enumerate
+Draw 
+\begin_inset Formula $L$
+\end_inset
+
+ candidates 
+\begin_inset Formula $\bm{\theta}_{l}^{\ast},$
+\end_inset
+
+ 
+\begin_inset Formula $l=1,2,\ldots,L$
+\end_inset
+
+, independently from the densities 
+\begin_inset Formula $q\left(\bm{\theta}|\bm{y},\bm{\theta}^{j-1}\right)$
+\end_inset
+
+, where 
+\begin_inset Formula $q\left(\bm{\theta}|\bm{y},\bm{\theta}^{j-1}\right)$
+\end_inset
+
+ is a symmetric function.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Construct a 
+\shape italic
+pmf
+\shape default
+ by assigning to each
+\emph on
+
+\begin_inset space \space{}
+\end_inset
+
+
+\emph default
+
+\begin_inset Formula $\bm{\theta}_{l}^{\ast},$
+\end_inset
+
+ a probability proportional to 
+\begin_inset Formula $p\left(\bm{\theta}_{l}^{\ast}|\bm{y}\right).$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Select 
+\begin_inset Formula $\bm{\theta}^{\ast\ast}$
+\end_inset
+
+ randomly from this discrete distribution.
+ 
+\end_layout
+
+\begin_layout Enumerate
+Draw 
+\begin_inset Formula $L-1$
+\end_inset
+
+ reference points 
+\begin_inset Formula $\bm{r}_{l},$
+\end_inset
+
+ 
+\begin_inset Formula $l=1,2,\ldots,L-1$
+\end_inset
+
+,
+\series bold
+
+\begin_inset space \space{}
+\end_inset
+
+
+\series default
+independently from 
+\begin_inset Formula $q\left(\bm{\theta}|\bm{y},\bm{\theta}^{\ast\ast}\right)$
+\end_inset
+
+ and set 
+\begin_inset Formula $\bm{r}_{L}=\bm{\theta}^{j-1}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Accept 
+\begin_inset Formula $\bm{\theta}^{j}=\bm{\theta}^{\ast\ast}$
+\end_inset
+
+ with probability equal to 
+\begin_inset Formula $\min\left\{ 1,\frac{\sum_{l=1}^{L}p\left(\bm{\theta}_{l}^{\ast}|\bm{y}\right)}{\sum_{l=1}^{L}p\left(\bm{r}_{l}|\bm{y}\right)}\right\} $
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Otherwise accept 
+\begin_inset Formula $\bm{\theta}^{j}=\bm{\theta}^{j-1}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+Orientational Bias Monte Carlo
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Note that an example of a possible symmetric function for
+\emph on
+
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\emph default
+
+\begin_inset Formula $q\left(\bm{\theta}|\bm{y},\bm{\theta}^{j-1}\right)$
+\end_inset
+
+ is the random walk candidate distribution used in Algorithm 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "Random Walk MH"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+PyMCMC includes a class for the OBMC algorithm.
+ The name of the class is OBMC.
+ To initialise the class the user must specify: 
+\end_layout
+
+\begin_layout Enumerate
+post - Is a user defined function for the log of full conditional posterior
+ distribution for the parameters of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+ntry - The number of candidates, 
+\begin_inset Formula $L$
+\end_inset
+
+.
+ 
+\end_layout
+
+\begin_layout Enumerate
+csig - The scale parameter.
+ It can be a float or numpy array.
+ 
+\end_layout
+
+\begin_layout Enumerate
+init_theta - The initial value for the parameter of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+**kwargs - option arguments:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+store - 'all' (default), stores every iterate for the parameter of interest.
+ This is required for certain calculations.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+'none', does not store any of the iterates fro the parameter of interest.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+fixed_parameter - is used if the user wants to fix the parameter value that
+ is returned.
+ This is used for testing MCMC sampling schemes.
+ This command will override any other functionality.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Closed form sampler
+\end_layout
+
+\begin_layout Standard
+A class is included so that the user can specify a function to sample the
+ parameters of interest when there is a closed form solution.
+ The name of the class is CFsampler.
+ To initialise the class the user must specify: 
+\end_layout
+
+\begin_layout Enumerate
+func - a user defined function that samples from the posterior distribution
+ of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+init_theta - is an intial value for the unknown parameter of interest.
+ 
+\end_layout
+
+\begin_layout Enumerate
+name - the name of the parameter of interest 
+\end_layout
+
+\begin_layout Enumerate
+**kwargs - optional parameters:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+store - 'all' (default), stores every iterate for the parameter of interest.
+ This is required for certain calculations.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+'none', does not store any of the iterates fro the parameter of interest.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+fixed_parameter - is used if the user wants to fix the parameter value that
+ is returned.
+ This is used for testing MCMC sampling schemes.
+ This command will override any other functionality.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Subsubsection
+Slice Sampler
+\end_layout
+
+\begin_layout Standard
+The slice sampler is useful for drawing values from complex univariate densities.
+ The required distribution must be proportional to one or a multiple of
+ several other functions of the variable of interest;
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula $p(\theta)\propto f_{1}(\theta)f_{2}(\theta)\cdots f_{n}(\theta).$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A set of values from the distribution is obtained by iteratively sampling
+ a new value, 
+\begin_inset Formula $\omega,$
+\end_inset
+
+ from the vertical 
+\begin_inset Quotes eld
+\end_inset
+
+slice
+\begin_inset Quotes erd
+\end_inset
+
+ between 0 and 
+\begin_inset Formula $f_{i}(\theta)$
+\end_inset
+
+, then sampling a value for the parameter 
+\begin_inset Formula $\theta$
+\end_inset
+
+ from the horizontal 
+\emph on
+slice
+\emph default
+ that consists of the set of possible values of 
+\begin_inset Formula $\theta$
+\end_inset
+
+, for which the previously sampled 
+\begin_inset Formula $\omega\le p(\theta)$
+\end_inset
+
+.
+ This leads to the slice sampler algorithm, which can be defined at iteration
+ 
+\begin_inset Formula $j$
+\end_inset
+
+ as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "Slice sampling algorithm"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+For 
+\begin_inset Formula $i=1,2,\dots,n$
+\end_inset
+
+, draw 
+\begin_inset Formula $\omega_{i}\sim\mbox{Unif}[0,f_{i}(\theta^{j-1})]$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Sample 
+\begin_inset Formula $\theta^{j}\sim\mbox{Unif}[A]$
+\end_inset
+
+ where 
+\begin_inset Formula $A=\left\{ \theta:f_{1}(\theta)\ge\omega_{1}\in f_{2}(\theta)\ge\omega_{2}\in\cdots\in f_{n}(\theta)\ge\omega_{n}\right\} $
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+In cases where the density of interest is not unimodal, determining the
+ exact set 
+\begin_inset Formula $A$
+\end_inset
+
+ is not necessarily straightforward.
+ We use the 
+\emph on
+stepping out
+\emph default
+ algorithm of 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "Radford2003"
+
+\end_inset
+
+ to obtain the set 
+\begin_inset Formula $A$
+\end_inset
+
+.
+ This algorithm is applied to each of the 
+\begin_inset Formula $n$
+\end_inset
+
+ slices to obtain the joint maximum and minimum of the slice.
+ This results in a sampling interval that is designed to sample a new 
+\begin_inset Formula $\theta^{j}$
+\end_inset
+
+ in the neighbourhood of 
+\begin_inset Formula $\theta^{j-1}$
+\end_inset
+
+ and may include values outside the permissible range of 
+\begin_inset Formula $A$
+\end_inset
+
+.
+ The user is required to define an estimated typical slice size (
+\begin_inset Formula $ss$
+\end_inset
+
+), which is the width of set 
+\begin_inset Formula $A$
+\end_inset
+
+, along with an integer value (
+\begin_inset Formula $N$
+\end_inset
+
+), which limits the width of any slice to 
+\begin_inset Formula $N*ss$
+\end_inset
+
+.
+ The stepping out algorithm is as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "Stepping Out algorithm"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+Initiate lower (LB) and upper (UB) bounds for slice defined by set 
+\begin_inset Formula $A$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+\begin_inset Formula $U\sim\mbox{Unif}(0,1)$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $LB=\theta^{j-1}-ss*U$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $UB=LB+ss$
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Sample 
+\begin_inset Formula $V\sim\mbox{Unif}(0,1)$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Set 
+\begin_inset Formula $J=\mbox{Floor}(N*V)$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Set 
+\begin_inset Formula $Z=(N-1)-J$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Repeat while 
+\begin_inset Formula $J>0$
+\end_inset
+
+ and 
+\begin_inset Formula $\omega_{i}<f_{i}(LB)\forall i$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+LB = LB - 
+\begin_inset Formula $ss$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+\begin_inset Formula $J=J-1$
+\end_inset
+
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Repeat while 
+\begin_inset Formula $Z>0$
+\end_inset
+
+ and 
+\begin_inset Formula $\omega_{i}<f_{i}(UB)\forall i$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+UB = UB + ss 
+\end_layout
+
+\begin_layout Itemize
+Z = Z - 1 
+\end_layout
+
+\end_deeper
+\begin_layout Enumerate
+Sample 
+\begin_inset Formula $\theta^{j}\sim\mbox{Unif}(LB,UB)$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Standard
+We accept the value of 
+\begin_inset Formula $\theta^{j}$
+\end_inset
+
+ if it is drawn from a range 
+\begin_inset Formula $(LB,UB)\in A$
+\end_inset
+
+.
+ If it is outside the allowable range due to the interval 
+\begin_inset Formula $(LB,UB)$
+\end_inset
+
+ being larger in range then the set 
+\begin_inset Formula $A$
+\end_inset
+
+ we then invoke a shrinkage technique to resample 
+\begin_inset Formula $\theta^{j}$
+\end_inset
+
+ and improved the sampling efficiency of future draws, until an acceptable
+ 
+\begin_inset Formula $\theta^{j}$
+\end_inset
+
+ is drawn.
+ The shrinkage algorithm is implemented as follows, repeating this algorithm
+ until exit conditions are met.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float algorithm
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset CommandInset label
+LatexCommand label
+name "Shrinkage algorithm"
+
+\end_inset
+
+ 
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $U\sim\mbox{Unif}(0,1)$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+\begin_inset Formula $\theta^{j}=LB+U*(UB-LB)$
+\end_inset
+
+
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+If 
+\begin_inset Formula $\omega_{i}<f_{i}(\omega_{i})\forall i$
+\end_inset
+
+, accept 
+\begin_inset Formula $\theta^{j}$
+\end_inset
+
+ and exit 
+\end_layout
+
+\begin_layout Itemize
+else if 
+\begin_inset Formula $\theta^{j}<\theta^{j-1}$
+\end_inset
+
+, set 
+\begin_inset Formula $LB=\theta^{j}$
+\end_inset
+
+ and return to step 1 
+\end_layout
+
+\begin_layout Itemize
+else set 
+\begin_inset Formula $UB=\theta^{j}$
+\end_inset
+
+ and return to step 1 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+PyMCMC includes a class for the slice sampler named 
+\emph on
+SliceSampler.
+ 
+\emph default
+To initialise the class the user must define: 
+\end_layout
+
+\begin_layout Enumerate
+func - a 
+\begin_inset Formula $k-$
+\end_inset
+
+dimensional list containing the set of log functions.
+ 
+\end_layout
+
+\begin_layout Enumerate
+init_theta - float used to initialise the slice sampler.
+ 
+\end_layout
+
+\begin_layout Enumerate
+ssize - as user defined value for the typical slice size.
+ 
+\end_layout
+
+\begin_layout Enumerate
+sN - is an integer limiting slice size to sN*ssize 
+\end_layout
+
+\begin_layout Enumerate
+**kwargs - optional arguments:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+**kwargs - optional parameters:
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+store - 'all' (default), stores every iterate for the parameter of interest.
+ This is required for certain calculations.
+\end_layout
+
+\begin_deeper
+\begin_layout Itemize
+'none', does not store any of the iterates fro the parameter of interest.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Itemize
+fixed_parameter - is used if the user wants to fix the parameter value that
+ is returned.
+ This is used for testing MCMC sampling schemes.
+ This command will override any other functionality.
+ 
+\end_layout
+
+\end_deeper
+\end_deeper
+\begin_layout Subsection
+Bayesian Regression
+\end_layout
+
+\begin_layout Standard
+Many interesting models are partly linear for a subset of the unknown parameters.
+ As such drawing from the full conditional posterior distribution for the
+ associated parameters may be equivalent to sampling the unknown parameters
+ in standard linear regression model.
+ Consequently, two classes are built into PyMCMC to deal with this case.
+\end_layout
+
+\begin_layout Standard
+For the standard linear regression model, assume the 
+\begin_inset Formula $\left(n\times1\right)$
+\end_inset
+
+ observational vector, 
+\begin_inset Formula $\bm{y},$
+\end_inset
+
+ is generated according to
+\begin_inset Formula \begin{equation}
+\bm{y}=\bm{X}\bm{\beta}+\bm{\varepsilon};\,\,\,\bm{\varepsilon}\sim N(\bm{0},\sigma^{2}\bm{I}),\label{eq:regression}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $\bm{X}$
+\end_inset
+
+ is an 
+\begin_inset Formula $(n\times k)$
+\end_inset
+
+ matrix of regressors, 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ is a 
+\begin_inset Formula $\left(k\times1\right)$
+\end_inset
+
+ vector of regression coefficients and 
+\begin_inset Formula $\bm{\varepsilon}$
+\end_inset
+
+ is a normally distributed random variable with a mean vector 
+\begin_inset Formula $\bm{0}$
+\end_inset
+
+ and an 
+\begin_inset Formula $\left(n\times n\right)$
+\end_inset
+
+ covariance matrix, 
+\begin_inset Formula $\sigma^{2}\bm{I}.$
+\end_inset
+
+ Assuming that both 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ and 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ are unknown then the posterior distribution for (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:regression"
+
+\end_inset
+
+) is given by
+\begin_inset Formula \begin{equation}
+p(\bm{\beta},\sigma|\bm{y},\bm{X})\propto p(\bm{y}|\bm{X},\bm{\beta},\sigma)\times p(\bm{\beta},\sigma),\label{eq:post regression}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula \begin{equation}
+p(\bm{y}|\bm{X},\bm{\beta},\sigma)\propto\sigma^{-n}\exp\left\{ -\frac{1}{2\sigma^{2}}\left(\bm{y}-\bm{X}\bm{\beta}\right)^{T}\left(\bm{y}-\bm{X}\bm{\beta}\right)\right\} ,\label{eq:likelihood regression}\end{equation}
+
+\end_inset
+
+ is the joint 
+\emph on
+pdf 
+\emph default
+for 
+\begin_inset Formula $\bm{y}$
+\end_inset
+
+ given 
+\begin_inset Formula $\bm{X},$
+\end_inset
+
+ 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ and 
+\begin_inset Formula $\sigma,$
+\end_inset
+
+
+\emph on
+ 
+\emph default
+and
+\emph on
+ 
+\begin_inset Formula $p(\bm{\beta},\sigma)$
+\end_inset
+
+ 
+\emph default
+denotes the joint prior 
+\emph on
+pdf
+\emph default
+ for 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ and 
+\begin_inset Formula $\sigma.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A class named 
+\emph on
+RegSampler 
+\emph default
+is defined to sample from the posterior distribution in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:post regression"
+
+\end_inset
+
+).
+ One of four alternative priors may be used in the specification of the
+ model.
+ The default choice is Jeffrey's prior.
+ Denote the full set of unknown parameters as 
+\begin_inset Formula $\bm{\theta}=(\bm{\beta}^{T},\sigma)^{T},$
+\end_inset
+
+ then Jeffrey's prior is defined such that 
+\begin_inset Formula \begin{equation}
+p(\bm{\theta})\propto|I(\bm{\theta})|^{-1/2},\label{eq:Jeffrey's Prior}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $I(\bm{\theta})$
+\end_inset
+
+ is the Fisher information matrix for 
+\begin_inset Formula $\bm{\theta}.$
+\end_inset
+
+ Three alternative informative prior specifications are allowed.
+ In particular, the normal-gamma prior, the normal-inverted gamma prior
+ and Zelner's g-prior.
+ The normal-gamma prior is specified such that
+\begin_inset Formula \begin{equation}
+\bm{\beta}|\kappa\sim N(\bm{\underline{\beta}},\underline{\bm{V}}^{-1}),\,\,\,\kappa\sim G\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right),\label{eq:Normal Gamma}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $\kappa=\sigma^{-2}$
+\end_inset
+
+ and 
+\begin_inset Formula $\underline{\beta,}$
+\end_inset
+
+ 
+\begin_inset Formula $\underline{\bm{V}},$
+\end_inset
+
+ 
+\begin_inset Formula $\underline{\nu}$
+\end_inset
+
+ and 
+\begin_inset Formula $\underline{S}$
+\end_inset
+
+ are prior hyperparameters, which take values that are set by the user.
+ For the normal-gamma prior 
+\emph on
+RegSampler 
+\emph default
+produces estimates for
+\emph on
+ 
+\begin_inset Formula $\left(\bm{\beta}^{T},\kappa\right)^{T}$
+\end_inset
+
+ 
+\emph default
+rather than 
+\begin_inset Formula $\left(\bm{\beta}^{T},\sigma\right),$
+\end_inset
+
+ which is the case for the other priors.
+ The normal-inverted gamma prior is specified such that
+\begin_inset Formula \begin{equation}
+\bm{\beta}|\sigma\sim N(\bm{\underline{\beta}},\underline{\bm{V}}^{-1}),\,\,\,\sigma\sim IG\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right),\label{eq:Normal Inverted Gamma}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $\underline{\beta,}$
+\end_inset
+
+ 
+\begin_inset Formula $\underline{\bm{V}},$
+\end_inset
+
+ 
+\begin_inset Formula $\underline{\nu}$
+\end_inset
+
+ and 
+\begin_inset Formula $\underline{S}$
+\end_inset
+
+ are prior hyperparameters, which take values that are set by the user.
+ Zelner's g-prior is specified such that
+\begin_inset Formula \begin{equation}
+\bm{\beta}|\sigma\sim N\left(\underline{\bm{\beta}},g\sigma^{2}\left(X^{T}X\right)^{-1}\right),\,\,\, p(\sigma)\propto\sigma^{-1},\label{eq:g-prior}\end{equation}
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+where 
+\begin_inset Formula $\bm{\underline{\beta}}$
+\end_inset
+
+ and 
+\begin_inset Formula $g$
+\end_inset
+
+ are hyperameters, with values that are specified by the user.
+ To initialise the class 
+\emph on
+RegSampler
+\emph default
+ the user must specify: 
+\end_layout
+
+\begin_layout Enumerate
+yvec - A one dimensional numpy array containg the data.
+ 
+\end_layout
+
+\begin_layout Enumerate
+xmat - A two dimensional numpy array containg the regresssors.
+ 
+\end_layout
+
+\begin_layout Enumerate
+**kwargs - optional arguments:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+prior - a list containg the name of the prior and the corresponding hyperparamet
+ers.
+ Examples: prior=['normal_gamma', betaubar, Vubar, nuubar, Subar], prior=['norma
+l_inverted_gamma,betaubar, Vubar,nuubar, Subar] and prior=['g_prior', betaubar,
+ g].
+ If none of these options are chosen or they are miss-specified then the
+ default prior will be Jeffrey's prior.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
+\emph on
+RegSampler 
+\emph default
+contains several functions that may be of interest to the user.
+ In particular: 
+\end_layout
+
+\begin_layout Enumerate
+sample() - returns a sample of 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ from the joint posterior distribution for the normal-inverted gamma prior,
+ Jeffrey's prior and Zellner's g-prior.
+ If the normal-gamma prior is specified then sample() returns 
+\begin_inset Formula $\kappa$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{\beta}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+UpdateYvec(yvec) - Updates yvec in 
+\emph on
+RegSampler
+\emph default
+.
+ This is often useful when the class is being used as a part of the MCMC
+ sampling scheme.
+ 
+\end_layout
+
+\begin_layout Enumerate
+UpdateXmat(xmat) - Updates xmat in 
+\emph on
+RegSampler
+\emph default
+.
+ This is often useful when the class is being used as a part of the MCMC
+ sampling scheme.
+ 
+\end_layout
+
+\begin_layout Standard
+In MCMC sampling schemes it is common that for a subset of the unknown parameter
+s of interest the full conditional posterior distribution will correspond
+ to that a linear regression model, where the scale parameter is known.
+ For the linear regression model specified in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:regression"
+
+\end_inset
+
+) the posterior distribution for the case that 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ is known is as follows
+\begin_inset Formula \begin{equation}
+p(\bm{\beta})\propto p(\bm{y}|\bm{X},\bm{\beta},\sigma)\times p(\bm{\beta}),\label{eq:post_condbeta}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $p(\bm{y}|\bm{X},\bm{\beta},\sigma)$
+\end_inset
+
+ is described in 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:likelihood regression"
+
+\end_inset
+
+ and 
+\begin_inset Formula $p(\bm{\beta})$
+\end_inset
+
+ is the prior 
+\emph on
+pdf
+\emph default
+ for 
+\begin_inset Formula $\bm{\beta}.$
+\end_inset
+
+ To sample from (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:post_condbeta"
+
+\end_inset
+
+) a class named 
+\emph on
+CondBetaRegSampler
+\emph default
+ can be used.
+ The user may specify one of three alternative priors.
+ The default prior is Jeffrey's prior, which for
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ is simply a flat prior over the real number line.
+ A normally distributed prior for 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ is another option and can be specified such that
+\begin_inset Formula \[
+\bm{\beta}\sim N\left(\underline{\beta},\bm{V}^{-1}\right).\]
+
+\end_inset
+
+ The user may also specify a their 
+\emph on
+a priori
+\emph default
+ beliefs using Zellner's g-prior, where
+\begin_inset Formula \[
+\bm{\beta}|\sigma\sim N\left(\bm{\beta},g\sigma^{2}\bm{X}^{T}\bm{X}\right).\]
+
+\end_inset
+
+ To intialise the class the user must specify: 
+\end_layout
+
+\begin_layout Enumerate
+yvec - a one dimensional numpy array containing the data.
+ 
+\end_layout
+
+\begin_layout Enumerate
+xmat - a two dimensional numpy array containing the regressors.
+ 
+\end_layout
+
+\begin_layout Enumerate
+**kwargs - optional arguments:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+prior - a list containing the name of the prior and the corresponding hyperparam
+eters.
+ Examples: prior=['normal', betaubar, Vubar] or ['g_prior', betaubar, g].
+ If none of these options are chosen or they are miss-specified then the
+ default prior will be Jeffrey's prior 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+
+\emph on
+BayesRegression 
+\emph default
+also contains several functions that may be of interest to the user.
+ Specifically, 
+\end_layout
+
+\begin_layout Enumerate
+- marginal posterior_mean() - returns the marginal posterior mean from the
+ regression analysis.
+ 
+\end_layout
+
+\begin_layout Standard
+
+\emph on
+CondBetaRegSampler 
+\emph default
+contains several function that may be of interest to the user.
+ In particular: 
+\end_layout
+
+\begin_layout Enumerate
+sample() - returns a sample of 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ from the joint posterior distribution for the normal-inverted gamma prior,
+ Jeffrey's prior and Zellner's g-prior.
+ If the normal-gamma prior is specified then sample() returns 
+\begin_inset Formula $\kappa$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{\beta}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+UpdateYvec(yvec) - Updates yvec in 
+\emph on
+CondRegSampler
+\emph default
+.
+ This is often useful when the class is being used as a part of the MCMC
+ sampling scheme.
+ 
+\end_layout
+
+\begin_layout Enumerate
+UpdateXmat(xmat) - Updates xmat in 
+\emph on
+CondRegSampler
+\emph default
+.
+ This is often useful when the class is being used as a part of the MCMC
+ sampling scheme.
+ 
+\end_layout
+
+\begin_layout Standard
+As many Bayesian models contain linear components with unknown scale parameters
+ a class has been specified, named 
+\emph on
+CondScaleSampler
+\emph default
+, which can be used to individually sample scale parameters from their posterior
+ distributions.
+ In particular, we wish to sample from 
+\begin_inset Formula \begin{equation}
+p(\sigma|\bm{y},\bm{\theta}),\label{eq:posterior sigma}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $\bm{\theta}$
+\end_inset
+
+ is the set of unknown parameters of interest excluding 
+\begin_inset Formula $\sigma.$
+\end_inset
+
+ The user may choose to use one of three priors.
+ The Jeffrey's prior, which for 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ given the posterior in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:posterior sigma"
+
+\end_inset
+
+) is as follows 
+\begin_inset Formula \[
+p(\sigma)\propto\frac{1}{\sigma}.\]
+
+\end_inset
+
+ Another option is to specify an inverted-gamma prior, such that
+\begin_inset Formula \[
+\sigma\sim IG\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).\]
+
+\end_inset
+
+ Alternatively, the user may specify a gamma prior for 
+\begin_inset Formula $\kappa=\frac{1}{\sigma^{2}},$
+\end_inset
+
+ where
+\begin_inset Formula \[
+\kappa\sim G\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).\]
+
+\end_inset
+
+ To initialise the class 
+\emph on
+CondScaleSamper
+\emph default
+ the user may first specify: 
+\end_layout
+
+\begin_layout Enumerate
+**kwargs - options arguments:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+prior - list containg the name of the and the corresponding hyperparameters.
+ Examples: prior=['gamma',nuubar,subar] or ['inverted-gamma', nuubar, subar].
+ If no prior is specified the Jeffrey's prior is used.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+PyMCMC also includes two other classes that can be used for the direct analysis
+ of the linear regression model.
+ In particular, a class called 
+\emph on
+BayesRegression
+\emph default
+, which can be used for Bayesian analysis of the standard linear regression
+ model, which for certain priors does not require MCMC methods as closed
+ form solutions are available.
+ The other class, called 
+\emph on
+StochasticSearch
+\emph default
+ uses the stochastic search algorithm, which can be used in conjunction
+ with the Gibbs sampler for variable selection.
+\end_layout
+
+\begin_layout Standard
+Essentially, 
+\emph on
+BayesRegression
+\emph default
+ is used to produce estimates of 
+\begin_inset Formula $(\bm{\beta}^{T},\sigma)^{T},$
+\end_inset
+
+ where the data, 
+\begin_inset Formula $\bm{y},$
+\end_inset
+
+ is generated according to the standard linear regression model in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:regression"
+
+\end_inset
+
+).
+ The difference between 
+\emph on
+RegSampler 
+\emph default
+and 
+\emph on
+BayesRegression
+\emph default
+ is 
+\emph on
+RegSampler
+\emph default
+ is designed to be used in conbination with the Gibbs sampling or Metropolis
+ based classes, where as 
+\emph on
+BayesRegresssion 
+\emph default
+is designed to be used indepently.
+ Specifically, 
+\emph on
+BayesRegression
+\emph default
+ is for the direct analysis of the linear regression model, which given
+ either Jeffrey's prior, the normal-gamma prior, the normal-inverted-gamma
+ prior and Zellner's g-prior a closed form solution is available.
+\end_layout
+
+\begin_layout Standard
+To initialise 
+\emph on
+BayesRegression
+\emph default
+ the user must specify: 
+\end_layout
+
+\begin_layout Enumerate
+yvec - A one dimensional numpy array containing the dependent variable.
+ 
+\end_layout
+
+\begin_layout Enumerate
+xmat - A two dimensional numpy array containing the regressors.
+ 
+\end_layout
+
+\begin_layout Enumerate
+**kwargs - optional arguments:
+\end_layout
+
+\begin_deeper
+\begin_layout Enumerate
+prior - a list containg the name of the prior and the corresponding hyperparamet
+ers.
+ Examples: prior=['normal_gamma', betaubar, Vubar, nuubar, Subar], prior=['norma
+l_inverted_gamma,betaubar, Vubar,nuubar, Subar] and prior=['g_prior', betaubar,
+ g].
+ If none of these options are chosen or they are miss-specified then the
+ default prior will be Jeffrey's prior.
+ 
+\end_layout
+
+\end_deeper
+\begin_layout Standard
+The stochastic search algorithm can be used for variable selection in the
+ linear regression model.
+ Given a set of 
+\begin_inset Formula $k$
+\end_inset
+
+ possible regressors there is 
+\begin_inset Formula $2^{k}$
+\end_inset
+
+ models to choose from.
+ Essentially, the stochastic search algorithm, as proposed by George and
+ McCulloch (1993), uses the Gibbs sampler to select a set of 'most likely'
+ models.
+ The stochastic search algorithm is implemented in the class 
+\emph on
+StochasticSearch
+\emph default
+.
+ The specific implementation follows 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "MarinRobert2007"
+
+\end_inset
+
+.
+ The algorithm introduces the vector 
+\begin_inset Formula $\bm{\gamma},$
+\end_inset
+
+ which is used to select the explanatory variables that are to be included
+ in the model.
+ In particular, 
+\begin_inset Formula $\bm{\gamma}$
+\end_inset
+
+ is defined to be a vector of order 
+\begin_inset Formula $k$
+\end_inset
+
+ of ones and zeros, whereby the inclusion of the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+regressor will imply that the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+element of 
+\begin_inset Formula $\bm{\gamma}$
+\end_inset
+
+ is a one, whilst the exclusion of the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+ regressor implies that the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+ element will be zero.
+ It is assumed that the first element of the design matrix is always included
+ and should typically be a collumn of ones, which is used to represent the
+ constant or intercept in the regression.
+ The algorithm specified to sample 
+\begin_inset Formula $\bm{\gamma}$
+\end_inset
+
+ is a single move Gibbs sampling scheme; for further details see 
+\begin_inset CommandInset citation
+LatexCommand cite
+key "MarinRobert2007"
+
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Standard
+Currently, to use the class 
+\emph on
+StochasticSearch 
+\emph default
+the user must specify their 
+\emph on
+apriori
+\emph default
+ beliefs that the unknown parameters of interest, 
+\begin_inset Formula $(\bm{\beta}^{T},\sigma)^{T},$
+\end_inset
+
+ is specified according Zellner's g-prior, which is described in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:g-prior"
+
+\end_inset
+
+).
+ 
+\emph on
+Stochastic Search 
+\emph default
+is designed to be used in conjunction with the Gibbs sampling class.
+ To initialise 
+\emph on
+StochasticSearch
+\emph default
+ the user must specify: 
+\end_layout
+
+\begin_layout Enumerate
+yvec - A one dimensional numpy array containing the dependent variable.
+ 
+\end_layout
+
+\begin_layout Enumerate
+xmat - A two dimensional numpy array containing the regressors.
+ 
+\end_layout
+
+\begin_layout Enumerate
+prior - A list with the following structure [betaubar, g].
+\end_layout
+
+\begin_layout Standard
+There are two functions that are members of 
+\emph on
+StochasticSearch
+\emph default
+ that may be of use to the users.
+ In particular
+\end_layout
+
+\begin_layout Enumerate
+sample_gamma(store, gamvec) - returns a sample of 
+\begin_inset Formula $\bm{\gamma}.$
+\end_inset
+
+ The arguments to pass into 
+\end_layout
+
+\begin_layout Section
+Empirical Illustrations
+\end_layout
+
+\begin_layout Subsection
+Example 1: Linear Regression Model: Variable selection and estimation
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+ observation 
+\begin_inset Formula $y_{i},$
+\end_inset
+
+ for 
+\begin_inset Formula $i=1,2,\dots,n,$
+\end_inset
+
+ is generated from
+\begin_inset Formula \[
+y_{i}=\mathbf{x}_{i}^{T}\bm{\beta}+\varepsilon_{i},\]
+
+\end_inset
+
+ where 
+\begin_inset Formula $\bm{x}_{i}^{T}$
+\end_inset
+
+is the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+row of the 
+\begin_inset Formula $\left(n\times k\right)$
+\end_inset
+
+ matrix 
+\begin_inset Formula $\bm{X},$
+\end_inset
+
+ 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ is a 
+\begin_inset Formula $(k\times1)$
+\end_inset
+
+ vector of regression coefficients and 
+\begin_inset Formula $\varepsilon_{i}$
+\end_inset
+
+ is independently indentically distributed (iid) following a normal distribution
+, with a mean of 0 and a variance of 
+\begin_inset Formula $\sigma^{2}.$
+\end_inset
+
+ The data set of interest contains 159 regressors.
+ To select we can use the stochastic search algorithm.
+ This is implemented as follows:
+\end_layout
+
+\begin_layout Subsubsection
+Example Code
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+# example code for variable selection in regression
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+from numpy import loadtxt, hstack, ones, random, zeros, asfortranarray,
+ log
+\end_layout
+
+\begin_layout Plain Layout
+
+from mcmc import Gibbs, CFsampler
+\end_layout
+
+\begin_layout Plain Layout
+
+from regtools import StochasticSearch, BayesRegression
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def samplegamma(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function that samples vector of indicators"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    return store['SS'].sample_gamma(store)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# main program
+\end_layout
+
+\begin_layout Plain Layout
+
+random.seed(12346)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# loads data
+\end_layout
+
+\begin_layout Plain Layout
+
+data = loadtxt('yld2.txt')
+\end_layout
+
+\begin_layout Plain Layout
+
+yvec = data[:, 0]
+\end_layout
+
+\begin_layout Plain Layout
+
+xmat = data[:, 1:20]
+\end_layout
+
+\begin_layout Plain Layout
+
+# xmat = data[:, 1:data.shape[1]]
+\end_layout
+
+\begin_layout Plain Layout
+
+xmat = hstack([ones((xmat.shape[0], 1)), xmat])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+"""data is a dictionary whose elements are accessible from the functions
+\end_layout
+
+\begin_layout Plain Layout
+
+in the Gibbs sampler"""
+\end_layout
+
+\begin_layout Plain Layout
+
+data ={'yvec':yvec, 'xmat':xmat}
+\end_layout
+
+\begin_layout Plain Layout
+
+prior = [0., 100.]
+\end_layout
+
+\begin_layout Plain Layout
+
+SSVS = StochasticSearch(yvec, xmat, prior);
+\end_layout
+
+\begin_layout Plain Layout
+
+data['SS'] = SSVS
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+"""initialise gamma"""
+\end_layout
+
+\begin_layout Plain Layout
+
+initgamma = zeros(xmat.shape[1], dtype ='i')
+\end_layout
+
+\begin_layout Plain Layout
+
+initgamma[0] = 1
+\end_layout
+
+\begin_layout Plain Layout
+
+simgam = CFsampler(samplegamma, initgamma, 'gamma', store ='none')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# initialise class for Gibbs samper
+\end_layout
+
+\begin_layout Plain Layout
+
+GS = Gibbs(20000, 5000, data, [simgam])
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.sampler()
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.output(filename ='vs.txt')
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.output(custom = SSVS.output, filename='SSVS.out')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#produce regression output from the most probable model
+\end_layout
+
+\begin_layout Plain Layout
+
+g_prior=['g_prior', 0., 100.]
+\end_layout
+
+\begin_layout Plain Layout
+
+txmat=SSVS.extract_regressors(0)
+\end_layout
+
+\begin_layout Plain Layout
+
+breg=BayesRegression(yvec,txmat,prior=g_prior)
+\end_layout
+
+\begin_layout Plain Layout
+
+breg.output(filename='SSVS1.out')
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The code is organised so that the user defined functions are at the top
+ and the main program is at the bottom.
+ Essentially the user defined functions that are called from the Gibbs sampler,
+ for which there is one in this case, all take the argument 
+\emph on
+store
+\emph default
+, which is a dictionary (Python data structure) that is passed to all functions
+ that are called from the Gibbs sampler.
+ The purpose of 
+\emph on
+store
+\emph default
+ is that it contains all the data required to define functions that sample
+ from or are used in the evaluation of the posterior distribution.
+ For example in line 10 store['SS'] contains the class instance for 
+\emph on
+StochasticSearch
+\emph default
+.
+ Essentially, any information that is stored in the dictionary 
+\emph on
+data
+\emph default
+, which is defined on line 29 and augmented to include the class instance
+ for 
+\emph on
+StochasticSeach
+\emph default
+ defined on line 32 can be accessed from the dictionary 
+\emph on
+store
+\emph default
+.
+ Note that the dictionary 
+\emph on
+data
+\emph default
+ is an argument that is used in the initialisation of the 
+\emph on
+Gibbs
+\emph default
+ class on line 40.
+ Apart from the information stored in 
+\emph on
+data,
+\emph default
+ the value of the previous iterate for each block of the Gibbs scheme is
+ also a component of the dictionary store.
+ The key for the dictionary in each case is defined in the initialisation
+ of the class used to sample the block relating to the parameter of interest.
+ For example, on line 37 the class instance 
+\emph on
+simgam
+\emph default
+ of 
+\emph on
+CFsampler
+\emph default
+ is defined to sample 
+\begin_inset Formula $\bm{\gamma},$
+\end_inset
+
+ whereby the third argument, 'gamma', defines the key for the dictionary
+ that is required when the user wants to access the value of 
+\begin_inset Formula $\bm{\gamma}$
+\end_inset
+
+ at the previous iteration.
+ This feature of PyMCMC is perhaps better seen in the proceeding examples.
+ A brief description of the code is as follows:
+\end_layout
+
+\begin_layout Itemize
+Lines 3-6 import the classes and functions that are required in this example
+\end_layout
+
+\begin_layout Itemize
+Lines 7-9 defines the function that is used to sample 
+\begin_inset Formula $\bm{\gamma}.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+The main program starts at line 12.
+\end_layout
+
+\begin_layout Itemize
+Lines 15-19 are used to load the data, from which arrays 
+\begin_inset Formula $\bm{y}$
+\end_inset
+
+ (yvec) and 
+\begin_inset Formula $\bm{X}$
+\end_inset
+
+ (xmat) are constructed.
+\end_layout
+
+\begin_layout Itemize
+Lines 23-26 construct the dictionary 
+\emph on
+data
+\emph default
+, which includes 
+\emph on
+yvec, xmat
+\emph default
+ and the class instance of 
+\emph on
+Stochastic Search
+\emph default
+.
+\end_layout
+
+\begin_layout Itemize
+Line 31 defines the class instance 
+\emph on
+simgam
+\emph default
+, which defines the block of the MCMC scheme to sample 
+\begin_inset Formula $\bm{\gamma}$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Itemize
+Line 34 defines the class instance of 
+\emph on
+Gibbs
+\emph default
+.
+ Note that the Gibbs sampler will run for 20000 iterations of which the
+ first 5000 iterations will constitute the burnin and be discarded for the
+ calculations in the output.
+ The Gibbs sampler contains one block, which is defined by the class instance
+ 
+\emph on
+simgam
+\emph default
+.
+\end_layout
+
+\begin_layout Itemize
+Line 35 runs the Gibbs sampler.
+\end_layout
+
+\begin_layout Itemize
+Line 36 produces the standard output for the Gibbs sampler, which is saved
+ in the file 'vs.txt'.
+\end_layout
+
+\begin_layout Itemize
+Line 37 produces the custom output from the Stochastic Search class and
+ is saved in the file 'SSVS.out'.
+\end_layout
+
+\begin_layout Itemize
+Lines 40-43 produces regression output, from a Bayesian regression analysis.
+ The analysis output is saved in the file 'SSVS1.out'.
+\end_layout
+
+\begin_layout Subsubsection
+Analysis
+\end_layout
+
+\begin_layout Standard
+The data used in this example are a response of crop yield modelled using
+ various chemical measurements from the soil.
+ As the results of the chemical analysis of soil cores are done in a laboratory,
+ many input variables are available (30) and the data analyst would like
+ to determine which variables are most appropriate to use in the model.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+Most likely models ordered by decreasing posterior probability
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+probability | model       
+\end_layout
+
+\begin_layout Plain Layout
+
+------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+0.09353333  | 0,12        
+\end_layout
+
+\begin_layout Plain Layout
+
+0.0504      | 0,11,12     
+\end_layout
+
+\begin_layout Plain Layout
+
+0.026       | 0,10,12     
+\end_layout
+
+\begin_layout Plain Layout
+
+0.01373333  | 0,9,12      
+\end_layout
+
+\begin_layout Plain Layout
+
+0.01353333  | 0,8,12      
+\end_layout
+
+\begin_layout Plain Layout
+
+0.013       | 0,4,12      
+\end_layout
+
+\begin_layout Plain Layout
+
+0.01293333  | 0,12,19     
+\end_layout
+
+\begin_layout Plain Layout
+
+0.01206667  | 0,7,12      
+\end_layout
+
+\begin_layout Plain Layout
+
+0.01086667  | 0,11,12,17  
+\end_layout
+
+\begin_layout Plain Layout
+
+0.01086667  | 0,12,17     
+\end_layout
+
+\begin_layout Plain Layout
+
+------------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The MCMC analysis is conduncted using 20000 iterations, of which the first
+ 5000 are discarded.
+ The estimation takes 10.35 seconds in total.
+ The results indicate that a model containing variable 12 along with a constant
+ is the most likely (prob = 0.09).
+ Furthermore, variable 12 is contained in each of the 10 most likely models,
+ indicating its strong association with crop yield.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\begin_layout Plain Layout
+
+          ---------------------------------------------------          
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                   Bayesian Linear Regression Summary                  
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                               Jeffrey's                               
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+          ---------------------------------------------------          
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                    mean          sd         2.5%       97.5%
+\end_layout
+
+\begin_layout Plain Layout
+
+     beta[0]     -0.1266     0.04472      -0.2157    -0.03753
+\end_layout
+
+\begin_layout Plain Layout
+
+     beta[1]      0.7663    0.009509       0.7473      0.7852
+\end_layout
+
+\begin_layout Plain Layout
+
+       sigma      0.1621     0.01344          NA         NA
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+loglikelihood = 32.59       
+\end_layout
+
+\begin_layout Plain Layout
+
+marginal likelihood = nan         
+\end_layout
+
+\begin_layout Plain Layout
+
+BIC  = -73.88  
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The parameter associated with variable 12, 
+\begin_inset Formula $\hat{\beta_{1}}$
+\end_inset
+
+, is estimated as a positive value, 0.7663, with a 95% credible interval
+ [0.7473, 0.7852].
+ We note that zero is not contained in the credible interval, hence the
+ crop yield increases with higher values of variable 12.
+ The marginal posterior densities (Figure 1) illustrate that this effect
+ is far from zero.
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename examplevs.eps
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Example 2: Log-linear Model
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Example-2:-Log-linear"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+ observation 
+\begin_inset Formula $y_{i}$
+\end_inset
+
+, for 
+\begin_inset Formula $i=1,2,\dots,n$
+\end_inset
+
+, is generated as follows
+\begin_inset Formula \begin{equation}
+p(y_{i}|\mu_{i})=\frac{\mu_{i}^{y_{i}}\exp(-\mu_{i})}{\mu_{i}!},\label{eq:observation equation log linear model}\end{equation}
+
+\end_inset
+
+ with 
+\begin_inset Formula \[
+\log(\mu_{i})=\bm{x}_{i}^{T}\bm{\beta},\]
+
+\end_inset
+
+ where 
+\begin_inset Formula $\bm{x}_{i}^{T}$
+\end_inset
+
+is the 
+\begin_inset Formula $i^{th}$
+\end_inset
+
+row of the 
+\begin_inset Formula $\left(n\times k\right)$
+\end_inset
+
+ matrix 
+\begin_inset Formula $\bm{X}.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Posterior and Prior distributions: log linear model
+\end_layout
+
+\begin_layout Standard
+The joint posterior distribution for the unknown parameter 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ is given by
+\begin_inset Formula \begin{equation}
+p(\bm{\beta}|\bm{y},\bm{X})\propto p(\bm{y}|\bm{\beta},\bm{X})\times p(\bm{\beta}),\label{eq:post log_linear}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $p(\bm{y}|\bm{\beta},\bm{X})$
+\end_inset
+
+ is the joint 
+\emph on
+pdf 
+\emph default
+for 
+\begin_inset Formula $\bm{y}$
+\end_inset
+
+ conditional on the 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{X}$
+\end_inset
+
+, and 
+\begin_inset Formula $p(\bm{\beta})$
+\end_inset
+
+ denotes the prior 
+\emph on
+pdf 
+\emph default
+for 
+\begin_inset Formula $\bm{\beta}.$
+\end_inset
+
+ From (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:observation equation log linear model"
+
+\end_inset
+
+) it is apparent that
+\begin_inset Formula \[
+p(\bm{y}|\bm{\beta},\bm{X})=\prod_{i=1}^{n}\frac{\mu_{i}^{y_{i}}\exp(-\mu_{i})}{\mu_{i}!}.\]
+
+\end_inset
+
+ A 
+\emph on
+priori 
+\emph default
+we assume that 
+\begin_inset Formula \[
+\bm{\beta}\sim N(\bm{\underline{\bm{\beta}}},\bm{V}^{-1}).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Estimation
+\end_layout
+
+\begin_layout Standard
+To sample from (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:post log_linear"
+
+\end_inset
+
+) a random walk MH algorithm is implemented, where the candidate 
+\begin_inset Formula $\bm{\beta}^{*}$
+\end_inset
+
+ at each iteration is sampled following 
+\begin_inset Formula \begin{equation}
+\bm{\beta}^{*}\sim N\left(\bm{\beta}^{j-1},\bm{\Omega}\right),\label{eq:candidate log-linear}\end{equation}
+
+\end_inset
+
+ where
+\begin_inset Formula \[
+\bm{\beta}^{0}=\bm{\beta}_{nls}=\arg\min\left(\bm{y}-\exp\left(\bm{X}\bm{\beta}\right)\right)^{2}\]
+
+\end_inset
+
+ and
+\begin_inset Formula \[
+\bm{\Omega}^{-1}=-\sum_{i=1}^{n}\exp\left(\bm{x}_{i}^{T}\bm{\beta}_{nls}\right)\bm{x}_{i}\bm{x}_{i}^{T}.\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Example Code
+\end_layout
+
+\begin_layout Standard
+The example code for PyMCMC uses two Python libraries, Numpy and Scipy,
+ which the user must have installed on their system to run the code.
+ The code for the program is as follows:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+# bayesian MCMC estimation of the log - linear model
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+from numpy import random, loadtxt, hstack, ones, dot, exp, zeros, outer,
+ diag
+\end_layout
+
+\begin_layout Plain Layout
+
+from numpy import linalg
+\end_layout
+
+\begin_layout Plain Layout
+
+from mcmc import Gibbs, RWMH, OBMC
+\end_layout
+
+\begin_layout Plain Layout
+
+from regtools import BayesRegression
+\end_layout
+
+\begin_layout Plain Layout
+
+from scipy.optimize.minpack import leastsq
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def minfunc(beta, yvec, xmat ):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function used by nonlinear least squares routine"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    return yvec - exp(dot(xmat, beta))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def prior(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function evaluates the prior pdf for beta"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    mu = zeros(store['beta'].shape[0])
+\end_layout
+
+\begin_layout Plain Layout
+
+    Prec = diag(0.005 * ones(store['beta'].shape[0]))
+\end_layout
+
+\begin_layout Plain Layout
+
+    return -0.5 * dot(store['beta'].transpose(), dot(Prec, store['beta']))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def logl(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function evaluates the log - likelihood for the log - linear model"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    xbeta = dot(store['xmat'], store['beta'])
+\end_layout
+
+\begin_layout Plain Layout
+
+    lamb = exp(xbeta)
+\end_layout
+
+\begin_layout Plain Layout
+
+    return sum(store['yvec'] * xbeta - lamb)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def posterior(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function evaluates the posterior probability for the log - linear
+ model"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    return logl(store) + prior(store)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def llhessian(store, beta):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function returns the hessian for the log - linear model"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    nobs = store['yvec'].shape[0]
+\end_layout
+
+\begin_layout Plain Layout
+
+    kreg = store['xmat'].shape[1]
+\end_layout
+
+\begin_layout Plain Layout
+
+    lamb = exp(dot(store['xmat'], beta))
+\end_layout
+
+\begin_layout Plain Layout
+
+    sum = zeros((kreg, kreg))
+\end_layout
+
+\begin_layout Plain Layout
+
+    for i in xrange(nobs):
+\end_layout
+
+\begin_layout Plain Layout
+
+        sum = sum + lamb[i] * outer(store['xmat'][i], store['xmat'][i])
+\end_layout
+
+\begin_layout Plain Layout
+
+    return -sum
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#functions required by Independent Metropolis Hastings
+\end_layout
+
+\begin_layout Plain Layout
+
+def candidate(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    return random.multivariate_normal(store['betamean'], store['betavar'])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def candprob(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    res = store['beta'] - store['betamean']
+\end_layout
+
+\begin_layout Plain Layout
+
+    return -0.5 * dot(res, dot(store['betaprec'], res))
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# main program
+\end_layout
+
+\begin_layout Plain Layout
+
+random.seed(12345)       # seed or the random number generator
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+data = loadtxt('count.txt', skiprows = 1)    # loads data from file
+\end_layout
+
+\begin_layout Plain Layout
+
+yvec = data[:, 0]
+\end_layout
+
+\begin_layout Plain Layout
+
+xmat = data[:, 1:data.shape[1]]
+\end_layout
+
+\begin_layout Plain Layout
+
+xmat = hstack([ones((data.shape[0], 1)), xmat])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+data ={'yvec':yvec, 'xmat':xmat} 
+\end_layout
+
+\begin_layout Plain Layout
+
+bayesreg = BayesRegression(yvec, xmat)     # use bayesian regression to
+ initialise
+\end_layout
+
+\begin_layout Plain Layout
+
+                                        # nonlinear least squares algorithm
+\end_layout
+
+\begin_layout Plain Layout
+
+sig, beta0 = bayesreg.posterior_mean()
+\end_layout
+
+\begin_layout Plain Layout
+
+init_beta, info = leastsq(minfunc, beta0, args = (yvec, xmat))
+\end_layout
+
+\begin_layout Plain Layout
+
+data['betaprec'] =-llhessian(data, init_beta)
+\end_layout
+
+\begin_layout Plain Layout
+
+scale = linalg.inv(data['betaprec'])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# indmh = IndMH(candidate, posterior, candprob, init_beta, 'beta')
+\end_layout
+
+\begin_layout Plain Layout
+
+samplebeta = RWMH(posterior, scale, init_beta, 'beta')
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+GS = Gibbs(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1],
+ 'yvec'))
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.sampler()
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.output() 
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.plot('beta')
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.showplot()
+\end_layout
+
+\begin_layout Plain Layout
+
+# GS.CODAoutput('beta')
+\end_layout
+
+\begin_layout Plain Layout
+
+# GS.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
+\end_layout
+
+\begin_layout Plain Layout
+
+# GS.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
+\end_layout
+
+\begin_layout Plain Layout
+
+# GS.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The code for the analysis of the log-linear model is used to demonstrate
+ an application of straight Metropolis Hastings based algorithms.
+ The Python libraries Numpy and Scipy are required along with PyMCMC.
+ A brief description of the code is as follows:
+\end_layout
+
+\begin_layout Itemize
+Lines 3-5 import the required classes and functions that are used in the
+ program.
+\end_layout
+
+\begin_layout Itemize
+Lines 10-12 defines a function, 
+\emph on
+minfunc,
+\emph default
+ which is required in the non-linear least squares routine.
+\end_layout
+
+\begin_layout Itemize
+Lines 15-19 defines a function that evaluates the log of the prior pdf for,
+ 
+\begin_inset Formula $\bm{\beta}.$
+\end_inset
+
+ As in the variable selection example, 
+\emph on
+store
+\emph default
+ is a Python dictionary used to store all the information of interest that
+ needs to be accessed by functions that are called from the Gibbs sampler.
+ For example, on line 17 it can be seen that store['beta'] provides access
+ to the vector 
+\begin_inset Formula $\bm{\beta}.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Lines 21-25 defines the log-likelihood function.
+\end_layout
+
+\begin_layout Itemize
+Lines 27-29 defines a function that evaluates the log of the posterior pdf
+ for 
+\begin_inset Formula $\bm{\beta}.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+Lines 31-39 defines a function that returns hessian for the log-linear model.
+\end_layout
+
+\begin_layout Itemize
+The main program begins on line 51.
+\end_layout
+
+\begin_layout Itemize
+Lines 53-56 load the data, from which arrays 
+\begin_inset Formula $\bm{y}$
+\end_inset
+
+ (yvec) and 
+\begin_inset Formula $\bm{X}$
+\end_inset
+
+ (xmat) are constructed.
+\end_layout
+
+\begin_layout Itemize
+Lines 62-34 are used to contruct the candidate as described in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:candidate log-linear"
+
+\end_inset
+
+).
+\end_layout
+
+\begin_layout Itemize
+Line 66 provides an example of how one would use the independent MH.
+ It has been commented out and did not produce a good acceptance rate for
+ this problem.
+\end_layout
+
+\begin_layout Itemize
+Line 67 initialises the class 
+\emph on
+RWMH
+\emph default
+.
+ 
+\end_layout
+
+\begin_layout Itemize
+Line 69 initialises the the class 
+\emph on
+Gibbs
+\emph default
+ .
+ Note that the sampling algorithm will be run for 20000 iterations and the
+ first 4000 will be discarded.
+ The Gibbs scheme has only one block and is really simply a MH sampling
+ scheme.
+ 
+\end_layout
+
+\begin_layout Itemize
+Line 70 runs the sampling scheme.
+\end_layout
+
+\begin_layout Itemize
+Lines 71-73 produce output.
+\end_layout
+
+\begin_layout Itemize
+Lines 74-77 have been commented out, but they are there to demonstrate an
+ example of how to produce CODA output and different ways in which plotting
+ may be produced.
+\end_layout
+
+\begin_layout Subsubsection
+Analysis
+\end_layout
+
+\begin_layout Standard
+The data analysed in this example are the number of nutgrass shoots counted
+ in randomly scattered quadrats at weekly intervals during the growing season.
+ A log linear model is used; 
+\begin_inset Formula \begin{equation}
+\log(\mbox{count})=\beta_{0}+\beta_{1}\mbox{week}\end{equation}
+
+\end_inset
+
+ where the intercept, 
+\begin_inset Formula $\beta_{0}$
+\end_inset
+
+, is expected to be positive in value, as nutgrass is always present, and
+ 
+\begin_inset Formula $\beta_{1}$
+\end_inset
+
+ is also expected to be positive as the population of nutgrass increases
+ during the growing season.
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+--------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+The time (seconds) for the Gibbs sampler =  7.3
+\end_layout
+
+\begin_layout Plain Layout
+
+Number of blocks in Gibbs sampler =  1
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+                mean        sd       2.5%     97.5%    IFactor
+\end_layout
+
+\begin_layout Plain Layout
+
+   beta[0]      1.14    0.0456       1.05      1.23       13.5
+\end_layout
+
+\begin_layout Plain Layout
+
+   beta[1]     0.157   0.00428      0.148     0.165       12.2
+\end_layout
+
+\begin_layout Plain Layout
+
+Acceptance rate  beta  =  0.5625
+\end_layout
+
+\begin_layout Plain Layout
+
+BIC =  -7718.07405717
+\end_layout
+
+\begin_layout Plain Layout
+
+Log likelihood =  3864.45312899
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It can be seen from the output that estimation is very fast (7.3 seconds),
+ and that both 
+\begin_inset Formula $\beta_{0}$
+\end_inset
+
+ and 
+\begin_inset Formula $\beta_{1}$
+\end_inset
+
+ are positive values, with 
+\begin_inset Formula $\hat{\beta}_{0}$
+\end_inset
+
+ = 1.14 [1.05, 1.23] and 
+\begin_inset Formula $\hat{\beta}_{1}$
+\end_inset
+
+ = 0.157 [0.149, 0.165].
+ We note that zero is not contained in the credible intervals and the marginal
+ posterior densities of these estimates (Figure 2) illustrate that both
+ estimates are far from zero.
+\end_layout
+
+\begin_layout Standard
+The ACF plots (Figure 2) and low inefficiency factors of 12.6 (
+\begin_inset Formula $\hat{\beta}_{0}$
+\end_inset
+
+) and 11.4 (
+\begin_inset Formula $\hat{\beta}_{1}$
+\end_inset
+
+) show that autocorrelation in the sample is low.
+ 
+\begin_inset Float figure
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename example1c.eps
+	scale 60
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsection
+Example 3: First order autoregressive regression
+\begin_inset CommandInset label
+LatexCommand label
+name "sub:Example-3:-First"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Denote the 
+\begin_inset Formula $t^{th}$
+\end_inset
+
+ observation as 
+\begin_inset Formula $y_{t},$
+\end_inset
+
+then for 
+\begin_inset Formula $t=1,2,\dots,n,$
+\end_inset
+
+
+\begin_inset Formula \begin{equation}
+y_{t}=\bm{x}_{t}^{T}\bm{\beta}+\varepsilon_{t},\label{eq:observation ar}\end{equation}
+
+\end_inset
+
+ with
+\begin_inset Formula \begin{equation}
+\varepsilon_{t}=\rho\varepsilon_{t-1}+\nu_{t};\,\,\,\nu_{t}\sim i.i.d.N(0,\sigma^{2}),\label{eq:error ar}\end{equation}
+
+\end_inset
+
+ where 
+\series bold
+
+\begin_inset Formula $\bm{x}_{t}$
+\end_inset
+
+
+\series default
+ is a 
+\begin_inset Formula $\left(k\times1\right)$
+\end_inset
+
+ vector of regressors, 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ is a 
+\begin_inset Formula $\left(k\times1\right)$
+\end_inset
+
+ vector of regression coefficients, 
+\begin_inset Formula $\rho$
+\end_inset
+
+ is a damping parameter and 
+\begin_inset Formula $\nu_{t}$
+\end_inset
+
+ is an independent identically normally distributed random variable with
+ a mean of 0 and a variance of 
+\begin_inset Formula $\sigma^{2}.$
+\end_inset
+
+ Under the assumption the the process driving the errors are stationary,
+ that is 
+\begin_inset Formula $|\rho|<1,$
+\end_inset
+
+ then assuming that the process has been running since the time ammemorial
+ then (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:observation ar"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:error ar"
+
+\end_inset
+
+) can be expressed as
+\end_layout
+
+\begin_layout Standard
+\begin_inset Formula \begin{equation}
+\bm{y}=\bm{X}\bm{\beta}+\bm{\varepsilon};\,\,\,\,\bm{\varepsilon}\sim N\left(\bm{0},\kappa^{-1}\bm{\Omega^{-1}}\right),\label{eq:observation2 ar}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula \[
+\bm{\Omega}=\left[\begin{array}{cccccc}
+1 & -\rho & 0 & 0 & \cdots & 0\\
+-\rho & 1+\rho^{2} & -\rho & 0 & \ddots & 0\\
+0 & -\rho & 1+\rho^{2} & \ddots & \ddots & \vdots\\
+0 & 0 & \ddots & \ddots & -\rho & 0\\
+\vdots & \vdots & \ddots & -\rho & 1+\rho^{2} & -\rho\\
+0 & 0 & \cdots & 0 & -\rho & 1\end{array}\right].\]
+
+\end_inset
+
+ Further, if we factorise 
+\begin_inset Formula $\bm{\Omega}=\bm{L}\bm{L}^{T},$
+\end_inset
+
+ using the cholesky decomposition, it is straightforward to derive 
+\begin_inset Formula $\bm{L},$
+\end_inset
+
+ where
+\begin_inset Formula \[
+\bm{L}=\left[\begin{array}{cccccc}
+1 & -\phi & 0 & 0 & \cdots & 0\\
+0 & 1 & -\phi & \ddots & \ddots & 0\\
+0 & 0 & \ddots & \ddots & \ddots & \vdots\\
+\vdots & \ddots & \ddots & \ddots & \ddots & 0\\
+\vdots & \ddots & \ddots & \ddots & 1 & -\phi\\
+0 & 0 & \cdots & \cdots & 0 & \sqrt{1-\phi^{2}}\end{array}\right].\]
+
+\end_inset
+
+ Pre-multiplying (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:observation2 ar"
+
+\end_inset
+
+), by 
+\begin_inset Formula $\bm{L}$
+\end_inset
+
+ gives
+\begin_inset Formula \begin{equation}
+\bm{\tilde{y}}=\bm{\tilde{X}}\bm{\beta}+\bm{\tilde{\varepsilon}},\label{eq:trans_obs_ar}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $\bm{\tilde{y}}=\bm{L}^{T}\bm{y}$
+\end_inset
+
+, 
+\begin_inset Formula $\bm{\tilde{X}}=\bm{L}^{T}\bm{X}$
+\end_inset
+
+ and 
+\begin_inset Formula $\tilde{\bm{\varepsilon}}=\bm{L}^{T}\bm{\varepsilon}.$
+\end_inset
+
+ Note that 
+\begin_inset Formula $\bm{\varepsilon}\sim N(0,\kappa^{-1}\bm{I})$
+\end_inset
+
+.
+\end_layout
+
+\begin_layout Subsubsection
+Posterior and Prior Distributions: First order Autoregression
+\end_layout
+
+\begin_layout Standard
+The joint posterior distribution for full set of unknown parameters is
+\begin_inset Formula \begin{equation}
+p(\bm{\beta},\kappa,\rho|\bm{y})\propto p(\bm{y}|\bm{\beta},\kappa,\rho)\times p(\bm{\beta},\kappa)\times p(\rho),\label{eq:post_ar}\end{equation}
+
+\end_inset
+
+ where 
+\begin_inset Formula $p(\bm{y}|\bm{\beta},\kappa,\rho)$
+\end_inset
+
+ is the joint 
+\emph on
+pdf
+\emph default
+ of 
+\begin_inset Formula $\bm{y}$
+\end_inset
+
+ conditional on 
+\begin_inset Formula $\bm{\beta},$
+\end_inset
+
+ 
+\begin_inset Formula $\kappa,$
+\end_inset
+
+ and 
+\begin_inset Formula $\rho$
+\end_inset
+
+, 
+\begin_inset Formula $p(\bm{\beta},\kappa)$
+\end_inset
+
+ is the joint prior 
+\emph on
+pdf
+\emph default
+ for 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+and 
+\begin_inset Formula $\kappa,$
+\end_inset
+
+ and 
+\begin_inset Formula $p(\rho)$
+\end_inset
+
+ denotes the prior density function for 
+\begin_inset Formula $\rho.$
+\end_inset
+
+ The likelihood function, which is defined following (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:observation ar"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:error ar"
+
+\end_inset
+
+) is defined as follows
+\begin_inset Formula \begin{eqnarray}
+p(\bm{y}|\bm{\beta},\kappa,\rho) & \propto & \kappa^{n/2}|\bm{\Omega}|^{1/2}\exp\left\{ -\frac{1}{2}\left(\bm{y}-\bm{X}\bm{\beta}\right)^{T}\bm{\Omega}\left(\bm{y}-\bm{X}\bm{\beta}\right)\right\} \nonumber \\
+ & \propto & \kappa^{n/2}|\bm{\Omega}|^{1/2}\exp\left\{ -\frac{1}{2}\left(\tilde{\bm{y}}-\tilde{\bm{X}}\bm{\beta}\right)^{T}\left(\tilde{\bm{y}}-\tilde{\bm{X}}\bm{\beta}\right)\right\} .\label{eq:Likelihood AR1}\end{eqnarray}
+
+\end_inset
+
+ For the analysis a normal-gamma prior is assumed for 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ and 
+\begin_inset Formula $\kappa$
+\end_inset
+
+, such that
+\begin_inset Formula \begin{equation}
+\bm{\beta}|\kappa\sim N\left(\underline{\bm{\beta}},\kappa^{-1}\right),\,\,\,\,\,\kappa\sim G\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).\label{eq:prior beta AR1}\end{equation}
+
+\end_inset
+
+ It follows from (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:Likelihood AR1"
+
+\end_inset
+
+) and (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:prior beta AR1"
+
+\end_inset
+
+) that sampling 
+\begin_inset Formula $\bm{\beta}$
+\end_inset
+
+ and 
+\begin_inset Formula $\kappa$
+\end_inset
+
+ conditional on 
+\begin_inset Formula $\rho$
+\end_inset
+
+ is simply equivalent to sampling from a linear regression model with a
+ normal-gamma prior.
+ A beta prior is assumed for 
+\begin_inset Formula $\rho$
+\end_inset
+
+ there by restricting the autocorrelation of the time series to be both
+ positive and stationary.
+ Specifically
+\begin_inset Formula \[
+\rho\sim\mathcal{B}e\left(\rho_{1},\rho_{2}\right).\]
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Subsubsection
+Hybrid Gibbs Sampling Scheme: First order autoregressive regression
+\end_layout
+
+\begin_layout Standard
+A Gibbs sampling scheme, for the posterior distribution in (
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:post_ar"
+
+\end_inset
+
+), defined at iteration 
+\begin_inset Formula $j$
+\end_inset
+
+ is as follows: 
+\end_layout
+
+\begin_layout Enumerate
+Sample 
+\begin_inset Formula $\bm{\beta}^{(j)},\kappa^{(j)}$
+\end_inset
+
+ from 
+\begin_inset Formula $p(\bm{\beta},\kappa|\bm{y},\rho^{(j-1)}).$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Enumerate
+Sample 
+\begin_inset Formula $\rho^{(j)}$
+\end_inset
+
+ from 
+\begin_inset Formula $p(\rho|\bm{y},\bm{\beta},\kappa).$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Subsubsection
+Code
+\end_layout
+
+\begin_layout Standard
+The example code for the linear regression model, with first order autocorrelati
+on in the errors uses the Python libraries Numpy, Scipy and Pysparse.
+ The code is used to analyse simulated data.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+# example linear regression model with first order autocorrelation in the
+ errors
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+from numpy import random, ones, zeros, dot, hstack, eye, log
+\end_layout
+
+\begin_layout Plain Layout
+
+from scipy import sparse
+\end_layout
+
+\begin_layout Plain Layout
+
+from pysparse import spmatrix
+\end_layout
+
+\begin_layout Plain Layout
+
+from mcmc import Gibbs, SliceSampler, RWMH, OBMC, MH, CFsampler
+\end_layout
+
+\begin_layout Plain Layout
+
+from regtools import BayesRegression, RegSampler
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def simdata(nobs, kreg):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function simulates data from a first order autoregressive regression"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    xmat = hstack((ones((nobs, 1)), random.randn(nobs, kreg - 1)))
+\end_layout
+
+\begin_layout Plain Layout
+
+    beta = random.randn(kreg)
+\end_layout
+
+\begin_layout Plain Layout
+
+    sig = 0.2
+\end_layout
+
+\begin_layout Plain Layout
+
+    rho = 0.90
+\end_layout
+
+\begin_layout Plain Layout
+
+    yvec = zeros(nobs)
+\end_layout
+
+\begin_layout Plain Layout
+
+    eps = zeros(nobs)
+\end_layout
+
+\begin_layout Plain Layout
+
+    eps[0] = sig**2/(1.-rho**2)
+\end_layout
+
+\begin_layout Plain Layout
+
+    for i in xrange(nobs - 1):
+\end_layout
+
+\begin_layout Plain Layout
+
+        eps[i + 1] = rho * eps[i] + sig * random.randn(1)
+\end_layout
+
+\begin_layout Plain Layout
+
+    yvec = dot(xmat, beta) + eps
+\end_layout
+
+\begin_layout Plain Layout
+
+    return yvec, xmat
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def calcweighted(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """re - weights yvec and xmat, for use in weighted least squares regression"
+""
+\end_layout
+
+\begin_layout Plain Layout
+
+    nobs = store['yvec'].shape[0]
+\end_layout
+
+\begin_layout Plain Layout
+
+    store['Upper'].put(-store['rho'], range(0, nobs - 1), range(1, nobs))
+\end_layout
+
+\begin_layout Plain Layout
+
+    store['Upper'].matvec(store['yvec'], store['yvectil'])
+\end_layout
+
+\begin_layout Plain Layout
+
+    for i in xrange(store['xmat'].shape[1]):
+\end_layout
+
+\begin_layout Plain Layout
+
+        store['Upper'].matvec(store['xmat'][:, i], store['xmattil'][:, i])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def WLS(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """computes weighted least square regression"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    calcweighted(store)
+\end_layout
+
+\begin_layout Plain Layout
+
+    store['regsampler'].UpdateYvec(store['yvectil'])
+\end_layout
+
+\begin_layout Plain Layout
+
+    store['regsampler'].UpdateXmat(store['xmattil'])
+\end_layout
+
+\begin_layout Plain Layout
+
+    return store['regsampler'].sample()
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def loglike(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """calculates log - likelihood for the the first order autoregressive
+ regression model"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    nobs = store['yvec'].shape[0]
+\end_layout
+
+\begin_layout Plain Layout
+
+    calcweighted(store)
+\end_layout
+
+\begin_layout Plain Layout
+
+    sigbeta = store['sigbeta']
+\end_layout
+
+\begin_layout Plain Layout
+
+    store['regsampler'].UpdateYvec(store['yvectil'])
+\end_layout
+
+\begin_layout Plain Layout
+
+    store['regsampler'].UpdateXmat(store['xmattil'])
+\end_layout
+
+\begin_layout Plain Layout
+
+    return store['regsampler'].loglike(store['sigbeta'])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def prior_rho(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """evaulates the log of the prior distribution for rho.
+ the beta distribution is used"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    if store['rho'] > 0.
+ and store['rho'] < 1.0:
+\end_layout
+
+\begin_layout Plain Layout
+
+        alpha = 1.0
+\end_layout
+
+\begin_layout Plain Layout
+
+        beta = 1.0
+\end_layout
+
+\begin_layout Plain Layout
+
+        return (alpha - 1.) * log(rho) + (beta - 1.) * log(1.-rho)
+\end_layout
+
+\begin_layout Plain Layout
+
+    else:
+\end_layout
+
+\begin_layout Plain Layout
+
+        return -1E256
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+def post_rho(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """evaulates the log of the posterior distrbution for rho"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    return loglike(store) + prior_rho(store)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# Main program
+\end_layout
+
+\begin_layout Plain Layout
+
+random.seed(12345)
+\end_layout
+
+\begin_layout Plain Layout
+
+nobs = 1000
+\end_layout
+
+\begin_layout Plain Layout
+
+kreg = 3
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+yvec, xmat = simdata(nobs, kreg)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# we use a g - prior for the regression coefficients.
+\end_layout
+
+\begin_layout Plain Layout
+
+priorreg = ('g_prior', zeros(kreg), 1000.0)
+\end_layout
+
+\begin_layout Plain Layout
+
+regs = RegSampler(yvec, xmat, prior = priorreg)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+"""A dictionary is set up.
+ The contents of the dictionary will be
+\end_layout
+
+\begin_layout Plain Layout
+
+available for use for by the functions that make up the Gibbs sampler.
+\end_layout
+
+\begin_layout Plain Layout
+
+Note that we pass in storage space as well as the class intance used
+\end_layout
+
+\begin_layout Plain Layout
+
+to sample the regression from."""
+\end_layout
+
+\begin_layout Plain Layout
+
+data ={'yvec':yvec, 'xmat':xmat, 'regsampler':regs}
+\end_layout
+
+\begin_layout Plain Layout
+
+U = spmatrix.ll_mat(nobs, nobs, 2 * nobs - 1)
+\end_layout
+
+\begin_layout Plain Layout
+
+U.put(1.0, range(0, nobs), range(0, nobs))
+\end_layout
+
+\begin_layout Plain Layout
+
+data['yvectil'] = zeros(nobs)
+\end_layout
+
+\begin_layout Plain Layout
+
+data['xmattil'] = zeros((nobs, kreg))
+\end_layout
+
+\begin_layout Plain Layout
+
+data['Upper'] = U
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# Use Bayesian regression to initialise MCMC sampler
+\end_layout
+
+\begin_layout Plain Layout
+
+bayesreg = BayesRegression(yvec, xmat)
+\end_layout
+
+\begin_layout Plain Layout
+
+sig, beta = bayesreg.sample()
+\end_layout
+
+\begin_layout Plain Layout
+
+init_sigbeta = zeros(kreg + 1)
+\end_layout
+
+\begin_layout Plain Layout
+
+init_sigbeta[0] = sig
+\end_layout
+
+\begin_layout Plain Layout
+
+init_sigbeta[1:kreg + 1] = beta
+\end_layout
+
+\begin_layout Plain Layout
+
+simsigbeta = CFsampler(WLS, init_sigbeta, 'sigbeta')
+\end_layout
+
+\begin_layout Plain Layout
+
+scale = 0.002                       # tuning parameter for RWMH
+\end_layout
+
+\begin_layout Plain Layout
+
+rho = 0.9
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+# simrho = RWMH(post_rho, scale, rho, 'rho')
+\end_layout
+
+\begin_layout Plain Layout
+
+#simrho = SliceSampler([post_rho], 0.1, 5, rho, 'rho')
+\end_layout
+
+\begin_layout Plain Layout
+
+simrho = OBMC(post_rho, 3, scale, rho, 'rho')
+\end_layout
+
+\begin_layout Plain Layout
+
+blocks = [simrho, simsigbeta]
+\end_layout
+
+\begin_layout Plain Layout
+
+loglikeinfo = (loglike, kreg + 2, 'yvec')
+\end_layout
+
+\begin_layout Plain Layout
+
+GS = Gibbs(8000, 2000, data, blocks, loglike = loglikeinfo)
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.sampler()
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.output(filename='example4.out')
+\end_layout
+
+\begin_layout Plain Layout
+
+# GS.plot('sigbeta')
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.plot('rho', filename ='rho')
+\end_layout
+
+\begin_layout Plain Layout
+
+#GS.showplot()
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.CODAoutput(parameters = ['rho'])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+A brief description of the code above is as follows: 
+\end_layout
+
+\begin_layout Itemize
+Lines 3-7 import the specific functions and classes that are used in the
+ analysis.
+ 
+\end_layout
+
+\begin_layout Itemize
+Lines 9-21 define a function that is used to produce the simulated data.
+ 
+\end_layout
+
+\begin_layout Itemize
+Lines 23-29 define a function that calculates 
+\begin_inset Formula $\tilde{\bm{y}}$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{\tilde{X}}.$
+\end_inset
+
+ Note that line 26 updates 
+\begin_inset Formula $\bm{L}^{T}$
+\end_inset
+
+ based on the lattest iteration in the Gibbs scheme.
+ Note that 
+\begin_inset Formula $\bm{L}^{T}$
+\end_inset
+
+ is stored in the Python dictionary 
+\emph on
+store
+\emph default
+ and is accessed using the key 'Upper'.
+ It is stored in sparse matrix format using the library Pysparse.
+\end_layout
+
+\begin_layout Itemize
+Lines 31-36 define a function that is used to sample 
+\begin_inset Formula $\bm{\beta},$
+\end_inset
+
+ from its conditional posterior distribution.
+\end_layout
+
+\begin_layout Itemize
+Lines 38-45 define a function that evalutes the log-likelihood.
+\end_layout
+
+\begin_layout Itemize
+Lines 56-58 define a function that evaluates the log of the posterior pdf
+ for 
+\begin_inset Formula $\rho.$
+\end_inset
+
+
+\end_layout
+
+\begin_layout Itemize
+The main program begins on line 61.
+\end_layout
+
+\begin_layout Itemize
+Lines 75-80 construct the Python dictionary data, that is used to store
+ information that will be passed to functions that are called from the Gibbs
+ sampler.
+\end_layout
+
+\begin_layout Itemize
+Line 88 initialises the class instance 
+\emph on
+simsigbeta
+\emph default
+, which is used to jointly sample 
+\begin_inset Formula $\sigma$
+\end_inset
+
+ and 
+\begin_inset Formula $\bm{\beta}.$
+\end_inset
+
+ 
+\end_layout
+
+\begin_layout Itemize
+Line 92 provides an example of how to set up PyMCMC to sample 
+\begin_inset Formula $\rho$
+\end_inset
+
+ using the random walk MH algorithm.
+\end_layout
+
+\begin_layout Itemize
+Line 93 provides an example of how to set up PyMCMC to sample 
+\begin_inset Formula $\rho$
+\end_inset
+
+ using the Slice Sampler.
+\end_layout
+
+\begin_layout Itemize
+Line 94 initialises the class instance 
+\emph on
+simrho
+\emph default
+ using the OBMC algorithm.
+ Note that the OBMC algorithm is set up to use three trials.
+\end_layout
+
+\begin_layout Itemize
+Line 95 construcs a Python list that contain the class instances that define
+ the Gibbs sampler.
+ In particular, it implies that the Gibbs sampler consists of two blocks.
+ Further, 
+\begin_inset Formula $\rho$
+\end_inset
+
+ will be the first element sampled in the Gibbs scheme.
+ 
+\end_layout
+
+\begin_layout Itemize
+Line 97 initialises 
+\emph on
+Gibbs
+\emph default
+.
+ The Gibbs sampler is run for 8000 iterations and the first 2000 iterations
+ are discarded in this instance.
+\end_layout
+
+\begin_layout Itemize
+Line 98 runs the sampler.
+\end_layout
+
+\begin_layout Itemize
+Lines 99-103 produce output from the Gibbs sampler.
+\end_layout
+
+\begin_layout Subsubsection
+Output
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status open
+
+\begin_layout Plain Layout
+
+
+\backslash
+begin{verbatim}
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+--------------------------------------------------------
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+The time (seconds) for the Gibbs sampler =  34.84
+\end_layout
+
+\begin_layout Plain Layout
+
+Number of blocks in Gibbs sampler =  2
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+                mean        sd       2.5%     97.5%    IFactor
+\end_layout
+
+\begin_layout Plain Layout
+
+sigbeta[0]     0.217    0.0048      0.208     0.227       3.54
+\end_layout
+
+\begin_layout Plain Layout
+
+sigbeta[1]    -0.523     0.069     -0.662    -0.389       3.46
+\end_layout
+
+\begin_layout Plain Layout
+
+sigbeta[2]      1.85   0.00506       1.84      1.86       3.75
+\end_layout
+
+\begin_layout Plain Layout
+
+sigbeta[3]     0.455   0.00509      0.445     0.465       3.56
+\end_layout
+
+\begin_layout Plain Layout
+
+Acceptance rate  sigbeta  =  1.0
+\end_layout
+
+\begin_layout Plain Layout
+
+Acceptance rate  rho  =  0.6148
+\end_layout
+
+\begin_layout Plain Layout
+
+BIC =  -331.143532728
+\end_layout
+
+\begin_layout Plain Layout
+
+Log likelihood =  182.841154561
+\end_layout
+
+\begin_layout Plain Layout
+
+       rho     0.901    0.0151      0.871      0.93       4.95
+\end_layout
+
+\begin_layout Plain Layout
+
+Acceptance rate  sigbeta  =  1.0
+\end_layout
+
+\begin_layout Plain Layout
+
+Acceptance rate  rho  =  0.6148
+\end_layout
+
+\begin_layout Plain Layout
+
+BIC =  -331.392274332
+\end_layout
+
+\begin_layout Plain Layout
+
+Log likelihood =  182.965525363
+\end_layout
+
+\begin_layout Plain Layout
+
+loglike=
+\end_layout
+
+\begin_layout Plain Layout
+
+
+\backslash
+end{verbatim}
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The analysis is conducted on a simulated data set, with 1000 observations
+ and 3 regressors.
+ The MCMC sampler is run for 10000 iterations and the first 2000 are discarded.
+ The total time of estimation is approximately 35 seconds.
+ From the inefficiency factors it is clear that the algorithm is very efficient.
+\end_layout
+
+\begin_layout Standard
+\begin_inset Float figure
+placement h
+wide false
+sideways false
+status open
+
+\begin_layout Plain Layout
+\begin_inset Graphics
+	filename rho001.png
+	scale 60
+
+\end_inset
+
+
+\begin_inset CommandInset label
+LatexCommand label
+name "Flo:AR1"
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Plain Layout
+\begin_inset Caption
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Figure 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "Flo:AR1"
+
+\end_inset
+
+ plots the marginal posterior density, autocorrelation plot and the trace
+ plot for the iterates.
+ 
+\end_layout
+
+\begin_layout Section
+Using PyMCMC efficiently
+\end_layout
+
+\begin_layout Standard
+The fact that MCMC algorithms rely on a large number of iterations to achieve
+ reasonable results and are often implemented on very large problems, dictates
+ that the user must have the required machinery to implement efficient code.
+ In MCMC analysis efficiency comes through an understanding of what makes
+ a simulation efficient MCMC sampler and also the ability to produce compuationa
+lly efficient code.
+ Interestingly the two are related.
+ To achieve simulation efficient code in MCMC samplers it is often extremely
+ important that large numbers of parameters are blocked together.
+ A classic example in the litererature are using 
+\emph on
+simulation smoothers 
+\emph default
+to jointly sample the state vector in a state space model; see for example
+ Carter and Kohn (1994) and de Jong and Shephard (1995).
+ Whilst implementing a simulation smoother is required to achieve simulation
+ efficient code, the sequential nature of their implementaion often renders
+ higher level languages impractical for large problems and thus forces the
+ analyst to write their entire code in lower level languages.
+ This is an innefficient use of time as usually only small precentage of
+ code needs to be optimised.
+ This drawback is easily circumvented in PyMCMC as Python makes it so easy
+ to use a lower level language to write the specialised module and use the
+ function directly from Python.
+ This ensures PyMCMC's modules can be used for rapid development from Python
+ and lower level languages are only resorted to when necessary.
+ This Section aims to provide guidelines for producing efficient code with
+ PyMCMC.
+ We discuss alternative external libraries that are available to the user
+ for producing efficient code using PyMCMC.
+ Despite the ease of writing specialised modules this however should not
+ be the first resort of the user.
+ Instead one should ensure that the Python prototypes are efficiently coded
+ using the resorces available with Python.
+\end_layout
+
+\begin_layout Standard
+Arguably, the first thing the user of PyMCMC should concerntrate on when
+ optimising there PyMCMC code is to ensure they use as many inbuilt functions
+ and libraries as possible.
+ As most high performance libraries are written in C or Fortran this ensures
+ that computationally expensive procedures are computed using code from
+ compiled languages.
+ Python users, and hence PyMCMC users have an enormous resource of Scientific
+ libraries available to them as a result of the popularity of Python in
+ the scientific community.
+ Two of the most important libraries for most users, will quite possibly
+ be, Numpy and Scipy.
+ Making use of such libraries is one of the best ways of avoiding large
+ loops in procedures that are called from the Gibbs sampler.
+ If a large loop is used inside a function that is called from inside the
+ Gibbs sampler then this could mean a large proportion of the total computation
+ is being done by Python, rather than a library that was generated from
+ optimised compiled code.
+ This can have a dramatic effect on the total computation time.
+ As a simple and somewhat trivial example we modify Example 
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "sub:Example-2:-Log-linear"
+
+\end_inset
+
+ so that a loop is explicitly used to calculate the log likelihood.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+def logl(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function evaluates the log - likelihood for the log - linear model"""
+\end_layout
+
+\begin_layout Plain Layout
+
+    suml=0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+    for i in xrange(store['yvec'].shape[0]):
+\end_layout
+
+\begin_layout Plain Layout
+
+        xbeta=dot(store['xmat'][i,:],store['beta'])
+\end_layout
+
+\begin_layout Plain Layout
+
+        suml=suml+store['yvec'][i] * xbeta - exp(xbeta)
+\end_layout
+
+\begin_layout Plain Layout
+
+    return suml
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+Whilst the two functions to calculate the log-likelihood are mathematically
+ equivalent, the one with the explicit loop is substantially slower.
+ Specifically, the time taken for the Gibbs sampler went from 7.3 seconds
+ to 130.19 seconds.
+ As such, this minor modification leads to an approximately 18 times decrease
+ in the speed of the program.
+\end_layout
+
+\begin_layout Standard
+If the use of an an inbuilt function is not possible and the time taken
+ from the program is unexceptable then there are several alternative solutions
+ available to the user.
+ One such solution is to use the package Weave, which is a part of Scipy,
+ to write inline C code to accelerate the problem area in the code.
+ An example is given below.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+def logl(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+    """function evaluates the log - likelihood for the log - linear model"""
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+    code = """     
+\end_layout
+
+\begin_layout Plain Layout
+
+		double sum = 0.0, xbeta;
+\end_layout
+
+\begin_layout Plain Layout
+
+		for(int i=0; i<nobs; i++){
+\end_layout
+
+\begin_layout Plain Layout
+
+			xbeta = 0.0;
+\end_layout
+
+\begin_layout Plain Layout
+
+			for(int j=0; j<kreg; j++){xbeta += xmat[i+j*kreg] * beta[j];}
+\end_layout
+
+\begin_layout Plain Layout
+
+			sum += yvec[i] * xbeta - exp(xbeta);
+\end_layout
+
+\begin_layout Plain Layout
+
+		}     
+\end_layout
+
+\begin_layout Plain Layout
+
+		return_val = sum;
+\end_layout
+
+\begin_layout Plain Layout
+
+    """
+\end_layout
+
+\begin_layout Plain Layout
+
+    yvec = store['yvec']
+\end_layout
+
+\begin_layout Plain Layout
+
+    xmat = store['xmat']
+\end_layout
+
+\begin_layout Plain Layout
+
+	nobs, kreg = xmat.shape
+\end_layout
+
+\begin_layout Plain Layout
+
+	beta = store['beta']
+\end_layout
+
+\begin_layout Plain Layout
+
+    return weave.inline(code,['yvec','xmat', 'beta','nobs','kreg'],
+\backslash
+ 
+\end_layout
+
+\begin_layout Plain Layout
+
+                       compiler='gcc')
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The total time taken for weave version is 4.33 seconds.
+ The reason for the speed increase over the original version that uses numpy
+ functions is the weave version avoids the construction of temporary matricies
+ that are typically a by product of overloaded operators.
+ 
+\end_layout
+
+\begin_layout Standard
+Another alternative, which is our prefered approach, is to use F2py, which
+ allows for the seamless integration of Fortran and Python code.
+ Following on with the same trivial example we use the following Fortran77
+ code.
+ The examples requires that the user the have basic linear algebra subprograms
+ (BLAS) and and preferable also the automatically tuned linear algebra software
+ (ATLAS).
+\begin_inset Newline newline
+\end_inset
+
+ 
+\begin_inset listings
+lstparams "basicstyle={\scriptsize}"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+c     fortran 77 code used to calculate the likelihood of a log
+\end_layout
+
+\begin_layout Plain Layout
+
+c     linear model.
+ Subroutine uses BLAS.
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+      subroutine logl(xb,xm,bv,yv,llike,n,k)
+\end_layout
+
+\begin_layout Plain Layout
+
+      implicit none
+\end_layout
+
+\begin_layout Plain Layout
+
+      integer n, k, i, j
+\end_layout
+
+\begin_layout Plain Layout
+
+      real*8 xb(n),xm(n,k), bv(k), yv(n), llike
+\end_layout
+
+\begin_layout Plain Layout
+
+      real*8 alpha, beta
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+cf2py intent(in,out) logl
+\end_layout
+
+\begin_layout Plain Layout
+
+cf2py intent(in) yv
+\end_layout
+
+\begin_layout Plain Layout
+
+cf2py intent(ini bv
+\end_layout
+
+\begin_layout Plain Layout
+
+cf2py intent(in) xmat 
+\end_layout
+
+\begin_layout Plain Layout
+
+cf2py intent(in) xb 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+      alpha=1.0
+\end_layout
+
+\begin_layout Plain Layout
+
+      beta=0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+      call dgemv('n',n,k,alpha,xm,n,bv,1,beta,xb,1)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+      llike=0.0
+\end_layout
+
+\begin_layout Plain Layout
+
+      do i=1,n
+\end_layout
+
+\begin_layout Plain Layout
+
+          llike=llike+yv(i)*xb(i)-exp(xb(i))
+\end_layout
+
+\begin_layout Plain Layout
+
+      enddo
+\end_layout
+
+\begin_layout Plain Layout
+
+      end
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The code is compiled with the command:
+\end_layout
+
+\begin_layout Standard
+f2py -c loglinear.f -m loglinear -lblas -latlas
+\end_layout
+
+\begin_layout Standard
+then called from Python as follows
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+import loglinear
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The loglinear library must be imported to be accessible and is done as above.
+ The log-likelihood function is then modified as follows
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+def logl(store):
+\end_layout
+
+\begin_layout Plain Layout
+
+	"""function evaluates the log - likelihood for the log - linear model"""
+\end_layout
+
+\begin_layout Plain Layout
+
+	loglike=array(0.0)     
+\end_layout
+
+\begin_layout Plain Layout
+
+	return loglinear.logl(store['xb'],store['xmatf'], store['beta'],store['yvec'],lo
+glike)
+\end_layout
+
+\begin_layout Plain Layout
+
+    
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The code is further in example1c.py is further modified by inserting the
+ following code before line 59 in the original program.
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+inline false
+status open
+
+\begin_layout Plain Layout
+
+data['xb']=zeros(yvec.shape[0])
+\end_layout
+
+\begin_layout Plain Layout
+
+data['xmatf']=asfortranarray(xmat)
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+The array 
+\emph on
+data['xb']
+\emph default
+ is simply a work array used for the calculation of 
+\begin_inset Formula $\bm{X}\bm{\beta}.$
+\end_inset
+
+ It is stored in in the Python dictionary data, simply so it is only created
+ once rather that each time the function 
+\emph on
+logl
+\emph default
+ is called.
+ The second array 
+\emph on
+data['xmatf']
+\emph default
+ simply stores 
+\begin_inset Formula $\bm{X}$
+\end_inset
+
+ in column major order, which is what is used in Fortran, rather than the
+ Python default, which is row major order the default for the C programming
+ language.
+ If 
+\emph on
+store['xmat']
+\emph default
+ is passed to the function 
+\emph on
+loglinear.logl
+\emph default
+ then f2py will automatically produce a copy and convert it to column major
+ order each time the function 
+\emph on
+logl
+\emph default
+ is called.
+\end_layout
+
+\begin_layout Standard
+The total time for the Gibbs sampler when using f2py is 4.03 seconds.
+ This is slightly faster that the version that uses Weave, where most likely
+ the small gain can be attributed to the use of ATLAS.
+\end_layout
+
+\begin_layout Standard
+The user has many other choices available to them for writing specialised
+ extension modules.
+ For example, if it is the preference of the user it is not much more difficult
+ to use F2py to compile procedures written in C, which then can be used
+ directly from Python.
+ Another popular library that can be used to marry C, as well as C++, code
+ with Python is SWIG.
+ In our opinion Swig is more difficult than f2py for complicated examples.
+ The user may also opt to manually call C and C++ routines using Python
+ and Numpy's C application interface.
+ Another option for C++ users is to use Boost Python.
+ These alternative approaches are beyond the scope of this paper.
+\end_layout
+
+\begin_layout Section
+PyMCMC interacting with R
+\end_layout
+
+\begin_layout Standard
+There are a number of functions from the R statistical language (REF) that
+ can be useful in Bayesian analysis.
+ These can be accessed in PyMCMC through the RPy2 python library (REF).
+ In PyMCMC, we show how this can be approached prior to the Bayesian analysis,
+ and also to explore and summarise the MCMC output.
+ As an example, consider the Log linear model described in Section~
+\backslash
+ref{sub:Example-2:-Log-linear}.
+ The random walk MH requires the specification of a candidate density function
+ (Equation~
+\begin_inset CommandInset ref
+LatexCommand ref
+reference "eq:log_lin_candidate_dist"
+
+\end_inset
+
+) and an initial value.
+ The R functions 
+\family typewriter
+glm 
+\family default
+and 
+\family typewriter
+summary.glm
+\family default
+ can be used to set this to the maximum likelihood estimate
+\begin_inset Formula $\hat{\beta}$
+\end_inset
+
+and the unscaled estimated covariance matrix of the estimated coefficients.
+ The relevant code is summarised below:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},numbers=left,tabsize=4"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+import rpy2.robjects.numpy2ri
+\end_layout
+
+\begin_layout Plain Layout
+
+from rpy2 import rinterface
+\end_layout
+
+\begin_layout Plain Layout
+
+import rpy2.robjects as robjects
+\end_layout
+
+\begin_layout Plain Layout
+
+...
+\end_layout
+
+\begin_layout Plain Layout
+
+def initial_values(yvec,xmat):
+\end_layout
+
+\begin_layout Plain Layout
+
+    '''
+\end_layout
+
+\begin_layout Plain Layout
+
+    Use rpy2 to get the initial values
+\end_layout
+
+\begin_layout Plain Layout
+
+    '''
+\end_layout
+
+\begin_layout Plain Layout
+
+    ry = rinterface.SexpVector(yvec,rinterface.INTSXP)
+\end_layout
+
+\begin_layout Plain Layout
+
+    rx = rinterface.SexpVector(xmat[:,1:],rinterface.INTSXP)
+\end_layout
+
+\begin_layout Plain Layout
+
+    robjects.globalenv['y'] = ry
+\end_layout
+
+\begin_layout Plain Layout
+
+    robjects.globalenv['x'] = rx
+\end_layout
+
+\begin_layout Plain Layout
+
+    mod = robjects.r.glm("y~x", family="poisson")
+\end_layout
+
+\begin_layout Plain Layout
+
+    init_beta =  array(robjects.r.coefficients(mod))
+\end_layout
+
+\begin_layout Plain Layout
+
+    modsummary = robjects.r.summary(mod)
+\end_layout
+
+\begin_layout Plain Layout
+
+    scale = array(modsummary.rx2('cov.unscaled'))
+\end_layout
+
+\begin_layout Plain Layout
+
+    return init_beta,scale
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#main program
+\end_layout
+
+\begin_layout Plain Layout
+
+random.seed(12345)       #seed or the random number generator
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+data=loadtxt('count.txt',skiprows=1)    #loads data from file
+\end_layout
+
+\begin_layout Plain Layout
+
+yvec=data[:,0]
+\end_layout
+
+\begin_layout Plain Layout
+
+xmat=data[:,1:data.shape[1]]
+\end_layout
+
+\begin_layout Plain Layout
+
+xmat=hstack([ones((data.shape[0],1)),xmat])
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+data={'yvec':yvec,'xmat':xmat} 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+#use R to obtain the initial vector for beta and the scale matrix
+\end_layout
+
+\begin_layout Plain Layout
+
+init_beta,scale=initial_values(yvec,xmat)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\begin_layout Plain Layout
+
+samplebeta=RWMH(posterior,scale,init_beta,'beta')
+\end_layout
+
+\begin_layout Plain Layout
+
+GS=Gibbs(20000,4000,data, [samplebeta],loglike=(logl,xmat.shape[1],'yvec'))
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.sampler()
+\end_layout
+
+\begin_layout Plain Layout
+
+GS.CODAoutput(filename="loglinear_eg") 
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Standard
+It may also be useful to take advantage of the many MCMC analysis functions
+ in R and associated packages.
+ To facilitate this, PyMCMC includes a CODA ref(XXX) output format which
+ can easily be read into R for further analysis.
+ A sample R session after PyMCMC might look like:
+\end_layout
+
+\begin_layout Standard
+\begin_inset listings
+lstparams "basicstyle={\scriptsize},language=R,numbers=left"
+inline false
+status open
+
+\begin_layout Plain Layout
+
+library(coda)
+\end_layout
+
+\begin_layout Plain Layout
+
+aa <- read.coda("loglinear_eg.txt","loglinear_eg.ind")
+\end_layout
+
+\begin_layout Plain Layout
+
+plot(aa)
+\end_layout
+
+\begin_layout Plain Layout
+
+summary(aa)
+\end_layout
+
+\begin_layout Plain Layout
+
+raftery.diag(aa)
+\end_layout
+
+\begin_layout Plain Layout
+
+xyplot(aa)
+\end_layout
+
+\begin_layout Plain Layout
+
+densityplot(aa)
+\end_layout
+
+\begin_layout Plain Layout
+
+acfplot(aa,lag.max=500)
+\end_layout
+
+\begin_layout Plain Layout
+
+\end_layout
+
+\end_inset
+
+
+\end_layout
+
+\begin_layout Section
+Conclusions
+\end_layout
+
+\begin_layout Standard
+In this paper, we have described the Python software package PyMCMC.
+ PyMCMC takes advantage of the flexibility and extensibility of Python to
+ provide the user with a code efficient way of constructing MCMC samplers.
+ The PyMCMC package includes classes for Gibbs sampler the MH, independent
+ MH, random walk MH, OBMC and slice sampling algorithms.
+ It also contains and inbuilt module for Bayesian regression analysis.
+ We demonstrate PyMCMC using an example of Bayesian regression analysis
+ with stochastic variable selection, a log-linear model and also a time
+ series regression analysis with first order autoregressive errors.
+ We demonstrate how to optimise PyMCMC using Numpy functions, inline C code
+ using Weave and with Fortran77 using F2py, where necessary.
+ We further demonstrate how to call R functions using R2py.
+ 
+\end_layout
+
+\begin_layout Subsection*
+Acknowledgements
+\end_layout
+
+\begin_layout Standard
+This research has been supported by an Australian Research Council Linkage
+ Grant; ???????? 
+\end_layout
+
+\begin_layout Standard
+\begin_inset ERT
+status collapsed
+
+\begin_layout Plain Layout
+
+
+\backslash
+bibliographystyle{plain}
+\end_layout
+
+\end_inset
+
+ 
+\begin_inset CommandInset bibtex
+LatexCommand bibtex
+bibfiles "/home/chris/Dropbox/Projects/Bibtex/chris"
+options "plain"
+
+\end_inset
+
+
+\end_layout
+
+\end_body
+\end_document
