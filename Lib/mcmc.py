@@ -21,16 +21,14 @@ import os
 import sys
 import types
 import time
-import pdb
 
 import scipy as sp
 import numpy as np
-import timeseriesfunc
-from mcmcplots import *
-import matplotlib.mlab as mlab
+
 import matplotlib.pyplot as plt
-import scipy.stats as stats
 import matplotlib
+
+from mcmcplots import *
 from mcmc_utilities import *
 
 

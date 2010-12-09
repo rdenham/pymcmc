@@ -16,7 +16,6 @@
 
 import matplotlib.pyplot as plt
 import scipy.stats as stats
-import timeseriesfunc
 import numpy as np
 
 
@@ -38,7 +37,6 @@ def PlotACF(x, maxlag, title):
     plt.grid(True)
     # maxlag = 30
     corrv = np.zeros(maxlag)
-    aa = timeseriesfunc.acf(x, corrv)
     for xtick, yval in enumerate(corrv):
         plt.plot( [xtick, xtick], [yval, 0], '-', color ='b')
     plt.title(title)
