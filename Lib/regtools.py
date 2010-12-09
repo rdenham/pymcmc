@@ -17,17 +17,15 @@
 # python file for conjugate priors
 
 import types
-import pdb
 import os
 from os import sys
 import numpy as np
-import scipy as sp
 from scipy import special
 from stochsearch import*
 import matplotlib.pyplot as plt
 import scipy.stats.distributions as dstn
 import wishart
-from pymcmc.mcmc import MCMC, CFsampler
+
 
 class StochasticSearch:
     """
@@ -43,16 +41,16 @@ class StochasticSearch:
         self.ypy = np.dot(yvec.T, yvec)
         self.xpy = np.dot(xmat.T, yvec)
         self.xpx = np.asfortranarray(np.dot(xmat.T, xmat))
-        self.xgxg = np.zeros((self.kreg, self.kreg), order ='F')
-        self.work2 = np.zeros((self.kreg, self.kreg), order ='F')
+        self.xgxg = np.zeros((self.kreg, self.kreg), order = 'F' )
+        self.work2 = np.zeros((self.kreg, self.kreg), order = 'F' )
         self.xgy = np.zeros(self.kreg)
-        self.gam = np.zeros(self.kreg, dtype ='i')
+        self.gam = np.zeros(self.kreg, dtype = 'i')
         self.gam[0] = 1
         self.ru = np.zeros(self.kreg)
         self.rn = np.zeros(self.kreg)
-        self.work = np.zeros((self.kreg, 6), order ='F')
-        self.ifo = np.array(0, dtype ='i')
-        self.ifo2 = np.array(0, dtype ='i')
+        self.work = np.zeros((self.kreg, 6), order = 'F')
+        self.ifo = np.array(0, dtype = 'i')
+        self.ifo2 = np.array(0, dtype = 'i')
         if prior[0] == 'g_prior':
             self.work[:, 0] = prior[1]
             self.g = prior[2]
@@ -81,23 +79,20 @@ class StochasticSearch:
               self.ifo, self.ifo2, self.nobs)
 
     def __sim_gamma_nig(self):
-        initialise_vubar(self.vubar, self.gam, self.D, self.R)  
+        initialise_vubar(self.vubar, self.gam, self.D, self.R)
         ssreg_nig(self.ypy, self.logdetR, self.nus, self.vxy, self.vobar,
                  self.vubar, self.gam, self.xpx, self.xpy, self.D,
                  self.R, self.nuobar, self.ru)
-
 
     def sample_gamma(self, store):
         it = store['iteration']
         burn = store['length_of_burnin']
         # self.gam = gamvec.astype('i')
         self.ru = np.random.rand(self.kreg)
-        
         self.__samplegam()
-        if it>= burn:
+        if it >= burn:
             self.update_store()
         return self.gam
-
 
     def update_store(self):
         """function updates internal storage for gamma"""
@@ -108,7 +103,6 @@ class StochasticSearch:
         else:
             self.store[0].append(gammai)
             self.store[1].append(1)
-
 
     def __extract_position(self,i,ind):
         modstr = str(self.store[0][ind[i]])
@@ -128,7 +122,6 @@ class StochasticSearch:
         tmpxmat = np.compress(modnum, self.xmat, axis = 1)
         return tmpxmat
         
-    
     def output(self, destination):
         """
         produce additional output for StochasticSearch
@@ -180,9 +173,9 @@ class BayesRegression:
         kwargs - Optional arguments:
             prior - a list containing the name of the prior and the
                corresponding hyperparameters. Examples: 
-               prior = ['normal_gamma', betaubar, Vubar, nuubar, Subar],
-               prior = ['normal_inverted_gamma', betaubar, Vubar,
-                      nuubar, Subar],
+               prior = ['normal_gamma', nuubar, Subar, betaubar, Vubar]
+               prior = ['normal_inverted_gamma', nuubar, Subar, betaubar, Vubar]
+
                prior = ['g_prior', betaubar, g].
                If none of these options are chosen or they are
                miss - specified then BayesRegression will default to
@@ -259,13 +252,11 @@ incorectly specified"
                                               self.__posterior_kappa_mean
                         self.__log_marginal_likelihood = \
                                 self.__log_marginal_likelihood_nig
-                        self.betaubar = self.prior[1]
-                        self.vubar = self.prior[2]
-                        self.nuubar = self.prior[3]
-                        self.subar = self.prior[4]
-                        
+                        self.nuubar = self.prior[1]
+                        self.subar = self.prior[2]
+                        self.betaubar = self.prior[3]
+                        self.vubar = self.prior[4]
 
-                        
                     elif ptype =='normal_inverted_gamma':
                         self.__calculate = self.__calculate_normal_gamma
                         self.__sample_scale = \
@@ -275,12 +266,13 @@ incorectly specified"
                                                self.__posterior_sigma_var
                         self.__posterior_mean_scale = \
                                                self.__posterior_sigma_mean
-                        self.betaubar = self.prior[1]
-                        self.vubar = self.prior[2]
-                        self.nuubar = self.prior[3]
-                        self.subar = self.prior[4]
+                        self.nuubar = self.prior[1]
+                        self.subar = self.prior[2]
+                        self.betaubar = self.prior[3]
+                        self.vubar = self.prior[4]
                         self.__log_marginal_likelihood = \
-                                self.__log_marginal_likelihood_nig
+                                 self.__log_marginal_likelihood_nig
+                        
                     else:
                         # g - prior
                         self.betaubar = self.prior[1]
@@ -397,7 +389,7 @@ incorectly specified"
         return lnpr                               
 
     def __log_cand_pr_kappa(self, kappa, beta, **kwargs):
-        diffbeta = beta = self.betaobar
+        diffbeta = self.betaobar
         self.calclndetxpx_ind = 1
         pr_beta =-float(self.kreg)/2.0 * np.log(2.0 * np.pi) + \
         float(self.kreg)/2.0 * np.log(kappa)+ \
@@ -542,11 +534,6 @@ incorectly specified"
         ## add the hpd's
         xl = rv.ppf(0.025)
         xu = rv.ppf(0.975)
-        yl = rv.pdf(xl)
-        yu = rv.pdf(xu)
-        # plt.plot([xl, xl], [0, yl], '-g')
-        # plt.plot([xu, xu], [0, yu], '-g')
-        ## try filling it:
         ltx = np.linspace(xmin, xl, 50)
         lty = rv.pdf(ltx)
         plt.fill(np.r_[ltx, ltx[-1]],
@@ -617,7 +604,6 @@ incorectly specified"
         if not self.calculated:
             self.__calculate()
         s2 = self.sobar/self.nuobar
-        Am = np.linalg.inv(self.vobar)
         betasd = np.sqrt(np.diag(self.get_posterior_covmat()))
         
         plotdims = self.get_plot_dimensions(kwargs)
@@ -638,7 +624,6 @@ incorectly specified"
             plotcounter = plotcounter + 1
             plt.subplot(plotdims['rows'], plotdims['cols'], plotcounter)
             title = r'$\beta_{%d}$' % i
-            bbar = self.betaobar[i]
             self.__plottdist(self.nuobar,
                              self.betaobar[i],
                              betasd[i], title)
