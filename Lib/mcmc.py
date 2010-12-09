@@ -115,7 +115,7 @@ class Attributes:
 class BaseSampler:
     """
     
-    The base class for samplers used by class Gibbs.
+    The base class for samplers used by class MCMC.
 
     Arguments:
       init_theta - is the initial value for the parameters of interest
@@ -294,7 +294,7 @@ class BaseSampler:
 
 class CFsampler(BaseSampler):
     """
-    CFsampler is used to sample from closed form solutions in the Gibbs sampler.
+    CFsampler is used to sample from closed form solutions in the MCMC sampler.
     arguments:
     func - is a function that samples from the posterior distribution of interest
     init_theta - is an initial value for theta (parameters of
@@ -820,11 +820,11 @@ class IndMH(BaseSampler):
 
 """Note data is a dictionary of the data""" 
 
-class Gibbs:
+class MCMC:
     """
-    class for Gibbs sampler. This class is initialised with:
+    class for MCMC sampler. This class is initialised with:
     nit - the number of iterations
-    burn - the burn in for the Gibbs sampler
+    burn - the burn in for the MCMC sampler
     data - A dictionary containing any data, functions or classes
            that may be required by any of the functions 
     blocks - a list containing functions that are used to sample from the
@@ -959,7 +959,7 @@ class Gibbs:
 
 
     def sampler(self):
-        """Runs the Gibbs sampler"""
+        """Runs the MCMC sampler"""
         starttime = time.clock()
 
         for it in xrange(self.nit):
@@ -1152,7 +1152,7 @@ class Gibbs:
         
     def plot(self, blockname, **kwargs):
         '''
-        The basic plotting approach for the Gibbs class.
+        The basic plotting approach for the MCMC class.
 
         Create summary plots of the MCMC sampler. By default, a plot
         of the marginal posterior density, an ACF plot and a trace
@@ -1488,9 +1488,9 @@ class Gibbs:
         print >>destination, \
               "--------------------------------------------------------"
         print >>destination, ""
-        print >>destination, "The time (seconds) for the Gibbs sampler = ", \
+        print >>destination, "The time (seconds) for the MCMC sampler = ", \
         totaltime
-        print >>destination, "Number of blocks in Gibbs sampler = ", nblocks
+        print >>destination, "Number of blocks in MCMC sampler = ", nblocks
         print >>destination, ""
         print >>destination, "{0: >{2}}{1: >{3}}".format("mean", "sd",
                                                          colwidth * 2, colwidth),
@@ -1585,7 +1585,7 @@ class Gibbs:
 
     def output(self, **kwargs):
         """
-        Produce output for Gibbs sampler.
+        Produce output for MCMC sampler.
 
         By default output is produced for all parameters. Function
         takes the following options:

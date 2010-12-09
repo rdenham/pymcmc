@@ -3,7 +3,7 @@
 import os
 from numpy import random, loadtxt, hstack, ones, dot, exp, zeros, outer, diag
 from numpy import linalg
-from pymcmc.mcmc import Gibbs, RWMH, OBMC
+from pymcmc.mcmc import MCMC, RWMH, OBMC
 from pymcmc.regtools import BayesRegression
 from scipy.optimize.minpack import leastsq
 from scipy import weave
@@ -96,6 +96,6 @@ scale = linalg.inv(data['betaprec'])
 # indmh = IndMH(candidate, posterior, candprob, init_beta, 'beta')
 samplebeta = RWMH(posterior, scale, init_beta, 'beta')
 #samplebeta = OBMC(posterior,3, scale, init_beta, 'beta')
-GS = Gibbs(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
-GS.sampler()
-GS.output(filename='example1c_loop.out') 
+ms = MCMC(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
+ms.sampler()
+ms.output(filename='example1c_loop.out') 

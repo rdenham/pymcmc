@@ -2,7 +2,7 @@
 
 import os
 from numpy import loadtxt, hstack, ones, random, zeros, asfortranarray, log
-from pymcmc.mcmc import Gibbs, CFsampler
+from pymcmc.mcmc import MCMC, CFsampler
 from pymcmc.regtools import StochasticSearch, BayesRegression
 import pymcmc
 
@@ -24,9 +24,9 @@ xmat = data[:, 1:20]
 xmat = hstack([ones((xmat.shape[0], 1)), xmat])
 
 """data is a dictionary whose elements are accessible from the functions
-in the Gibbs sampler"""
+in the MCMC sampler"""
 data ={'yvec':yvec, 'xmat':xmat}
-prior = [zeros(xmat.shape[1]), 100.]
+prior = ['g_prior',zeros(xmat.shape[1]), 100.]
 SSVS = StochasticSearch(yvec, xmat, prior);
 data['SS'] = SSVS
 
@@ -35,12 +35,12 @@ initgamma = zeros(xmat.shape[1], dtype ='i')
 initgamma[0] = 1
 simgam = CFsampler(samplegamma, initgamma, 'gamma', store ='none')
 
-# initialise class for Gibbs samper
-GS = Gibbs(20000, 5000, data, [simgam])
-GS.sampler()
-GS.output(filename ='vs.txt')
-GS.output(custom = SSVS.output, filename = 'SSVS.out')
-GS.output(custom = SSVS.output)
+# initialise class for MCMC samper
+ms = MCMC(20000, 5000, data, [simgam])
+ms.sampler()
+ms.output(filename ='vs.txt')
+ms.output(custom = SSVS.output, filename = 'SSVS.out')
+ms.output(custom = SSVS.output)
 
 txmat = SSVS.extract_regressors(0)
 g_prior = ['g_prior', 0.0, 100.]

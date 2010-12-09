@@ -3,7 +3,7 @@
 from numpy import random, ones, zeros, dot, hstack, eye, log
 from scipy import sparse
 from pysparse import spmatrix
-from pymcmc.mcmc import Gibbs, SliceSampler, RWMH, OBMC, MH, CFsampler
+from pymcmc.mcmc import MCMC, SliceSampler, RWMH, OBMC, MH, CFsampler
 from pymcmc.regtools import BayesRegression 
 
 def simdata(nobs, kreg):
@@ -80,7 +80,7 @@ priorreg = ('g_prior', zeros(kreg), 1000.0)
 regs = BayesRegression(yvec, xmat, prior = priorreg)
 
 """A dictionary is set up. The contents of the dictionary will be
-available for use for by the functions that make up the Gibbs sampler.
+available for use for by the functions that make up the MCMC sampler.
 Note that we pass in storage space as well as the class intance used
 to sample the regression from."""
 data ={'yvec':yvec, 'xmat':xmat, 'regsampler':regs}
@@ -104,11 +104,11 @@ simrho = SliceSampler([post_rho], 0.1, 5, rho, 'rho')
 # simrho = MH(gencand, post_rho, probcandgprev, probprevgcand, rho, 'rho')
 blocks = [simrho, simsigbeta]
 loglikeinfo = (loglike, kreg + 2, 'yvec')
-GS = Gibbs(10000, 2000, data, blocks, loglike = loglikeinfo)
-GS.sampler()
-GS.output()
-#GS.plot('sigbeta')
-GS.plot('rho', filename ='rho')
-GS.CODAoutput(parameters = ['rho'])
+ms = MCMC(10000, 2000, data, blocks, loglike = loglikeinfo)
+ms.sampler()
+ms.output()
+#ms.plot('sigbeta')
+ms.plot('rho', filename ='rho')
+ms.CODAoutput(parameters = ['rho'])
 
 

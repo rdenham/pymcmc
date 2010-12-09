@@ -27,7 +27,7 @@ from stochsearch import*
 import matplotlib.pyplot as plt
 import scipy.stats.distributions as dstn
 import wishart
-from pymcmc.mcmc import Gibbs, CFsampler
+from pymcmc.mcmc import MCMC, CFsampler
 
 class StochasticSearch:
     """
@@ -68,6 +68,8 @@ class StochasticSearch:
             self.vubar = self.work2
             self.nuobar = self.nu + self.kreg
             self.__samplegam = self.__sim_gamma_nig
+        else:
+            raise NameError("prior incorrectly specified")
 
         # internal storage for stochastic search
         self.store = [[], []]

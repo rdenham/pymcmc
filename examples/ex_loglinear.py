@@ -4,7 +4,7 @@
 import os
 from numpy import random, loadtxt, hstack, ones, dot, exp, zeros, outer, diag
 from numpy import linalg
-from pymcmc.mcmc import Gibbs, RWMH, OBMC
+from pymcmc.mcmc import MCMC, RWMH, OBMC
 from pymcmc.regtools import BayesRegression
 from scipy.optimize.minpack import leastsq
 import pymcmc
@@ -60,11 +60,11 @@ data['betaprec'] =-llhessian(data, init_beta)
 scale = linalg.inv(data['betaprec'])
 
 samplebeta = RWMH(posterior, scale, init_beta, 'beta')
-GS = Gibbs(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
-GS.sampler()
-GS.output(filename='example1c.out') 
-GS.plot('beta', filename='example1c.eps')
-# GS.CODAoutput('beta')
-# GS.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
-# GS.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
-## GS.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")
+ms = MCMC(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
+ms.sampler()
+ms.output(filename='example1c.out') 
+ms.plot('beta', filename='example1c.eps')
+# ms.CODAoutput('beta')
+# ms.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
+# ms.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
+## ms.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")

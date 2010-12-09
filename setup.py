@@ -10,7 +10,7 @@ import os
 # this works for ubuntu using libatlas-base-dev
 # also libatlas3gf-sse
 #atlas_libs = ['lapack_atlas','blas']
-atlas_libs = ['lapack','blas','atlas']
+atlas_libs = ['atlas','lapack','f77blas','cblas']
 
 extra_link_args = []
 
@@ -18,7 +18,9 @@ extra_link_args = []
 ## using gfortran as a fortran compiler
 #libs = ['gfortran']
 libs = []
-library_dirs = []
+library_dirs=["/opt/sw/fw/rsc/atlas/3.9.25//lib/"]
+
+
 #library_dirs=["/usr/lib/sse2/atlas","/usr/lib/sse2/"]
 #library_dirs=['/usr/lib64/atlas/']
 #######################################################
