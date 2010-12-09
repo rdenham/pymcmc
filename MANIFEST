@@ -10,9 +10,6 @@ Src/timeseriesfunc.f
 Src/wishart.f
 data/count.txt
 data/yld2.txt
-doc/PyMCMC.lyx
-doc/PyMCMC.pdf
-doc/PyMCMC.tex
 examples/ex_AR1.py
 examples/ex_loglinear.py
 examples/ex_loglinear_f2py.py
