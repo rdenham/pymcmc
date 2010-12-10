@@ -1141,10 +1141,12 @@ class MCMC:
             rows = kwargs['rows']
             cols = kwargs['cols']
 
+        totalpages = np.ceil(totalplots/(cols*rows))
         plotdims = {'totalplots':totalplots,
                     'cols':int(cols),
                     'rows':int(rows),
-                    'figsperplot':int(rows * cols)}
+                    'figsperplot':int(rows * cols),
+                    'totalpages':int(totalpages)}
         return plotdims
 
         
@@ -1275,18 +1277,32 @@ class MCMC:
                     maxlag = max(round(1.5 * bw/10.) * 10, 10)
                     PlotACF(paramstore[:, i], maxlag, "ACF Plot %s" % title)
                 elif plottype == "density":
+                    ##avoid overlapping labels
+                    if plotdims['figsperplot'] > 4:
+                        ntick = 5
+                    else:
+                        ntick = 10
                     PlotMarginalPost(paramstore[:, i],
-                                     "MPD %s" % title)
+                                     "MPD %s" % title, plottype="both",
+                                     maxntick=ntick)
                 elif plottype == "trace":
-                    PlotIterates(paramstore[:, i], "Trace %s" % title)
+                    ##avoid overlapping labels
+                    if plotdims['figsperplot'] > 4:
+                        ntick = 5
+                    else:
+                        ntick = 10
+                    PlotIterates(paramstore[:, i], "Trace %s" % title,ntick)
                 else:
                     pass
         pagecounter = pagecounter + 1
         ## then already plotted something,
         ## we might want to save it
         if kwargs.has_key('filename'):
-            (base, suffix) = os.path.splitext(kwargs['filename'])
-            fname = "%s%03d%s" % (base, pagecounter, suffix)
+            if plotdims['totalpages'] > 1:
+                (base, suffix) = os.path.splitext(kwargs['filename'])
+                fname = "%s%03d%s" % (base, pagecounter, suffix)
+            else:
+                fname = kwargs['filename']
             plt.savefig(fname) 
         if interactive:
             plt.show()

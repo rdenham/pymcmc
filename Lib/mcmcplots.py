@@ -16,6 +16,7 @@
 
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+import timeseriesfunc
 import numpy as np
 
 
@@ -37,6 +38,7 @@ def PlotACF(x, maxlag, title):
     plt.grid(True)
     # maxlag = 30
     corrv = np.zeros(maxlag)
+    aa = timeseriesfunc.acf(x, corrv)
     for xtick, yval in enumerate(corrv):
         plt.plot( [xtick, xtick], [yval, 0], '-', color ='b')
     plt.title(title)
@@ -48,25 +50,36 @@ def PlotACF(x, maxlag, title):
     plt.ylim(ymax = 1.2)
     return None
 
-def PlotIterates(x, title):
+def PlotIterates(x, title,maxntick = 10):
+    ## try only showing some of the iterates
+    ## on the axis
+    ##go through tick sizes until you get the right one
+    for ticksize in [1,10,100,200,500,1000,2000,5000,10000,100000]:
+        ntick = len(x)/ticksize
+        if ntick <= maxntick:
+            break
+    xticks = np.arange(ntick)*ticksize
     plt.plot(x, 'k-')
+    plt.xticks(xticks)
     plt.title(title)
     plt.xlabel("Iteration")
 
 
-def PlotMarginalPost(x, title, type ="both"):
+def PlotMarginalPost(x, title, plottype ="both", maxntick=20):
     '''
     Plot the marginal posterior density.
     type can be both, line, histogram
     '''
     plt.grid(True)
     ## see if we want histogram
-    if type.startswith('b') or type.startswith('h'):
+    if plottype.startswith('b') or plottype.startswith('h'):
         n, bins, patches = plt.hist(x, 50, normed = 1, facecolor ='green', alpha = 0.75)
-    if type.startswith('b') or type.startswith('l'):
+    if plottype.startswith('b') or plottype.startswith('l'):
         ind = np.linspace(min(x) * 1.0, max(x) * 1.0, 101)
         gkde = stats.gaussian_kde(x)
         kdepdf = gkde.evaluate(ind)
         plt.plot(ind, kdepdf, label ='kde', color ="k")
+    xticks = np.round(np.linspace(min(x) * 1.0, max(x) * 1.0, maxntick),2)
+    plt.xticks(xticks)
     plt.title(title)
     
