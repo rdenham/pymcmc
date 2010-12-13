@@ -316,6 +316,7 @@ c     subroutine updates vubar for a change in gamma
       enddo
       end
 
+
 c     subroutine calculates marginal likelihood
       real*8 function marg(ypy,ldr,vs,vxy,vobar,vubar,gam,xpx,xpy,v,r,
      + gami,ifo,nuo,k)
@@ -323,7 +324,7 @@ c     subroutine calculates marginal likelihood
       integer k,gam(k),gami,ifo,nuo,i
       real*8 vobar(k,k),vubar(k,k),xpx(k,k),xpy(k),v(k,2),r(k,k)
       real*8 alpha,beta,vxy(k),ddot,vso,ldr,lndetvu,ypy,vs
-      real*8 lndetvo
+      real*8 lndetvo,logdetvu
         
       if (gami.ne.-1) then
           call update_vubar(vubar,gam,v,r,gami,k)
@@ -340,24 +341,106 @@ c     subroutine calculates marginal likelihood
           call dtrsv('u','t','n',k,vobar,k,vxy,1)
           beta=0.0
           vso=vs+ypy-ddot(k,vxy,1,vxy,1)
-          lndetvu=0.0
-          do i=1,k
-              lndetvu=lndetvu+log(v(i,gam(i)+1))
-          enddo
 
           lndetvo=0.0
           do i=1,k
               lndetvo=lndetvo+log(vobar(i,i))
           enddo
 
-          marg=lndetvu+0.5*ldr-lndetvo-dble(nuo)/2.0*log(vso/2.0)
+          marg=0.5*logdetvu(v,gam,ldr,k)-lndetvo-dble(nuo)/2.0*
+     + log(vso/2.0)
       else
           marg=-1.0D256
       endif
       return
       end
+c     function returns the log determinant of vubar
+      real*8 function logdetvu(v,gam,ldr,k)
+      implicit none
+      integer i,k,gam(k)
+      real*8 v(k,k),ldr
 
 
+      logdetvu=0.0
+      do i=1,k
+          logdetvu=logdetvu+log(v(i,gam(i)+1))
+      enddo
+      logdetvu=2.0*logdetvu+ldr
+      return
+      end
+      
 
+c     Stochastic search gamma|beta, sigma normal-inverted gamma prior
+
+c     subroutine to sample gamma
+
+      subroutine ssregcbeta_nig(beta,sig,vub,ldr,vubar,gam,v,r,ru,k)
+      implicit none
+      integer k,gam(k),gami,i
+      real*8 v(k,2),r(k,k),beta(k),sig,vub(k),vubar(k,k)
+      real*8 ldr,pgamnum,pgamdenom,ru(k),probdenom,probgambet
+
+cf2py intent(in) beta
+cf2py intent(in) sig
+cf2py intent(in) vub
+cf2py intent(in) ldr
+cf2py intent(in) vubar
+cf2py intent(in) gam
+cf2py intent(in) v
+cf2py intent(in) r
+cf2py intent(in) gam
+cf2py intent(in) ru
+cf2py intent(in) k
+
+      do i=2,k
+          if (gam(i).eq.1) then
+              gami=-1
+              pgamnum=probgambet(ldr,beta,vub,sig,vubar,v,r,gami,gam,k)
+              gam(i)=0
+              gami=i
+              pgamdenom=probgambet(ldr,beta,vub,sig,vubar,v,r,gami,gam,
+     + k)
+              pgamdenom=probdenom(pgamnum,pgamdenom)
+              if (ru(i)>pgamdenom) then
+                  gam(i)=1
+                  call update_vubar(vubar,gam,v,r,gami,k)
+              endif
+          else
+              gami=-1
+              pgamnum=probgambet(ldr,beta,vub,sig,vubar,v,r,gami,gam,k)
+              gam(i)=1
+              gami=i
+              pgamdenom=probgambet(ldr,beta,vub,sig,vubar,v,r,gami,gam,
+     + k)
+              pgamdenom=probdenom(pgamnum,pgamdenom)
+              if (ru(i)>pgamdenom) then
+                  gam(i)=0
+                  call update_vubar(vubar,gam,v,r,gami,k)
+              endif
+          endif
+      enddo
+      end
+
+
+c     subroutine calculate prob beta,gamma
+      real*8 function probgambet(ldr,beta,vub,sig,vubar,v,r,gami,gam,k)
+      implicit none
+      integer k,gam(k),gami
+      real*8 beta(k),v(k,2),r(k,k),vubar(k,k),ldr,logdetvu
+      real*8 vub(k),alpha,beta1,sig,ddot
+
+      if (gami.ne.-1) then
+          call update_vubar(vubar,gam,v,r,gami,k)
+      endif
+
+      alpha=1.0
+      beta1=0.0
+      call dgemv('n',k,k,alpha,vubar,k,beta,1,beta1,vub,1)
+      probgambet=0.5*logdetvu(v,gam,ldr,k)-0.5/sig**2
+     + *ddot(k,beta,1,vub,1)
+      return
+      end
+
+      
 
 
