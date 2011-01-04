@@ -889,10 +889,10 @@ class MCMC:
 
             else:
                 ltheta = self.storeblock[self.group_names[i]].get_ltheta()
-                for i in xrange(ngroups):
+                for j in xrange(ngroups):
                     if self.storeblock[self.group_names[i]].get_store() == 'all':
-                        self.storeparam[name[i]] = np.zeros([self.nit]+nparam[i])
-                    self.currentparam[name[i]] = ltheta[i]
+                        self.storeparam[name[j]] = np.zeros([self.nit]+nparam[i])
+                    self.currentparam[name[j]] = ltheta[j]
 
         self.numdec = 3
         self.meanstore = {}

@@ -25,6 +25,7 @@ from stochsearch import*
 import matplotlib.pyplot as plt
 import scipy.stats.distributions as dstn
 import wishart
+import pdb
 
 
 class StochasticSearch:
@@ -32,7 +33,7 @@ class StochasticSearch:
     StochasticSearch is a class that is called from RegSampler and used
     when the user wishes to use the stochastic search to select the
     regressors in a regression
-    Only works with the g_prior"""
+    """
     def __init__(self, yvec, xmat, prior):
         self.nobs = yvec.shape[0]
         self.kreg = xmat.shape[1]
@@ -56,16 +57,17 @@ class StochasticSearch:
             self.g = prior[2]
             self.__samplegam = self.__sim_gamma_gprior
         elif prior[0] == 'normal_inverted_gamma':
-            self.R = np.asfortranarray(prior[1])
-            self.D = prior[2]
-            self.nu = prior[3]
-            self.nus = prior[4]
+            self.nu = prior[1]
+            self.nus = prior[2]
+            self.R = np.asfortranarray(prior[3])
+            self.D = np.asfortranarray(prior[4])
             self.logdetR = 2.0 * np.sum(np.diag(np.linalg.cholesky(self.R)))
             self.vxy = self.xgy
             self.vobar = self.xgxg
             self.vubar = self.work2
             self.nuobar = self.nu + self.kreg
             self.__samplegam = self.__sim_gamma_nig
+            self.__samplegam_cond_beta = self.__sim_gamma_nig_cond_beta
         else:
             raise NameError("prior incorrectly specified")
 
@@ -79,10 +81,20 @@ class StochasticSearch:
               self.ifo, self.ifo2, self.nobs)
 
     def __sim_gamma_nig(self):
-        initialise_vubar(self.vubar, self.gam, self.D, self.R)
+        self.initialise_vubar()
         ssreg_nig(self.ypy, self.logdetR, self.nus, self.vxy, self.vobar,
                  self.vubar, self.gam, self.xpx, self.xpy, self.D,
                  self.R, self.nuobar, self.ru)
+
+
+    def __sim_gamma_nig_cond_beta(self, sig, beta):
+        """samples gamma conditional on beta"""
+        self.initialise_vubar()
+        ssregcbeta_nig(beta, sig, self.vxy, self.logdetR, self.vubar,
+                       self.gam, self.D, self.R, self.ru)
+
+    def initialise_vubar(self):
+        initialise_vubar(self.vubar, self.gam, self.D, self.R)
 
     def sample_gamma(self, store):
         it = store['iteration']
@@ -93,6 +105,16 @@ class StochasticSearch:
         if it >= burn:
             self.update_store()
         return self.gam
+
+    def sample_gamma_cond_beta(self, store, sig, beta):
+        it = store['iteration']
+        burn = store['length_of_burnin']
+        self.ru = np.random.rand(self.kreg)
+        self.__samplegam_cond_beta(sig, beta)
+        if it >= burn:
+            self.update_store()
+        return self.gam
+        
 
     def update_store(self):
         """function updates internal storage for gamma"""
@@ -179,7 +201,7 @@ class BayesRegression:
                prior = ['g_prior', betaubar, g].
                If none of these options are chosen or they are
                miss - specified then BayesRegression will default to
-               Jeffrey's prior.
+               Jeffreys prior.
         
     """
     def __init__(self, yvec, xmat, **kwargs):
@@ -192,31 +214,29 @@ class BayesRegression:
         self.xpx = np.dot(self.xmat.T, self.xmat)
         self.xpy = np.dot(self.xmat.T, yvec)
         self.kreg = self.xmat.shape[1]
-        self.lndetxpx = np.sum(np.log(np.diag(np.linalg.cholesky(self.xpx))))
         self.vobar = np.zeros((self.kreg, self.kreg))
         self.betaobar = np.zeros(self.kreg)
         self.updateind_xmat = 0
         self.updateind_yvec = 0
-        self.calclndetxpx_ind = 0
         self.calculated = False
         self.nuobar = 0.0
         self.sobar = 0.0
         self.vbobar = np.zeros(self.kreg)
         self.cholvobar = np.zeros((self.kreg, self.kreg))
         if 'prior' not in kwargs:
-            # default: Jeffrey's prior
+            # default: Jeffreys prior
             self.res = np.zeros(self.nobs)
             self.__calculate = self.__calculate_jeffreys
             self.__sample_scale = self.__sample_standard_deviation
-            self.__log_cand_prob = self.__log_cand_pr_sig
-            self.prior = ['Jeffrey\'s']
+            self.__log_cand_prob = self.__log_cand_pr_sig_jeff
+            self.prior = ['Jeffreys']
             self.__posterior_variance_scale = self.__posterior_sigma_var
             self.__posterior_mean_scale = self.__posterior_sigma_mean
             self.__log_marginal_likelihood = self.__log_marginal_likelihood_jeff
         else:                   # Normal - gamma prior
             self.prior = kwargs['prior']
             if type(self.prior[0])!= types.StringType:
-                print "Warning: Jeffery's prior used as prior was \
+                print "Warning: Jefferys prior used as prior was \
 incorectly specified"
                 self.res = np.zeros(self.nobs)
                 self.__calculate = self.__calculate_jeffreys
@@ -256,6 +276,8 @@ incorectly specified"
                         self.subar = self.prior[2]
                         self.betaubar = self.prior[3]
                         self.vubar = self.prior[4]
+                        self.lndetvubar = 2.0 * \
+                        np.sum(np.log(np.diag(np.linalg.cholesky(self.vubar))))
 
                     elif ptype =='normal_inverted_gamma':
                         self.__calculate = self.__calculate_normal_gamma
@@ -270,6 +292,8 @@ incorectly specified"
                         self.subar = self.prior[2]
                         self.betaubar = self.prior[3]
                         self.vubar = self.prior[4]
+                        self.lndetvubar = 2.0 * \
+                        np.sum(np.log(np.diag(np.linalg.cholesky(self.vubar))))
                         self.__log_marginal_likelihood = \
                                  self.__log_marginal_likelihood_nig
                         
@@ -285,14 +309,32 @@ incorectly specified"
                         self.__sample_scale = \
                                         self.__sample_standard_deviation
                         self.__calculate = self.__calculate_g_prior
-                        self.__log_cand_prob = self.__log_cand_pr_sig
+                        self.__log_cand_prob = self.__log_canc_pr_sig_gprior
                         self.__posterior_variance_scale = \
                                                self.__posterior_sigma_var
                         self.__posterior_mean_scale = \
                                              self.__posterior_sigma_mean
                         self.__log_marginal_likelihood = self.__log_marginal_likelihood_gprior
+                        self.vubar = self.xpx / self.g
+                        self.lndetvubar = 2.0 * \
+                        np.sum(np.log(np.diag(np.linalg.cholesky(self.vubar))))
 
-    def log_candidate_probability(self, scale, beta, **kwargs):
+    def update_prior(self, prior):
+        if prior[0] == 'normal_inverted_gamma' or prior[0] == 'normal_gamma':
+            self.nuubar = self.prior[1]
+            self.subar = self.prior[2]
+            self.betaubar = self.prior[3]
+            self.vubar = self.prior[4]
+            self.lndetvubar = 2.0 * \
+            np.sum(np.log(np.diag(np.linalg.cholesky(self.vubar))))
+
+        elif prior[0] == 'g_prior':
+            self.vubar = self.xpx / self.g
+            self.lndetvubar = 2.0 * \
+            np.sum(np.log(np.diag(np.linalg.cholesky(self.vubar))))
+
+
+    def log_posterior_probability(self, scale, beta, **kwargs):
         return self.__log_cand_prob(scale, beta, **kwargs)
 
     def __calculate_jeffreys(self):
@@ -301,8 +343,6 @@ incorectly specified"
             self.xpy = np.dot(self.xmat.transpose(), self.yvec)
             if self.updateind_xmat == 1: 
                 self.xpx = np.dot(self.xmat.transpose(), self.xmat)
-                if self.calclndetxpx_ind == 1:
-                    self.lndetxpx = np.sum(np.log(np.diag(np.linalg.cholesky(self.xpx))))
             self.updateind_xmat = 0
             self.updateind_yvec = 0
 
@@ -320,8 +360,6 @@ incorectly specified"
             self.xpy = np.dot(self.xmat.transpose(), self.yvec)
             if self.updateind_xmat == 1: 
                 self.xpx = np.dot(self.xmat.transpose(), self.xmat)
-                if self.calclndetxpx_ind == 1:
-                    self.lndetxpx = np.sum(np.log(np.diag(np.linalg.cholesky(self.xpx))))
             self.updateind_xmat = 0
             self.updateind_yvec = 0
         self.vobar = self.vubar + self.xpx
@@ -339,8 +377,6 @@ incorectly specified"
             self.xpy = np.dot(self.xmat.transpose(), self.yvec)
             if self.updateind_xmat == 1: 
                 self.xpx = np.dot(self.xmat.transpose(), self.xmat)
-                if self.calclndetxpx_ind == 1:
-                    self.lndetxpx = np.sum(np.log(np.diag(np.linalg.cholesky(self.xpx))))
             self.updateind_xmat = 0
             self.updateind_yvec = 0
         self.betahat = np.linalg.solve(self.xpx, self.xpy)
@@ -366,39 +402,62 @@ incorectly specified"
         """
         calculates the log of the candiate probability given scale = sigma
         """
-        self.calclndetxpx_ind = 1
-        diffbeta = beta - self.betaobar
-       
-        kernel = -float(self.kreg) * np.log(sigma)\
-            -0.5 * np.dot(diffbeta, np.dot(self.vobar, diffbeta))\
-            /sigma**2 + \
-            -(self.nuobar + 1.0) * np.log(sigma) - \
-            self.sobar / (2.0 * sigma**2)
+        loglike = self.loglike(sigma, beta)
 
-        if 'kernel_only' in kwargs.keys() \
-               and kwargs['kernel_only'] == True:
-            lnpr = kernel
+        dbeta = beta - self.betaubar
+        kern = -self.kreg * np.log(sigma) -0.5 / sigma ** 2 *\
+                np.dot(dbeta, np.dot(self.vubar, dbeta))
+
+        kerns = -(self.nuubar + 1) * np.log(sigma) - self.subar/(2.0 * sigma ** 2)
+        
+        if 'kernel_only' in kwargs and kwargs['kernel_only'] == True:
+              return loglike + kern + kerns
+
         else:
-            constant = -float(self.kreg)/2.0 * np.log(2.0 * np.pi) + \
-            0.5 * self.lndetxpx\
-                + np.log(2.0) - special.gammaln(self.nuobar / 2.0) + \
-            self.nuobar/2.0 \
-                * np.log(self.sobar/2.0)
+            const = -0.5 * self.kreg * np.log(2 * np.pi) + 0.5 * self.lndetvubar
+            consts = np.log(2) - special.gammaln(self.nuubar / 2.) +\
+                    self.nuubar / 2. * np.log(self.subar / 2.)
+            return loglike + kern + kerns + const + consts
 
-            lnpr = kernel + constant
-        return lnpr                               
+
+    def __log_cand_pr_sig_jeff(self, sigma, beta, **kwargs):
+        
+        loglike = self.loglike(sigma, beta)
+        return loglike - np.log(sigma)
+
+    def __log_canc_pr_sig_gprior(self, sigma, beta, **kwargs):
+        loglike = self.loglike(sigma, beta)
+        
+        dbeta = beta - self.betaubar
+        kern = -self.kreg * np.log(sigma) -0.5 * self.kreg * np.log(self.g) \
+                -0.5 / (self.g * sigma ** 2) \
+                * np.dot(dbeta, dot(self.vubar, dbeta))
+
+        
+        if 'kernel_only' in kwargs and kwargs['kernel_only'] == True:
+                return kern - np.log(sigma)
+        else:
+            const = -0.5 * self.kreg * np.log(2 * np.pi) + 0.5 * self.lndetvubar
+            return loglike + kern + const - np.log(sigma)
+
 
     def __log_cand_pr_kappa(self, kappa, beta, **kwargs):
-        diffbeta = self.betaobar
-        self.calclndetxpx_ind = 1
-        pr_beta =-float(self.kreg)/2.0 * np.log(2.0 * np.pi) + \
-        float(self.kreg)/2.0 * np.log(kappa)+ \
-        0.5 * self.lndetxpx - 0.5 * \
-        np.dot(diffbeta, np.dot(self.vobar, diffbeta)) * kappa**2
-        pr_kappa = special.gammaln(self.nuobar/2.0) + self.nuobar/2.0* \
-        np.log(self.sobar/2.0) + (self.nuobar/2.0 - 1.0) * np.log(kappa)\
-        - kappa * self.sobar/2.0
-        return pr_beta + pr_kappa
+        loglike = self.loglike(sigma, beta)
+
+        dbeta = beta - betaubar
+        kern = 0.5 * self.kreg * np.log(kappa) -0.5 * kappa \
+                * np.dot(dbeta, np.dot(self.vubar, dbeta))
+
+        kerns = (nu + 1) / np.log(kappa) - ns * kappa /2.0 
+        
+        if 'kernel_only' in kwargs and kwargs['kernel_only'] == True:
+            return loglike + kern + kerns
+
+        else:
+            const = -0.5 * self.kreg * log(2 * np.pi) + 0.5 * self.lndetvubar
+            consts = np.log(2) - special.gammaln(self.nuubar / 2.) +\
+                    self.nuubar / 2. * np.log(self.subar/2.)
+            return loglike + kern + kerns + const + consts
 
 
     def __sample_standard_deviation(self):
