@@ -106,7 +106,7 @@ scheme, where the conditional posterior has the form of a linear model.
 It also contains a class that can be used along with Gibbs sampler
 for Bayesian variable selection.
 
-\pkg{PyMCMC} is designed to be fully flexible, with respect to MCMC design.
+% \pkg{PyMCMC} is designed to be fully flexible, with respect to MCMC design.
 This is important in practice, as MCMC algorithms usually need to
 be tailored to the problem of interest in order to ensure good results.
 Issues such as block size and parameterisation can have a dramatic
@@ -338,7 +338,7 @@ Several functions are included as a part of the class:
   output format will also depend on the plotting backend being used.
   If the filename does not have a suffix, a default format will be
   chosen based on the graphics backend. Most backends support png,
-  pdf, ps, eps and svg (see the documentation for Matplotlib for
+  pdf, ps, eps and svg (see the documentation for \pkg{Matplotlib} for
   further details http://matplotlib.sourceforge.net).
 \item individual: A Boolean option. If true, then each subplot will be
   done on an individual page.
@@ -519,7 +519,7 @@ $j=1,2,\ldots,M$ is given\emph{\ }by Algorithm \ref{alg:rwmh}.
   \item Otherwise accept $\bm{\theta}^{j}=\bm{\theta}^{j-1}.$
   \end{enumerate}
   \caption{Random Walk MH}
-\label{alg:rwmh}q
+\label{alg:rwmh}
 \end{algorithm}
 
 
@@ -681,7 +681,7 @@ the exact set $A$ is not necessarily straightforward. The
 \emph{stepping out} algorithm of \citet{Radford2003} is used to obtain
 the set $A$.  This algorithm is applied to each of the $n$ slices to
 obtain the joint maximum and minimum of the slice. This results in a
-sampling interval that is designed to sample a new $\theta^{j}$ in the
+sampling interval that is designed to draw a new $\theta^{j}$ in the
 neighbourhood of $\theta^{j-1}$ and may include values outside the
 permissible range of $A$. The user is required to define an estimated
 typical slice size ($ss$), which is the width of set $A$, along with
@@ -697,13 +697,13 @@ $A$\end{enumerate}
 \item $U\sim\mbox{Unif}(0,1)$ 
 
 \begin{itemize}
-\item $LB=\theta^{j-1}-ss*U$ 
+\item $LB=\theta^{j-1}-ss{\times}U$ 
 \item $UB=LB+ss$ 
 \end{itemize}
 \end{itemize}
 \begin{enumerate}
 \item Sample $V\sim\mbox{Unif}(0,1)$ 
-\item Set $J=\mbox{Floor}(N*V)$ 
+\item Set $J=\mbox{Floor}(N{\times}V)$ 
 \item Set $Z=(N-1)-J$ 
 \item Repeat while $J>0$ and $\omega_{i}<f_{i}(LB)\forall i$
 
@@ -736,7 +736,7 @@ repeating this algorithm until exit conditions are met.
 \begin{algorithm}[H]
 \begin{enumerate}
 \item $U\sim\mbox{Unif}(0,1)$ 
-\item $\theta^{j}=LB+U*(UB-LB)$
+\item $\theta^{j}=LB+U{\times}(UB-LB)$
 
 \begin{itemize}
 \item If $\omega_{i}<f_{i}(\omega_{i})\forall i$, accept $\theta^{j}$
@@ -757,7 +757,7 @@ to step 1
 \item func - a $k$ dimensional list containing the set of log functions. 
 \item init\_theta - an initial value for $\theta$. 
 \item ssize - a user defined value for the typical slice size. 
-\item sN - an integer limiting slice size to sN{*}ssize 
+\item sN - an integer limiting slice size to sN$\times$ssize 
 \item {*}{*}kwargs - optional arguments:
 
 \begin{enumerate}
@@ -775,16 +775,21 @@ interest. This is required for certain calculations.
 \end{enumerate}
 
 \subsection{Normal Linear Bayesian Regression Model}
+\label{sec: Regression Model}
 
 Many interesting models are partly linear for a subset of the unknown
 parameters. As such drawing from the full conditional posterior
 distribution for the associated parameters may be equivalent to
-sampling the unknown parameters in standard linear regression model.
-For the standard linear regression model, assume the
+sampling the unknown parameters in a standard linear regression model. \pkg{PyMCMC} includes several classes
+that aid in the analysis of linear or partly linear models. In particular the classes
+\emph{BayesRegression}, \emph{CondRegBetaSampler}, \emph{CondScaleSamper} and \emph{StochasticSearch}
+are useful for this purpose. These classes are described in this section.
+For the standard linear regression model (see \cite{Zellner1971}), assume the
 $\left(n\times1\right)$ observational vector, $\bm{y},$ is generated
 according to\begin{equation}
   \bm{y}=\bm{X}\bm{\beta}+\bm{\varepsilon};\,\,\,\bm{\varepsilon}\sim
-  N(\bm{0},\sigma^{2}\bm{I}),\label{eq:regression}\end{equation} where
+  N(\bm{0},\sigma^{2}\bm{I}),\label{eq:regression}
+\end{equation} where
 $\bm{X}$ is an $(n\times k)$ matrix of regressors, $\bm{\beta}$ is a
 $\left(k\times1\right)$ vector of regression coefficients and
 $\bm{\varepsilon}$ is a normally distributed random variable with a
@@ -794,45 +799,63 @@ $\sigma$ are unknown then the posterior distribution for
 (\ref{eq:regression}) is given by\begin{equation}
   p(\bm{\beta},\sigma|\bm{y},\bm{X})\propto
   p(\bm{y}|\bm{X},\bm{\beta},\sigma)\times
-  p(\bm{\beta},\sigma),\label{eq:post regression}\end{equation} where
+  p(\bm{\beta},\sigma),\label{eq:post regression}
+\end{equation} where
 \begin{equation}
   p(\bm{y}|\bm{X},\bm{\beta},\sigma)\propto\sigma^{-n}\exp\left\{
     -\frac{1}{2\sigma^{2}}\left(\bm{y}-\bm{X}\bm{\beta}\right)^{T}\left(\bm{y}-\bm{X}\bm{\beta}\right)\right\}
-  ,\label{eq:likelihood regression}\end{equation} is the joint
-\emph{pdf }for $\bm{y}$ given $\bm{X},$ $\bm{\beta}$ and
-$\sigma,$\emph{ }and\emph{ $p(\bm{\beta},\sigma)$ }denotes the joint
-prior \emph{pdf} for $\bm{\beta}$ and $\sigma.$
+  ,\label{eq:likelihood regression}
+\end{equation} is the joint
+\emph{pdf} for $\bm{y}$ given $\bm{X}$, $\bm{\beta}$ and
+$\sigma$, and\emph{ $p(\bm{\beta},\sigma)$ } denotes the joint
+prior \emph{pdf} for $\bm{\beta}$ and $\sigma$.
 
 A class named \emph{BayesRegression }is defined to sample from the
 posterior distribution in (\ref{eq:post regression}). One of four
 alternative priors may be used in the specification of the model.  The
-default choice is Jeffreys' prior. Denoting the full set of unknown
+default choice is Jeffreys prior. Denoting the full set of unknown
 parameters as $\bm{\theta}=(\bm{\beta}^{T},\sigma)^{T},$ then
-Jeffreys' prior is defined such that \begin{equation}
+Jeffreys prior is defined such that \begin{equation}
   p(\bm{\theta})\propto|I(\bm{\theta})|^{-1/2},\label{eq:Jeffrey's
-    Prior}\end{equation} where $I(\bm{\theta})$ is the Fisher
-information matrix for $\bm{\theta}.$ Three alternative informative
-prior specifications are allowed, namely, the normal-gamma prior, the
-normal-inverted gamma and Zelner's g-prior.  The normal-gamma prior is
-specified such that\begin{equation} \bm{\beta}|\kappa\sim
+    Prior}
+\end{equation} where $I(\bm{\theta})$ is the Fisher
+	information matrix for $\bm{\theta}.$ For the normal linear
+	regression model in \ref{eq:regression}, given the assumption that $\beta$
+	and $\sigma$ are \emph{a priori} independent, Jeffreys prior is flat prior over the 
+	real number line for $\beta$, and for $\sigma$ is distributed such that 
+\begin{equation}
+		p\left(\sigma\right)\propto\frac{1}{\sigma}.
+\end{equation}
+		See \cite{Zellner1971} for further details on Jeffreys prior. Three alternative informative
+prior specifications are allowed, namely the normal-gamma, the
+normal-inverted-gamma and Zellner's g-prior; see \cite{Zellner1971} and \cite{MarinRobert2007}
+for further details.  The normal-gamma prior is
+specified such that\begin{equation} 
+\bm{\beta}|\kappa\sim
   N(\bm{\underline{\beta}},\underline{\bm{V}}^{-1}),\,\,\,\kappa\sim
   G\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right),\label{eq:Normal
-    Gamma}\end{equation} where $\kappa=\sigma^{-2}$ and
+    Gamma}\end{equation} 
+where $\kappa=\sigma^{-2}$ and
 $\underline{\beta,}$ $\underline{\bm{V}},$ $\underline{\nu}$ and
-$\underline{S}$ are prior hyperparameters, which take user defined
+$\underline{S}$ are prior hyperparameters that take user defined
 values. For the Normal-gamma prior, \emph{BayesRegression }produces
-estimates for\emph{ $\left(\bm{\kappa,\beta}^{T}\right)^{T}$ }rather
-than $\left(\bm{\sigma,\beta}^{T}\right)$ . The Normal-inverted gamma
-prior is specified such that\begin{equation}
-  \bm{\beta}|\sigma^{-2}\sim
+estimates for\emph{ $\left(\kappa,\bm{\beta}^{T}\right)^{T}$ }rather
+than $\left(\sigma,\bm{\beta}^{T}\right)$ . The Normal-inverted gamma
+prior is specified such that
+\begin{equation}
+  \bm{\beta}|\sigma^{-2}\sim`
   N(\bm{\underline{\beta}},\underline{\bm{V}}^{-1}),\,\,\,\sigma^{-2}\sim
   IG\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right),\label{eq:Normal
-    Inverted Gamma}\end{equation} where $\underline{\beta,}$
+    Inverted Gamma}
+\end{equation} 
+where $\underline{\beta,}$
 $\underline{\bm{V}},$ $\underline{\nu}$ and $\underline{S}$ are prior
-hyperparameters, which take values that are set by the user. Zelner's
-g-prior is specified such that\begin{equation} \bm{\beta}|\sigma\sim
+hyperparameters, which take values that are set by the user. Zellner's
+g-prior is specified such that
+\begin{equation} \bm{\beta}|\sigma\sim
   N\left(\underline{\bm{\beta}},g\sigma^{2}\left(X^{T}X\right)^{-1}\right),\,\,\,
-  p(\sigma)\propto\sigma^{-1},\label{eq:g-prior}\end{equation}
+  p(\sigma)\propto\sigma^{-1},\label{eq:g-prior}
+\end{equation}
 
 
 where $\bm{\underline{\beta}}$ and $g$ are hyperparameters with
@@ -845,12 +868,12 @@ the user must specify:
 
 \begin{enumerate}
 \item prior - a list contain the name of the prior and the
-  corresponding hyperparameters. Examples: prior={[}`normal\_gamma',
+  corresponding hyperparameters. Examples: prior = {[}`normal\_gamma',
   betaubar, Vubar, nuubar, Subar{]},
-  prior={[}`normal\_inverted\_gamma',betaubar, Vubar,nuubar, Subar{]}
-  and prior={[}`g\_prior', betaubar, g{]}. If none of these options
+  prior = {[}`normal\_inverted\_gamma',betaubar, Vubar, nuubar, Subar{]}
+  and prior = {[}`g\_prior', betaubar, g{]}. If none of these options
   are chosen or they are miss-specified then the default prior will be
-  Jeffreys' prior.
+  Jeffreys prior.
 \end{enumerate}
 \end{enumerate}
 \emph{BayesRegression }contains several functions that may be of interest
@@ -858,12 +881,12 @@ to the user. In particular:
 \begin{enumerate}
 \item sample() - returns a sample of $\sigma$ and $\bm{\beta}$ from
   the joint posterior distribution for the normal-inverted gamma
-  prior, Jeffreys' prior and Zellner's g-prior. If the normal-gamma
+  prior, Jeffreys prior and Zellner's g-prior. If the normal-gamma
   prior is specified then sample() returns $\kappa$ and $\bm{\beta}.$
-\item UpdateYvec(yvec) - updates yvec in \emph{BayesRegression}. This
+\item update\_yvec(yvec) - updates yvec in \emph{BayesRegression}. This
   is often useful when the class is being used as a part of the MCMC
   sampling scheme.
-\item UpdateXmat(xmat) - updates xmat in \emph{BayesRegression}. This
+\item update\_xmat(xmat) - updates xmat in \emph{BayesRegression}. This
   is often useful when the class is being used as a part of the MCMC
   sampling scheme.
 \item loglike(scale, beta) - returns the log-likelihood.
@@ -872,9 +895,9 @@ to the user. In particular:
 $\bm{\beta}.$
 \item get\_posterior\_covmat() - returns the posterior covariance matrix
 for $\bm{\beta}$.
-\item bic() - returns the Bayesian information criterion.
+\item bic() - returns the Bayesian information criterion; see \cite{KassRaftery1995} for details.
 \item plot({*}{*}kwargs) - produces standard plots. Specifically the
-  marginal posterior density intervales for each element of
+  marginal posterior density intervals for each element of
   $\bm{\beta}$ and for the scale parameter ($\sigma$ or $\kappa)$.
 \item residuals - returns the residual vector from the regression
   analysis.  The residuals are calculated with $\bm{\beta}$ evaluated
@@ -888,20 +911,23 @@ for $\bm{\beta}$.
 \end{enumerate}
 In MCMC sampling schemes it is common that for a subset of the unknown
 parameters of interest the full conditional posterior distribution
-will correspond to that a linear regression model, where the scale
+will correspond to that of a linear regression model, where the scale
 parameter is known. For the linear regression model specified in
 (\ref{eq:regression}) the posterior distribution for the case that
-$\sigma$ is known is as follows\begin{equation} p(\bm{\beta})\propto
+$\sigma$ is known is as follows
+\begin{equation} 
+p\left(\bm{\beta}|\bm{y},\bm{X},\bm{\beta},\sigma\right)\propto
   p(\bm{y}|\bm{X},\bm{\beta},\sigma)\times
-  p(\bm{\beta}),\label{eq:post_condbeta}\end{equation} where
+  p(\bm{\beta}),\label{eq:post_condbeta}
+\end{equation} where
 $p(\bm{y}|\bm{X},\bm{\beta},\sigma)$ is described in
 (\ref{eq:likelihood regression}) and $p(\bm{\beta})$ is the prior
 \emph{pdf} for $\bm{\beta}.$ To sample from (\ref{eq:post_condbeta}) a
 class named \emph{CondBetaRegSampler} can be used. The user may
 specify one of three alternative priors.  The default prior is
-Jeffreys' prior, which for $\bm{\beta}$ is simply a flat prior over
+Jeffreys prior, which for $\bm{\beta}$ is simply a flat prior over
 the real number line. A normally distributed prior for $\bm{\beta}$ is
-another option and can be specified such that\[ \bm{\beta}\sim
+another option, and can be specified such that\[ \bm{\beta}\sim
 N\left(\underline{\beta},\bm{V}^{-1}\right).\] The user may also
 specify their \emph{a priori} beliefs using Zellner's g-prior, where\[
 \bm{\beta}|\sigma\sim
@@ -917,19 +943,38 @@ the class the user must specify:
   corresponding hyperparameters. Examples: prior={[}`normal',
   betaubar, Vubar{]} or {[}`g\_prior', betaubar, g{]}. If none of
   these options are chosen or they are miss-specified then the default
-  prior will be Jeffreys' prior.
+  prior will be Jeffreys prior.
 \end{enumerate}
 \end{enumerate}
-As many Bayesian models contain linear components with unknown scale
-parameters a class has been specified, named \emph{CondScaleSampler},
+\emph{CondBetaRegSampler} contains several functions that may be of interest
+to the user. In particular:
+
+\begin{enumerate}
+
+\item sample(sigma) - returns a sample of $]\bm{\beta}$ from the posterior
+distribution specified in \ref{eq:post_condbeta}.
+\item get\_marginal\_posterior\_mean() - returns the marginal posterior
+  mean for \ref{eq:post_condbeta}.
+\item get\_marginal\_posterior\_precision() - returns the marginal posterior
+  precision for the linear conditional posterior distribution specified in \ref{eq:post_condbeta}.
+\item update\_yvec(yvec) - updates yvec in \emph{CondBetaRegSampler}. This
+  is often useful when the class is being used as a part of an MCMC 
+  sampling scheme.
+\item update\_xmat(xmat) - updates xmat in \emph{CondBetaRegSampler}. This
+  is often useful when the class is being used as a part of an MCMC 
+  sampling scheme.
+\end{enumerate}
+Many Bayesian models contain linear components with unknown scale
+parameters, hence a class has been specified named \emph{CondScaleSampler},
 which can be used to individually sample scale parameters from their
 posterior distributions. In particular, we wish to sample from
 \begin{equation} p(\sigma|\bm{y},\bm{\theta}),\label{eq:posterior
-    sigma}\end{equation} where $\bm{\theta}$ is the set of unknown
+    sigma}
+\end{equation} where $\bm{\theta}$ is the set of unknown
 parameters of interest excluding $\sigma.$ The user may choose to use
-one of three priors.  The Jeffreys' prior, which for $\sigma$ given
+one of three priors.  The Jeffreys prior, which for $\sigma$ given
 the posterior in (\ref{eq:posterior sigma}) is as follows \[
-p(\sigma)\propto\frac{1}{\sigma}.\] Another option is to specify an
+p(\sigma)\propto\frac{1}{\sigma}.\] The second option is to specify an
 inverted-gamma prior, such that\[ \sigma\sim
 IG\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).\]
 Alternatively, the user may specify a gamma prior for
@@ -939,22 +984,21 @@ initialise the class \emph{CondScaleSamper} the user may first
 specify:
 \begin{enumerate}
 \item {*}{*}kwargs - options arguments:
-
 \begin{enumerate}
 \item prior - list containing the name of the prior and the
   corresponding hyperparameters. Examples:
   prior={[}`gamma',nuubar,subar{]} or {[}`inverted-gamma', nuubar,
-  subar{]}. If no prior is specified the Jeffreys' prior is used.
+  subar{]}. If no prior is specified the Jeffreys prior is used.
 \end{enumerate}
 \end{enumerate}
 \pkg{PyMCMC} also includes another class that can be used for the
 direct analysis of the linear regression model. The class is called
-\emph{StochasticSearch }and can be used in conjunction with the
-\emph{MCMC} sampler for variable selection.
+\emph{StochasticSearch} and can be used in conjunction with the
+class \emph{MCMC}, for the purpose of variable selection.
 
 The stochastic search algorithm can be used for variable selection in
 the linear regression model. Given a set of $k$ possible regressors
-there is $2^{k}$ models to choose from. The stochastic search
+there are $2^{k}$ models to choose from. The stochastic search
 algorithm, as proposed by \citet{GeorgeMcCulloch1993}, uses the Gibbs
 sampler to select a set of `most likely' models. The stochastic search
 algorithm is implemented in the class \emph{StochasticSearch}. The
@@ -962,9 +1006,9 @@ specific implementation follows \citet{MarinRobert2007}. The algorithm
 introduces the vector $\bm{\gamma},$ which is used to select the
 explanatory variables that are to be included in the model. In
 particular, $\bm{\gamma}$ is defined to be a binary vector of order
-$k$, whereby the inclusion of the $i^{th}$regressor will imply that
+$k$, whereby the inclusion of the $i^{th}$regressor implies that
 the $i^{th}$element of $\bm{\gamma}$ is a one, whilst the exclusion of
-the $i^{th}$ regressor implies that the $i^{th}$ element will be zero.
+the $i^{th}$ regressor implies that the $i^{th}$ element is zero.
 It is assumed that the first element of the design matrix is always
 included and should typically be a column of ones which is used to
 represent the constant or intercept in the regression. The algorithm
@@ -983,8 +1027,7 @@ must specify:
 \item xmat - two dimensional \pkg{Numpy} array containing the regressors. 
 \item prior - list with the following structure {[}betaubar, g{]}.
 \end{enumerate}
-There is one function that is a member of \emph{StochasticSearch} that
-may be useful. Specifically,
+The class \emph{StochasticSearch} also contains the following function:
 \begin{enumerate}
 \item sample\_gamma(store) - returns a sample of $\bm{\gamma}.$ The
   only argument to pass into the function sample\_gamma is the storage
@@ -998,26 +1041,20 @@ may be useful. Specifically,
 \pkg{PyMCMC} is illustrated though three examples. Specifically, a
 linear regression example with variable selection, a log-linear
 example and a linear regression model with first order autoregressive
-errors.  For each example the model of interest is specified, then the
-code used in estimation is shown, following which a brief description
-describing each section of code is given. Each example uses the module
+errors.  For each example, the model of interest is specified, then the
+code used for estimation is shown, following which a brief description
+of code is given. Each example uses the module
 for \pkg{PyMCMC}, along with the \proglang{Python} libraries
-\pkg{Numpy}, \pkg{Scipy} and Matplotlib. Example 3 further uses the
-library Pysparse.
+\pkg{Numpy}, \pkg{Scipy} and \pkg{Matplotlib}: see \citet{NumpyScipy, Matplotlib} for further details of these
+Python libraries.
+Example 3 further uses the library Pysparse.
 
 
 \subsection{Example 1: Linear Regression Model: Variable selection and estimation}
 
-The $i^{th}$ observation $y_{i},$ for $i=1,2,\dots,n,$ is generated
-from\[ y_{i}=\mathbf{x}_{i}^{T}\bm{\beta}+\varepsilon_{i},\] where
-$\bm{x}_{i}^{T}$is the $i^{th}$row of the $\left(n\times k\right)$
-matrix $\bm{X},$ $\bm{\beta}$ is a $(k\times1)$ vector of regression
-coefficients and $\varepsilon_{i}$ is independently identically
-distributed (iid) following a normal distribution, with a mean of 0
-and a variance of $\sigma^{2}.$ The data set of interest contains 19
-regressors.  To select the 'most probable' regressors we can use the
-stochastic search algorithm. This is implemented as follows:
-
+The normal linear regression model in (\ref{eq:regression}) is used for the analysis.
+The data set of interest contains 19 regressors. To select the set of `most probable' regressors we can use the
+stochastic search variable selection approach described in Section \ref{sec: Regression Model}.
 
 \subsubsection{Example Code}
 
@@ -1027,7 +1064,7 @@ stochastic search algorithm. This is implemented as follows:
 
 import os
 from numpy import loadtxt, hstack, ones, random, zeros, asfortranarray, log
-from pymcmc.mcmc import Gibbs, CFsampler
+from pymcmc.mcmc import MCMC, CFsampler
 from pymcmc.regtools import StochasticSearch, BayesRegression
 import pymcmc
 
@@ -1051,7 +1088,7 @@ xmat = hstack([ones((xmat.shape[0], 1)), xmat])
 """data is a dictionary whose elements are accessible from the functions
 in the Gibbs sampler"""
 data ={'yvec':yvec, 'xmat':xmat}
-prior = [zeros(xmat.shape[1]), 100.]
+prior = ['g_prior', zeros(xmat.shape[1]), 100.]
 SSVS = StochasticSearch(yvec, xmat, prior);
 data['SS'] = SSVS
 
@@ -1061,30 +1098,28 @@ initgamma[0] = 1
 simgam = CFsampler(samplegamma, initgamma, 'gamma', store ='none')
 
 # initialise class for Gibbs samper
-GS = Gibbs(20000, 5000, data, [simgam])
-GS.sampler()
-GS.output(filename ='vs.txt')
-GS.output(custom = SSVS.output, filename='SSVS.out')
-GS.output(custom = SSVS.output)
+ms = MCMC(20000, 5000, data, [simgam])
+ms.sampler()
+ms.output(filename ='vs.txt')
+ms.output(custom = SSVS.output, filename = 'SSVS.out')
+ms.output(custom = SSVS.output)
 
 txmat = SSVS.extract_regressors(0)
 g_prior = ['g_prior', 0.0, 100.]
 breg = BayesRegression(yvec,txmat,prior = g_prior)
-breg.output()
+breg.output(filename = 'SSVS1.out')
 breg.plot()
 \end{lstlisting}
 
 
-The code uses requires the \proglang{Python} libraries \pkg{Numpy},
-\pkg{Scipy} and Matplotlib; see \citet{NumpyScipy,Matplotlib} for
-further details. The code is organised so that the user defined
+The code is organised so that the user defined
 functions are at the top and the main program is at the bottom.
-Essentially the user defined functions that are called from the MCMC
-sampler, for which there is one in this case, all take the argument
+Essentially the user defined functions that are called from the class \emph{MCMC},
+for which there is one in this case, all take the argument
 \emph{store}, which is a dictionary (\proglang{Python} data structure)
 that is passed to all functions that are called from the MCMC sampler.
 The purpose of \emph{store} is that it contains all the data required
-to define functions that sample from or are used in the evaluation of
+to define functions that sample from, or are used in the evaluation of,
 the posterior distribution. For example, in line 15, store{[}'SS'{]}
 contains the class instance for \emph{StochasticSearch}.  Essentially,
 any information that is stored in the dictionary \emph{data}, which is
@@ -1092,7 +1127,7 @@ defined on line 30 and augmented to include the class instance for
 \emph{StochasticSearch} defined on line 31 can be accessed from the
 dictionary \emph{store}. Note that the dictionary \emph{data} is an
 argument that is used in the initialisation of the \emph{MCMC} class
-on line 39. Apart from the information stored in \emph{data,} the
+on line 39. In addition to the information stored in \emph{data,} the
 value of the previous iterate for each block of the Gibbs scheme is
 also a component of the dictionary store. For example on line 36 the
 class instance \emph{simgam} is initialised. Note that the name
@@ -1100,7 +1135,7 @@ class instance \emph{simgam} is initialised. Note that the name
 user wanted to access the current iteration for 'gamma' from any of
 the functions called from \emph{MCMC}, this would simply be done using
 store{[}'gamma'{]}. This feature is not used in this example, but can
-be seen in the preceding examples. A brief description of the code is
+be seen in the proceding examples. A brief description of the code is
 as follows:
 \begin{itemize}
 \item Lines 3-7 import the classes and functions that are required in this
@@ -1139,7 +1174,7 @@ The data used in this example are a response of crop yield modelled
 using various chemical measurements from the soil. As the results of
 the chemical analysis of soil cores are done in a laboratory, many
 input variables are available (30) and the data analyst would like to
-determine which variables are most appropriate to use in the model.
+determine the variables that are most appropriate to use in the model.
 
 %
 \begin{minipage}[t]{1\columnwidth}%
@@ -1165,10 +1200,10 @@ probability | model
 \end{verbatim}%
 \end{minipage}
 
-The MCMC analysis is conducted using 20000 iterations, of which the
+As indicated earlier, the MCMC analysis is conducted using 20000 iterations, of which the
 first 5000 are discarded. The estimation takes 10.35 seconds in total.
 The results indicate that a model containing variable 12 along with a
-constant is the most likely (prob = 0.09). Furthermore, variable 12 is
+constant (indicated in the table by 0) is the most likely (prob = 0.09). Furthermore, variable 12 is
 contained in each of the 10 most likely models, indicating its strong
 association with crop yield.
 
@@ -1212,16 +1247,13 @@ of variable 12. The marginal posterior densities (Figure \ref{Flo:mpd
 \subsection{Example 2: Log-linear Model}
 \label{sub:Example-2:-Log-linear}
 
-The $i^{th}$ observation $y_{i}$, for $i=1,2,\dots,n$, is generated
+For the log-linear model, see \citet{GelmanCarlinSternRubin2004}, the $i^{th}$ observation $y_{i}$, for $i=1,2,\dots,n$, is generated
 as follows\begin{equation}
 p(y_{i}|\mu_{i})=\frac{\mu_{i}^{y_{i}}\exp(-\mu_{i})}{\mu_{i}!},\label{eq:observation equation log linear model}\end{equation}
  with \[
 \log(\mu_{i})=\bm{x}_{i}^{T}\bm{\beta},\]
- where $\bm{x}_{i}^{T}$is the $i^{th}$row of the $\left(n\times k\right)$
+ where $\bm{x}_{i}^{T}$ is the $i^{th}$row of the $\left(n\times k\right)$
 matrix $\bm{X}.$
-
-
-\subsubsection{Posterior and Prior distributions: log linear model}
 
 The joint posterior distribution for the unknown parameter $\bm{\beta}$
 is given by\begin{equation}
@@ -1233,10 +1265,6 @@ it is apparent that\[
 p(\bm{y}|\bm{\beta},\bm{X})=\prod_{i=1}^{n}\frac{\mu_{i}^{y_{i}}\exp(-\mu_{i})}{\mu_{i}!}.\]
  A \emph{priori }we assume that \[
 \bm{\beta}\sim N(\bm{\underline{\bm{\beta}}},\bm{V}^{-1}).\]
-
-
-
-\subsubsection{Estimation}
 
 To sample from (\ref{eq:post log_linear}), a random walk MH algorithm
 is implemented, where the candidate $\bm{\beta}^{*}$, at each iteration,
@@ -1253,7 +1281,7 @@ is sampled following \begin{equation}
 
 The example code for \pkg{PyMCMC} uses two \proglang{Python}
 libraries, \pkg{Numpy} and \pkg{Scipy}, which the user must have
-installed on their system to run the code.  The code for the program
+installed to run the code.  The code for the program
 is as follows:
 
 
@@ -1264,7 +1292,7 @@ is as follows:
 import os
 from numpy import random, loadtxt, hstack, ones, dot, exp, zeros, outer, diag
 from numpy import linalg
-from pymcmc.mcmc import Gibbs, RWMH, OBMC
+from pymcmc.mcmc import MCMC, RWMH, OBMC
 from pymcmc.regtools import BayesRegression
 from scipy.optimize.minpack import leastsq
 import pymcmc
@@ -1320,14 +1348,15 @@ data['betaprec'] =-llhessian(data, init_beta)
 scale = linalg.inv(data['betaprec'])
 
 samplebeta = RWMH(posterior, scale, init_beta, 'beta')
-GS = Gibbs(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
-GS.sampler()
-GS.output(filename='example1c.out') 
-GS.plot('beta', filename='example1c.eps')
-# GS.CODAoutput('beta')
-# GS.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
-# GS.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
-## GS.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")
+ms = MCMC(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
+ms.sampler()
+ms.output(filename='example1c.out') 
+ms.plot('beta', filename='ex_loglinear.pdf')
+# ms.CODAoutput('beta')
+# ms.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
+# ms.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
+## ms.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")
+
 
 \end{lstlisting}
 
@@ -1380,7 +1409,7 @@ counted, in randomly scattered quadrats, at weekly intervals, during
 the growing season. A log linear model is used; \begin{equation}
   \log(\mbox{count})=\beta_{0}+\beta_{1}\mbox{week}\end{equation}
 where the intercept, $\beta_{0}$, is expected to be positive in value,
-as nutgrass is always present, and $\beta_{1}$ is also expected to be
+as nutgrass is always present in this study site, and $\beta_{1}$ is also expected to be
 positive as the population of nutgrass increases during the growing
 season.
 
@@ -1403,14 +1432,14 @@ Log likelihood =  3864.45312899
 It can be seen from the output that estimation is very fast (7.3
 seconds), and that both $\beta_{0}$ and $\beta_{1}$ are positive
 values, with $\hat{\beta}_{0}$ = 1.14 {[}1.05, 1.23{]} and
-$\hat{\beta}_{1}$ = 0.157 {[}0.149, 0.165{]}. We note that zero is not
-contained in the credible intervals and the marginal posterior
-densities of these estimates (Figure 2) illustrate that both estimates
+$\hat{\beta}_{1}$ = 0.157 {[}0.149, 0.165{]}. The marginal posterior
+densities of these estimates (Figure 2) confirm that both estimates
 are far from zero.
 
-The ACF plots (Figure 2) and low inefficiency factors of 12.6
+The ACF plots (Figure 2) and low inefficiency factors (see \citet{ChibGreenberg1996} for details on
+inefficiency factors) of 12.6
 ($\hat{\beta}_{0}$) and 11.4 ($\hat{\beta}_{1}$) show that
-autocorrelation in the sample is low. %
+autocorrelation in the sample is relatively low for an MCMC sampler. %
 \begin{figure}
   \begin{center}
     \includegraphics[width=16cm]{ex_loglinear.pdf}
@@ -1423,7 +1452,8 @@ plots for the MCMC estimation of the log linear model.}
 \subsection{Example 3: First order autoregressive regression}
 \label{sub:Example-3:-First}
 
-Denote the $t^{th}$ observation as $y_{t},$then for
+The linear regression model, with first order autocorrelated serial correlation
+in the residuals, see \citet{Zellner1971} is defined such that the $t^{th}$ observation, $y_{t},$ for
 $t=1,2,\dots,n,$\begin{equation}
   y_{t}=\bm{x}_{t}^{T}\bm{\beta}+\varepsilon_{t},\label{eq:observation
     ar}\end{equation} with\begin{equation}
@@ -1465,9 +1495,6 @@ where\[
 and $\tilde{\bm{\varepsilon}}=\bm{L}^{T}\bm{\varepsilon}.$ Note that
 $\bm{\varepsilon}\sim N(0,\kappa^{-1}\bm{I})$.
 
-
-\subsubsection{Posterior and Prior Distributions: First order Autoregression}
-
 The joint posterior distribution for full set of unknown parameters
 is\begin{equation} p(\bm{\beta},\kappa,\rho|\bm{y})\propto
   p(\bm{y}|\bm{\beta},\kappa,\rho)\times p(\bm{\beta},\kappa)\times
@@ -1496,10 +1523,6 @@ for $\rho$ there by restricting the autocorrelation of the time series
 to be both positive and stationary. Specifically\[
 \rho\sim\mathcal{B}e\left(\alpha,\beta\right).\]
 
-
-
-\subsubsection{MCMCSampling Scheme: First order autoregressive regression}
-
 A MCMC sampling scheme, for the posterior distribution in (\ref{eq:post_ar}),
 defined at iteration $j$ is as follows: 
 \begin{enumerate}
@@ -1521,7 +1544,7 @@ simulated data.
 from numpy import random, ones, zeros, dot, hstack, eye, log
 from scipy import sparse
 from pysparse import spmatrix
-from pymcmc.mcmc import Gibbs, SliceSampler, RWMH, OBMC, MH, CFsampler
+from pymcmc.mcmc import MCMC, SliceSampler, RWMH, OBMC, MH, CFsampler
 from pymcmc.regtools import BayesRegression 
 
 def simdata(nobs, kreg):
@@ -1549,16 +1572,16 @@ def calcweighted(store):
 def WLS(store):
     """computes weighted least square regression"""
     calcweighted(store)
-    store['regsampler'].UpdateYvec(store['yvectil'])
-    store['regsampler'].UpdateXmat(store['xmattil'])
+    store['regsampler'].update_yvec(store['yvectil'])
+    store['regsampler'].update_xmat(store['xmattil'])
     return store['regsampler'].sample()
 
 def loglike(store):
     """calculates log - likelihood for the the first order autoregressive regression model"""
     nobs = store['yvec'].shape[0]
     calcweighted(store)
-    store['regsampler'].UpdateYvec(store['yvectil'])
-    store['regsampler'].UpdateXmat(store['xmattil'])
+    store['regsampler'].update_yvec(store['yvectil'])
+    store['regsampler'].update_xmat(store['xmattil'])
     return store['regsampler'].loglike(store['sigma'], store['beta'])
 
 def prior_rho(store):
@@ -1598,7 +1621,7 @@ priorreg = ('g_prior', zeros(kreg), 1000.0)
 regs = BayesRegression(yvec, xmat, prior = priorreg)
 
 """A dictionary is set up. The contents of the dictionary will be
-available for use for by the functions that make up the Gibbs sampler.
+available for use for by the functions that make up the MCMC sampler.
 Note that we pass in storage space as well as the class intance used
 to sample the regression from."""
 data ={'yvec':yvec, 'xmat':xmat, 'regsampler':regs}
@@ -1625,9 +1648,9 @@ loglikeinfo = (loglike, kreg + 2, 'yvec')
 ms = MCMC(10000, 2000, data, blocks, loglike = loglikeinfo)
 ms.sampler()
 ms.output()
-#GS.plot('sigbeta')
-GS.plot('rho', filename ='rho')
-GS.CODAoutput(parameters = ['rho'])
+#ms.plot('sigbeta')
+ms.plot('rho', filename ='rho')
+ms.CODAoutput(parameters = ['rho'])
 
 
 
@@ -1729,37 +1752,41 @@ plot and the trace plot for the iterates.
 
 The fact that MCMC algorithms rely on a large number of iterations to
 achieve reasonable results and are often implemented on very large
-problems, dictates that the user must have the required machinery to
-implement efficient code. In MCMC analysis, efficiency comes through
+problems, limits the practioners choice of a suitable environment, in which they can 
+implement efficient code. This efficiency comes through
 an understanding of what makes a simulation efficient MCMC sampler,
 and also the ability to produce computationally efficient code.
-Interestingly, the two are related. To achieve simulation efficient
-code in MCMC samplers it is often extremely important that large
-numbers of parameters are blocked together. A classic example in the
+Interestingly, the two are related. To achieve both simulation and computationally
+efficient code in MCMC samplers it is often extremely important that large
+numbers of parameters are sampled in blocks, rather than the alternative of a
+single move sampler. From the perspective of simulation efficiency it is well known
+that indvidually sampling correlated parameters induces correlation in the resultant
+Markov chain and thus leads to a poorly mixing sampler. A classic example in the
 literature are using \emph{simulation smoothers }to jointly sample the
 state vector in a state space model; see for
-example\citet{CarterKohn1994} and \citet{deJongShepard1995}.  Whilst
+example \citet{CarterKohn1994} and \citet{deJongShepard1995}.  Whilst
 implementing a simulation smoother is required to achieve simulation
 efficient code, the sequential nature of their implementation often
 renders higher level languages impractical for large problems and thus
-forces the analyst to write their entire code in lower level
-languages. This is an inefficient use of time as usually only small
+forces the analyst to write their entire code in a lower level
+language. This is an inefficient use of time as usually only a small
 percentage of code needs to be optimised. This drawback is easily
 circumvented in \pkg{PyMCMC} as \proglang{Python} makes it easy to use
 a lower level language to write the specialised module and use the
 function directly from \proglang{Python}. This ensures \pkg{PyMCMC}'s
 modules can be used for rapid development from \proglang{Python} and
-lower level languages are only resorted to when necessary.  This
-Section aims to provide guidelines for producing efficient code with
+lower level languages are only resorted to when necessary.
+
+This section aims to provide guidelines for producing efficient code with
 \pkg{PyMCMC}. We discuss alternative external libraries that are
 available to the user for producing efficient code using \pkg{PyMCMC}.
 Despite the ease of writing specialised modules this should not be the
 first resort of the user. Instead, one should ensure that the
-\proglang{Python} prototypes are efficiently coded using the resources
+\proglang{Python} code is as efficient as possible using the resources
 available with \proglang{Python}.
 
 Arguably, the first thing the user of \pkg{PyMCMC} should concentrate
-on when optimising there \pkg{PyMCMC} code is to ensure they use as
+on when optimising their \pkg{PyMCMC} code is to ensure they use as
 many inbuilt functions and libraries as possible. As most high
 performance libraries are written in \proglang{C} or
 \proglang{Fortran} this ensures that computationally expensive
@@ -1767,12 +1794,12 @@ procedures are computed using code from compiled languages.
 \proglang{Python} users, and hence \pkg{PyMCMC} users, have an
 enormous resource of Scientific libraries available to them as a
 result of the popularity of \proglang{Python} in the scientific
-community. Two of the most important libraries for most users, will
-quite possibly be, \pkg{Numpy} and \pkg{Scipy}. Making use of such
+community. Two of the most important libraries for most users will
+quite possibly be \pkg{Numpy} and \pkg{Scipy}. Making use of such
 libraries is one of the best ways of avoiding large loops in
 procedures that are called from the MCMC sampler. If a large loop is
 used inside a function that is called from inside the MCMC sampler
-then this could mean a large proportion of the total computation is
+then this could mean that a large proportion of the total computation is
 being done by \proglang{Python}, rather than a library that was
 generated from optimised compiled code. This can have a dramatic
 effect on the total computation time. As a simple and somewhat trivial
@@ -1797,7 +1824,7 @@ Whilst the two functions to calculate the log-likelihood are
 mathematically equivalent, the one with the explicit loop is
 substantially slower.  Specifically, the time taken for the MCMC
 sampler went from 7.3 seconds to 130.19 seconds. As such, this minor
-modification leads to an approximately 18 times decrease in the speed
+modification leads to an approximate 18-fold decrease in the speed
 of the program.
 
 If the use of an an inbuilt function is not possible and the time
@@ -1873,9 +1900,11 @@ cf2py intent(in) xb
 \end{lstlisting}
 
 
-The code is compiled with the command (Note see the following
+The code is compiled with the command (Note: see the following
 subsection if you are a Microsoft Windows user, this command is for
 UNIX type environments such as Linux and OSX):
+In UNIX type environments, such as Linux and OSX the code is compiled with the following command (Windows
+users see Section \ref{CompilingWindows})
 
 f2py -c loglinear.f -m loglinear -lblas -latlas
 
@@ -1941,20 +1970,21 @@ alternative approaches are beyond the scope of this paper.
 
 
 \subsection{Compiling Code in Windows}
+\label{CompilingWindows}
 
 The previous section described how one might go about using
 \pkg{PyMCMC} efficiently. To do this, access to a compiler is
 necessary. Under most flavours of UNIX, this should pose no problem,
 but under Microsoft Windows this can be more difficult. This section
 provides some brief guidelines to an approach we found workable under
-windows.
+Windows.
 
 In order to run \pkg{PyMCMC}, \proglang{Python}, \pkg{Numpy} and \pkg{Scipy} are all required,
 but to have a reasonable developer experience under Windows, we suggest
 a few additional packages, all of which are freely available:
 \begin{itemize}
 \item mingw (http://www.mingw.org/) which provides, among other
-  things, the GNU compler suite. You should choose at least gcc and
+  things, the GNU compler suite. The user should choose at least gcc and
   g++.
 \item msys (http://www.mingw.org/wiki/MSYS) which provides a set of
   GNU utilities commonly found on Linux. This will make building and
@@ -1962,9 +1992,9 @@ a few additional packages, all of which are freely available:
 \item ipython (http://ipython.scipy.org/moin/), an interactive
   interface to \proglang{Python}, which can be used as an alternative
   to the idle interface that is distributed with \proglang{Python}.
-\item pyreadline (http://ipython.scipy.org/moin/PyReadline/Intro)
-  providing Windows readline capabilities for IPython.
-\item gfortran (http://gcc.gnu.org/wiki/GFortranBinaries) provides a
+\item pyreadline (http://ipython.scipy.org/moin/PyReadline/Intro),
+  which provides Windows readline capabilities for IPython.
+\item gfortran (http://gcc.gnu.org/wiki/GFortranBinaries), which provides a
   native Windows \proglang{Fortran} compiler.
 \end{itemize}
 Once these additional utilities are installed, it should be possible
@@ -2044,12 +2074,11 @@ foo.dgemveg()
 \section[PyMCMC interacting with R]{\pkg{PyMCMC} interacting with R}
 \label{sec:PyMCMC-interacting-with}
 
-There are a number of functions from the\proglang{R}statistical
-language \citet{R} that can be useful in Bayesian analysis. These can
+There are many functions from the \proglang{R} statistical
+language \citet{R} that can be useful in Bayesian analysis. The \pkg{RPy2} \proglang{Python} library can be
+used to integrate \proglang{R} functions into \pkg{PyMCMC} programs. These can
 be accessed in \pkg{PyMCMC} through the \pkg{RPy2} \proglang{Python}
-library. In \pkg{PyMCMC}, we show how this can be approached prior to
-the Bayesian analysis, and also to explore and summarise the MCMC
-output. As an example, consider the Log linear model described in
+library. As an example, consider the Log linear model described in
 Section \ref{sub:Example-2:-Log-linear}. The random walk MH requires
 the specification of a candidate density function Equation
 (\ref{random walk candidate}) and an initial value. The R functions
