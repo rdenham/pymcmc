@@ -1743,8 +1743,11 @@ class MCMC:
                                       'acceptance rates':acceptance_rates
                                       }
             if self.calcbic == True:
-                print >>destination, "BIC = ", BIC
-                print >>destination, "Log likelihood = ", LOGLIKE
+                print >>destination, "BIC = {bic: .{sigfigs}f}".format(
+                    bic = BIC,sigfigs=sigfigs)
+                print >>destination, \
+                      "Log likelihood = {loglik: .{sigfigs}f}".format(
+                    loglik = LOGLIKE,sigfigs=sigfigs)
                 self.output_dictionary['BIC'] = BIC
                 self.output_dictionary['LOGLIKE'] = LOGLIKE
 
