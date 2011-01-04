@@ -31,7 +31,6 @@ import matplotlib
 from mcmcplots import *
 from mcmc_utilities import *
 
-
 class Attributes:
     def __init__(self, init_theta, name):
         self.ltheta = init_theta
@@ -82,8 +81,6 @@ class Attributes:
 
     def use_transformed(self):
         self.update_stats = self.__update_stats_transformed
-
-
 
 
     def calculate_stats(self, nit, burn):
