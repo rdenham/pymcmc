@@ -138,11 +138,11 @@ problems, to write their MCMC programs entirely in compiled languages,
 such as \proglang{C/C++} and \proglang{Fortran} in order to obtain the
 necessary speed for feasible practical analysis. With
 \proglang{Python}, the user can simply compile \proglang{Fortran} code
-using a module called \pkg{F2py} \citet{F2PY}, or inline \proglang{C}
-using \pkg{Weave}, which is a part of \pkg{Scipy} \citet{NumpyScipy},
+using a module called \pkg{F2py} \citep{F2PY}, or inline \proglang{C}
+using \pkg{Weave}, which is a part of \pkg{Scipy} \citep{NumpyScipy},
 and use the subroutines directly from \proglang{Python}. \pkg{F2py}
 can also be used to directly call \proglang{C} routines with the aid
-of \proglang{Fortran} signiture file. This enables the use of use
+of \proglang{Fortran} signature file. This enables the use of
 \pkg{PyMCMC} and \proglang{Python} as a rapid application development
 environment, without comprimising on performance by writing only very
 small segments of their own code in a compiled language. It should be
@@ -162,7 +162,7 @@ specialised modules.
 
 Figure \ref{fig:Flow-chart-ofPyMCMC} is a flow chart that depicts
 the structure of \pkg{PyMCMC}. Essentially, the implementation of an MCMC
-sampler can be seen to centred around the class \emph{MCMC}, which
+sampler can be seen to centred around the class \code{MCMC}, which
 acts as a container for various algorithms that are used in sampling
 from the conditional posterior distributions that make up the MCMC
 sampling scheme. 
@@ -243,23 +243,23 @@ of \pkg{PyMCMC}. The class is named \emph{MCMC }and the following
 arguments are required in the initialisation of the class:
 
 \begin{enumerate}
-\item nit - the number of iterations. 
-\item burn - the burnin length of the MCMC sampler 
-\item data - a dictionary (\proglang{Python} data structure)
+\item \code{nit} - the number of iterations. 
+\item \code{burn} - the burnin length of the MCMC sampler 
+\item \code{data} - a dictionary (\proglang{Python} data structure)
   containing any data, functions or objects that the user would like
   to have access to when defining the functions that are called from
   the Gibbs sampler.
-\item blocks - a list (\proglang{Python} data structure) containing functions that
-  are used to sample from the full conditional posterior distributions
-  of interest. 
-\item {*}{*}kwargs - optional arguments:
+\item \code{blocks} - a list (\proglang{Python} data structure)
+  containing functions that are used to sample from the full
+  conditional posterior distributions of interest.
+\item \code{{*}{*}kwargs} - optional arguments:
   
   \begin{enumerate}
-  \item loglike - a tuple containing a function that evaluates the log-likelihood,
-    number of parameters and the name of the dataset. For example: loglike
-    = (loglike, nparam, 'yvec'). If this is defined then the log-likelihood
+  \item \code{loglike} - a tuple containing a function that evaluates the log-likelihood,
+    number of parameters and the name of the dataset. For example: \code{loglike
+    = (loglike, nparam, 'yvec')}. If this is defined then the log-likelihood
     and the BIC will be reported in the standard output.
-  \item transform - a dictionary, where the keys are the names of the parameters
+  \item \code{transform} - a dictionary, where the keys are the names of the parameters
     and the associated values are functions that transform the iterates
     stored in the MCMC scheme. This can be useful when the MCMC algorithm
     is defined under a particular parametersation, but where it is desirable
@@ -268,114 +268,114 @@ arguments are required in the initialisation of the class:
 \end{enumerate}
 Several functions are included as a part of the class: 
 \begin{enumerate}
-\item sampler() - used to run the MCMC sampler. 
-\item get\_mean\_cov(listname) - returns the posterior covariance matrix
+\item \code{sampler()} - used to run the MCMC sampler. 
+\item \code{get\_mean\_cov(listname)} - returns the posterior covariance matrix
   for the parameters named in listname, where listname is a list that
   contains the parameter names of interest. 
-\item get\_parameter(name) - returns the iterates for the named parameter
+\item \code{get\_parameter(name)} - returns the iterates for the named parameter
   including burnin.
-\item get\_parameter\_exburn(name) - returns the iterates for the named
+\item \code{get\_parameter\_exburn(name)} - returns the iterates for the named
   parameter excluding the burnin.
-\item get\_mean\_var(name) - returns the estimate from the MCMC estimation
+\item \code{get\_mean\_var(name)} - returns the estimate from the MCMC estimation
   for the posterior mean and variance for the parameter defined by 'name'. 
-\item set\_number\_decimals(num) - sets the number of decimal places for
+\item \code{set\_number\_decimals(num)} - sets the number of decimal places for
   the output. 
-\item output({*}{*}kwargs) - Used to produce output from the MCMC algorithm.
+\item \code{output({*}{*}kwargs)} - Used to produce output from the MCMC algorithm.
   
   \begin{enumerate}
-  \item {*}{*}kwargs - Optional arguments that control the output.
-    
+  \item \code{{*}{*}kwargs} - Optional arguments that control the output.
     \begin{enumerate}
-    \item parameters: A dictionary, list or string specifying the parameters
+    \item \code{parameters}: A dictionary, list or string specifying the parameters
       that are going to be presented. 
-    \item If a string is passed (eg: parameters = 'beta'), all elements of that
-      parameter are given.
-    \item If a list, (eg: parameters = {[}'alpha', 'beta'{]}), all elements
-      of each parameter in the list are given.
-      
-\begin{enumerate}
-\item If a dictionary (eg: parameters = \{'alpha':\{'range':range(5)\}\}),
-  then there is the possibility to add an additional argument 'range'
-  that tells the output to only print a subset of the parameters. The
-  above example will print information for alpha{[}0{]}, alpha{[}1{]},...,
-  alpha{[}4{]} only.
-\end{enumerate}
-\item custom - A user defined function that produces custom output. 
-\item filename - A filename to which the output is printed. By default
-  output will be printed to stdout.
-\end{enumerate}
-\end{enumerate}
-\item plot(blockname, {*}{*}kwargs) - Create summary plots of the MCMC
-  sampler.  By default, a plot of the marginal posterior density, an
-  ACF plot and a trace plot are produced for each parameter in the
-  block. The plotting page is divided into a number of subfigures. By
-  default, the number of columns are approximately equal to the square
-  root of the total number of subfigures divided by the number of
-  different plot types.
+      \begin{itemize}
+      \item If a string is passed (eg: \code{parameters = 'beta'}), all elements of that
+        parameter are given.
+      \item If a list, (eg: \code{parameters = {[}'alpha', 'beta'{]})}, all elements
+        of each parameter in the list are given.
+      \item If a dictionary (eg: \code{parameters = \{'alpha':\{'range':range(5)\}\})},
+          then there is the possibility to add an additional argument 'range'
+          that tells the output to only print a subset of the parameters. The
+          above example will print information for alpha{[}0{]}, alpha{[}1{]},...,
+          alpha{[}4{]} only.
+      \end{itemize}
+    \item \code{custom} - A user defined function that produces custom output. 
+    \item \code{filename} - A filename to which the output is printed. By default
+      output will be printed to stdout.
+    \end{enumerate}
+    \end{enumerate}
+\item \code{plot(blockname, {*}{*}kwargs)} - Create summary plots of
+  the MCMC sampler.  By default, a plot of the marginal posterior
+  density, an ACF plot and a trace plot are produced for each
+  parameter in the block. The plotting page is divided into a number
+  of subfigures. By default, the number of columns are approximately
+  equal to the square root of the total number of subfigures divided
+  by the number of different plot types.
 
 \begin{enumerate}
-\item blockname The name of the parameter, for which summary plots are
+\item \code{blockname} The name of the parameter, for which summary plots are
   to be generated.
-\item {*}{*}kwargs - an optional dictionary (\proglang{Python} data
+\item \code{{*}{*}kwargs} - an optional dictionary (\proglang{Python} data
   structure) containing information to control the summary plots. The
   available keys are summarised below:
 
 \begin{enumerate}
-\item elements: a list of integers specifying the elements that will
+\item \code{elements}: a list of integers specifying the elements that will
   be plotted. For example, if the blockname is 'beta' and
   $\bm{\beta}=(\beta_{0},\beta_{1}\ldots\beta_{n})$ then you may
-  specify elements as \texttt{elements = {[}0,2,5{]}.}
-\item plottypes: a list giving the type of plot for each parameter. By
+  specify elements as \code{elements = {[}0,2,5{]}.}
+\item \code{plottypes}: a list giving the type of plot for each parameter. By
   default the plots are density, acf and trace. A single string is
   also acceptable.
-\item filename: A string providing the name of an output file for the
-  plot.  As a plot of a block may be made up of a number of
+\item \code{filename}: A string providing the name of an output file
+  for the plot.  As a plot of a block may be made up of a number of
   subfigures, the output name will be modified to give a separate
   filename for each subfigure. For example, if the filename is passed
-  as {}``plot.png'', this will be interpreted as {}``plot\%03d.png'',
-  and will produce the files plot001.png, plot002.png, etc. The type
-  of file is determined by the extension of the filename, but the
-  output format will also depend on the plotting backend being used.
-  If the filename does not have a suffix, a default format will be
-  chosen based on the graphics backend. Most backends support png,
-  pdf, ps, eps and svg (see the documentation for \pkg{Matplotlib} for
-  further details http://matplotlib.sourceforge.net).
-\item individual: A Boolean option. If true, then each subplot will be
+  as \code{"plot.png"}, and there are multiple pages of
+  output, it will produce the files \code{plot001.png},
+  \code{plot002.png}, etc.  The type of file is determined
+  by the extension of the filename, but the output format will also
+  depend on the plotting backend being used.  If the filename does not
+  have a suffix, a default format will be chosen based on the graphics
+  backend. Most backends support png, pdf, ps, eps and svg (see the
+  documentation for \pkg{Matplotlib} for further details
+  http://matplotlib.sourceforge.net).
+
+\item \code{individual}: A Boolean option. If true, then each subplot will be
   done on an individual page.
-\item rows: Integer specifying the number of rows of subfigures on a
+\item \code{rows}: Integer specifying the number of rows of subfigures on a
   plotting page.
-\item cols: Integer specifying the number of columns of subfigures on
+\item \code{cols}: Integer specifying the number of columns of subfigures on
   a plotting page.
 \end{enumerate}
 \end{enumerate}
-\item CODAoutput({*}{*}kwargs) - Output the results in a format
+\item \code{CODAoutput({*}{*}kwargs)} - Output the results in a format
   suitable for reading in with the statistical package Convergence
   Diagnostic and Output Analysis (CODA). By default, there will be two
-  files created, coda.txt and coda.ind.
+  files created, \code{coda.txt} and \code{coda.ind}.
 
 \begin{enumerate}
-\item {*}{*}kwargs - an optional dictionary controlling the CODA
+\item \code{{*}{*}kwargs} - an optional dictionary controlling the CODA
   output.
 
 \begin{enumerate}
-\item filename: A string to provide an alternative filename for the
+\item \code{filename}: A string to provide an alternative filename for the
   output.  If the file has an extension this will form the basis for
   the data file and the index file will be named by replacing the
   extension with ind. If no extension is in the filename then two
   files will be created and named by adding the extensions .txt and
   .ind to the given filename.
-\item parameters: a string, a list or a dictionary that specify the
-  items written to file. It can be a string such as `alpha' or it can
-  be a list (eg {[}`alpha',`beta'{]}) or it can be a dictionary (eg
-  \{`alpha':\{`range':{[}0,1,5{]}\}\}.  If you supply a dictionary the
-  key is the parameter name. It is also permissible to have a range
-  key with a range of elements. If the range isn't supplied it is
-  assumed that the user wants all of the elements.  The range
-  parameter may also be specified as, for example, parameters =
-  \{`beta':\{`range':{[}0,2,4{]}\}\}.
-\item thin: integer specifying how to thin the output. For examples if
-  thin = 10, then every tenth element will be written to the CODA
-  output.
+\item \code{parameters}: a string, a list or a dictionary that specify
+  the items written to file. It can be a string such as \code{`alpha'}
+  or it can be a list (eg \code{{[}`alpha',`beta'{]}}) or it can be a
+  dictionary (eg \code{\{`alpha':\{`range':{[}0,1,5{]}\}\}}.  If you
+  supply a dictionary the key is the parameter name. It is also
+  permissible to have a range key with a range of elements. If the
+  range isn't supplied it is assumed that the user wants all of the
+  elements.  The range parameter may also be specified as, for
+  example, \code{parameters = \{`beta':\{`range':{[}0,2,4{]}\}\}}.
+\item \code{thin}: integer specifying how to thin the output. For
+  examples if \code{thin = 10}, then every tenth element will be
+  written to the CODA output.
 \end{enumerate}
 \end{enumerate}
 \end{enumerate}
@@ -407,36 +407,36 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
 
 
 \pkg{PyMCMC} includes a class for the MH algorithm, which is called
-\emph{MH}.  To initialise the class the user needs to define:
+\code{MH}.  To initialise the class the user needs to define:
 \begin{enumerate}
-\item func - user defined function that returns a sample for the
+\item \code{func} - user defined function that returns a sample for the
   parameter of interest.
-\item actualprob - user defined function that returns the log
+\item \code{actualprob} - user defined function that returns the log
   probability of the parameters of interest evaluated using the target
   density.
-\item probcandprev - user defined function that returns the log of
+\item \code{probcandprev} - user defined function that returns the log of
   $q\left(\bm{\theta}^{\ast}|\bm{y},\bm{\theta}^{j-1}\right).$
-\item probprevcand - user defined function that returns the log of
+\item \code{probprevcand} - user defined function that returns the log of
   $q\left(\bm{\theta}^{j-1}|\bm{y},\bm{\theta}^{*}\right).$
-\item init\_theta - Initial value for the parameters of interest.
-\item name - The name of the parameter of interest.
-\item {*}{*}kwargs - Optional arguments:
+\item \code{init\_theta} - Initial value for the parameters of interest.
+\item \code{name} - The name of the parameter of interest.
+\item \code{{*}{*}kwargs} - Optional arguments:
 
 \begin{enumerate}
-\item store - `all' (default), stores every iterate for the parameter
-  of interest. This is required for certain calculations.
-
-\begin{enumerate}
-\item `none', does not store any of the iterates from the parameter of
+\item \code{store} 
+\begin{enumerate}  
+ \item \code{`all'} (default), stores every iterate for
+  the parameter of interest. This is required for certain
+  calculations.
+\item \code{`none'}, does not store any of the iterates from the parameter of
   interest.
-\item fixed\_parameter - is used if the user wants to fix the
+\end{enumerate}
+\item \code{'fixed\_parameter'} - is used if the user wants to fix the
   parameter value that is returned. This is used for testing MCMC
   sampling schemes.  This command will override any other
   functionality.
 \end{enumerate}
 \end{enumerate}
-\end{enumerate}
-
 \paragraph{Independent Metropolis Hastings}
 
 The independent MH algorithm is a special case of the MH algorithm
@@ -460,34 +460,34 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
 \end{algorithm}
 
 
-\pkg{PyMCMC} contains a class for the independent MH algorithm, named \emph{IndMH}.
+\pkg{PyMCMC} contains a class for the independent MH algorithm, named \code{IndMH}.
 To initialise the class the user needs to define: 
 \begin{enumerate}
-\item func - a user defined function that returns a sample for the
+\item \code{func} - a user defined function that returns a sample for the
   parameter of interest.
-\item actualprob - a user defined function that returns the log
+\item \code{actualprob} - a user defined function that returns the log
   probability of the parameters of interest evaluated using the target
-  density.q
-\item candpqrob - a user defined function that returns the log
+  density.
+\item \code{candpqrob} - a user defined function that returns the log
   probability of the parameters of interest evaluated using the
   candidate density.
-\item init\_theta - initial value for the parameters of interest.
-\item name - name of the parameter of interest.
-\item kwargs - Optional arguments:
+\item \code{init\_theta} - initial value for the parameters of interest.
+\item \code{name} - name of the parameter of interest.
+\item \code{{*}{*}kwargs}- Optional arguments:
 
 \begin{enumerate}
-\item store - `all' (default), stores every iterate for the parameter
-  of interest. This is required for certain calculations.
-
+\item \code{store}
   \begin{enumerate}
-  \item `none', does not store any of the iterates from the parameter
+  \item \code{`all'} (default), stores every iterate for the parameter
+    of interest. This is required for certain calculations.
+  \item \code{`none'}, does not store any of the iterates from the parameter
     of interest.
-  \item fixed\_parameter - is used if the user wants to fix the
+  \end{enumerate}
+\item \code{fixed\_parameter} - is used if the user wants to fix the
     parameter value that is returned. This is used for testing MCMC
     sampling schemes.  This command will override any other
     functionality.
   \end{enumerate}
-\end{enumerate}
 \end{enumerate}
 
 \paragraph{Random Walk Metropolis Hastings \protect \protect \\
@@ -533,26 +533,26 @@ distribution. Note that more general random walk MH algorithms could
 be constructed using the MH class. To initialise the class the user
 must specify:
 \begin{enumerate}
-\item post - a user defined function for the log of full conditional
+\item \code{post} - a user defined function for the log of full conditional
   posterior distribution for the parameters of interest.
-\item csig - scale parameter for the random walk MH algorithm.
-\item init\_theta - initial value for the parameter of interest
-\item name - name of the parameter of interest.
+\item \code{csig} - scale parameter for the random walk MH algorithm.
+\item \code{init\_theta} - initial value for the parameter of interest
+\item \code{name} - name of the parameter of interest.
 \item kwargs - optional arguments:
 
   \begin{enumerate}
-  \item store - `all' (default), stores every iterate for the
-    parameter of interest. This is required for certain calculations.
-
-\begin{enumerate}
-\item `none', does not store any of the iterates from the parameter of
-  interest.
-\end{enumerate}
-\item fixed\_parameter - is used if the user wants to fix the
+  \item store 
+    \begin{enumerate}
+      \item \code{`all'} (default), stores every iterate for the
+        parameter of interest. This is required for certain calculations.
+      \item \code{`none'}, does not store any of the iterates from the parameter of
+        interest.
+      \end{enumerate}
+\item \code{fixed\_parameter} - is used if the user wants to fix the
   parameter value that is returned. This is used for testing MCMC
   sampling schemes.  This command will override any other
   functionality.
-\item adaptive - `GYS', then the adaptive random walk MH algorithm of
+\item \code{adaptive} - `GYS', then the adaptive random walk MH algorithm of
   \citet{GarthwaiteYanScisson2010} will be used to optimise
   $\bm{\Omega}.$
 \end{enumerate}
@@ -560,7 +560,7 @@ must specify:
 
 \subsubsection{Orientational Bias Monte Carlo}
 
-The multiple try Metropolis \citet{LuiLiangWong2000} generalises the
+The multiple try Metropolis \citep{LuiLiangWong2000} generalises the
 MH algorithm to allow for multiple proposals. The OBMC algorithm is a
 special case of the multiple try Metropolis that is applicable when he
 candidate density is symmetric. The OBMC Algorithm at iteration $j$ is
@@ -599,49 +599,49 @@ generalisation of the random walk MH algorithm. The class for the OBMC
 algorithm is named \emph{OBMC}. To initialise the class the user must
 specify:
 \begin{enumerate}
-\item post - a user defined function for the log of full conditional
+\item \code{post} - a user defined function for the log of full conditional
   posterior distribution for the parameters of interest.
-\item ntry - number of candidates, $L$.
-\item csig - a scale parameter for the OBMC algorithm.
-\item init\_theta - initial value for the parameter of interest. 
-\item {*}{*}kwargs - optional arguments:
+\item \code{ntry} - number of candidates, $L$.
+\item \code{csig} - a scale parameter for the OBMC algorithm.
+\item \code{init\_theta} - initial value for the parameter of interest. 
+\item \code{{*}{*}kwargs} - optional arguments:
 
-\begin{enumerate}
-\item store - `all' (default), stores every iterate for the parameter
-  of interest. This is required for certain calculations.
-
-\begin{enumerate}
-\item `none', does not store any of the iterates from the parameter of interest. 
-\end{enumerate}
-\item fixed\_parameter - is used if the user wants to fix the
-  parameter value that is returned. This is used for testing MCMC
-  sampling schemes.  This command will override any other
-  functionality.
-\end{enumerate}
+  \begin{enumerate}
+  \item \code{store}
+    \begin{enumerate}
+      \item \code{`all'} (default), stores every iterate for the parameter
+        of interest. This is required for certain calculations.
+      \item \code{`none'}, does not store any of the iterates from the parameter of interest. 
+      \end{enumerate}
+  \item \code{fixed\_parameter} - is used if the user wants to fix the
+    parameter value that is returned. This is used for testing MCMC
+    sampling schemes.  This command will override any other
+    functionality.
+  \end{enumerate}
 \end{enumerate}
 
 \subsubsection{Closed form sampler}
 
 A class is included so that the user can specify a function to sample
 the parameters of interest when there is a closed form solution. The
-name of the class is CFsampler. To initialise the class the user must
+name of the class is \code{CFsampler}. To initialise the class the user must
 specify:
 \begin{enumerate}
-\item func - user defined function that samples from the posterior
+\item \code{func} - user defined function that samples from the posterior
   distribution of interest.
-\item init\_theta - initial value for the unknown parameter of
+\item \code{init\_theta} - initial value for the unknown parameter of
   interest.
-\item name - the name of the parameter of interest
-\item {*}{*}kwargs - optional parameters:
+\item \code{name} - the name of the parameter of interest
+\item \code{{*}{*}kwargs} - optional parameters:
 
 \begin{enumerate}
-\item store - `all' (default), stores every iterate for the parameter of
-interest. This is required for certain calculations.
-
-\begin{enumerate}
-\item `none', does not store any of the iterates from the parameter of interest. 
-\end{enumerate}
-\item fixed\_parameter - is used if the user wants to fix the
+\item \code{store}
+  \begin{enumerate}
+  \item \code{`all'} (default), stores every iterate for the parameter of
+    interest. This is required for certain calculations.
+  \item `none', does not store any of the iterates from the parameter of interest. 
+  \end{enumerate}
+\item \code{fixed\_parameter} - is used if the user wants to fix the
   parameter value that is returned. This is used for testing MCMC
   sampling schemes.  This command will override any other
   functionality.
@@ -658,7 +658,7 @@ of the variable of interest;
 $p(\theta)\propto f_{1}(\theta)f_{2}(\theta)\cdots f_{n}(\theta).$
 
 A set of values from the distribution is obtained by iteratively sampling
-a new value, $\omega,$ from the vertical {}``slice'' between 0
+a new value, $\omega,$ from the vertical \emph{slice} between 0
 and $f_{i}(\theta)$, then sampling a value for the parameter $\theta$
 from the horizontal \emph{slice} that consists of the set of possible
 values of $\theta$, for which the previously sampled $\omega\le p(\theta)$.
@@ -751,27 +751,27 @@ to step 1
 \end{algorithm}
 
 
-\pkg{PyMCMC} includes a class for the slice sampler named \emph{SliceSampler.
+\pkg{PyMCMC} includes a class for the slice sampler named \code{SliceSampler.
 }To initialise the class the user must define: 
 \begin{enumerate}
-\item func - a $k$ dimensional list containing the set of log functions. 
-\item init\_theta - an initial value for $\theta$. 
-\item ssize - a user defined value for the typical slice size. 
-\item sN - an integer limiting slice size to sN$\times$ssize 
-\item {*}{*}kwargs - optional arguments:
-
-\begin{enumerate}
-\item store - `all' (default), stores every iterate for the parameter of
-interest. This is required for certain calculations.
-
-\begin{enumerate}
-\item `none', does not store any of the iterates from the parameter of interest. 
-\item fixed\_parameter - is used if the user wants to fix the
-  parameter value that is returned. This is used for testing MCMC
-  sampling schemes.  This command will override any other
-  functionality.
-\end{enumerate}
-\end{enumerate}
+ \item \code{func} - a $k$ dimensional list containing the set of log functions. 
+ \item \code{init\_theta} - an initial value for $\theta$. 
+ \item \code{ssize} - a user defined value for the typical slice size. 
+ \item \code{sN} - an integer limiting slice size to sN$\times$ssize 
+ \item \code{{*}{*}kwargs} - optional arguments:
+   
+ \begin{enumerate}
+   \item \code{store}
+     \begin{enumerate}
+      \item \code{`all'} (default), stores every iterate for the parameter of
+        interest. This is required for certain calculations.
+      \item `none', does not store any of the iterates from the parameter of interest. 
+     \end{enumerate}
+   \item fixed\_parameter - is used if the user wants to fix the
+     parameter value that is returned. This is used for testing MCMC
+     sampling schemes.  This command will override any other
+     functionality.
+  \end{enumerate}
 \end{enumerate}
 
 \subsection{Normal Linear Bayesian Regression Model}
@@ -782,7 +782,7 @@ parameters. As such drawing from the full conditional posterior
 distribution for the associated parameters may be equivalent to
 sampling the unknown parameters in a standard linear regression model. \pkg{PyMCMC} includes several classes
 that aid in the analysis of linear or partly linear models. In particular the classes
-\emph{BayesRegression}, \emph{CondRegBetaSampler}, \emph{CondScaleSamper} and \emph{StochasticSearch}
+\emph{BayesRegression}, \emph{CondRegBetaSampler}, \emph{CondScaleSampler} and \emph{StochasticSearch}
 are useful for this purpose. These classes are described in this section.
 For the standard linear regression model (see \cite{Zellner1971}), assume the
 $\left(n\times1\right)$ observational vector, $\bm{y},$ is generated
@@ -810,7 +810,7 @@ $\sigma$ are unknown then the posterior distribution for
 $\sigma$, and\emph{ $p(\bm{\beta},\sigma)$ } denotes the joint
 prior \emph{pdf} for $\bm{\beta}$ and $\sigma$.
 
-A class named \emph{BayesRegression }is defined to sample from the
+A class named \code{BayesRegression} is defined to sample from the
 posterior distribution in (\ref{eq:post regression}). One of four
 alternative priors may be used in the specification of the model.  The
 default choice is Jeffreys prior. Denoting the full set of unknown
@@ -838,7 +838,7 @@ specified such that\begin{equation}
 where $\kappa=\sigma^{-2}$ and
 $\underline{\beta,}$ $\underline{\bm{V}},$ $\underline{\nu}$ and
 $\underline{S}$ are prior hyperparameters that take user defined
-values. For the Normal-gamma prior, \emph{BayesRegression }produces
+values. For the Normal-gamma prior, \code{BayesRegression} produces
 estimates for\emph{ $\left(\kappa,\bm{\beta}^{T}\right)^{T}$ }rather
 than $\left(\sigma,\bm{\beta}^{T}\right)$ . The Normal-inverted gamma
 prior is specified such that
@@ -859,50 +859,50 @@ g-prior is specified such that
 
 
 where $\bm{\underline{\beta}}$ and $g$ are hyperparameters with
-values that are specified by the user. To initialise the class \emph{BayesRegression}
+values that are specified by the user. To initialise the class \code{BayesRegression}
 the user must specify: 
 \begin{enumerate}
-\item yvec - one dimensional \pkg{Numpy} array containing the data. 
-\item xmat - two dimensional \pkg{Numpy} array contain the regressors.
-\item {*}{*}kwargs - optional arguments:
+\item \code{yvec} - one dimensional \pkg{Numpy} array containing the data. 
+\item \code{xmat} - two dimensional \pkg{Numpy} array contain the regressors.
+\item \code{{*}{*}kwargs} - optional arguments:
 
 \begin{enumerate}
-\item prior - a list contain the name of the prior and the
-  corresponding hyperparameters. Examples: prior = {[}`normal\_gamma',
-  betaubar, Vubar, nuubar, Subar{]},
-  prior = {[}`normal\_inverted\_gamma',betaubar, Vubar, nuubar, Subar{]}
-  and prior = {[}`g\_prior', betaubar, g{]}. If none of these options
+\item \code{prior} - a list contain the name of the prior and the
+  corresponding hyperparameters. Examples: \code{prior = {[}`normal\_gamma',
+  betaubar, Vubar, nuubar, Subar{]}},
+  \code{prior = {[}`normal\_inverted\_gamma',betaubar, Vubar, nuubar, Subar{]}}
+  and \code{prior = {[}`g\_prior', betaubar, g{]}}. If none of these options
   are chosen or they are miss-specified then the default prior will be
   Jeffreys prior.
 \end{enumerate}
 \end{enumerate}
-\emph{BayesRegression }contains several functions that may be of interest
+\code{BayesRegression }contains several functions that may be of interest
 to the user. In particular: 
 \begin{enumerate}
-\item sample() - returns a sample of $\sigma$ and $\bm{\beta}$ from
+\item \code{sample()} - returns a sample of $\sigma$ and $\bm{\beta}$ from
   the joint posterior distribution for the normal-inverted gamma
   prior, Jeffreys prior and Zellner's g-prior. If the normal-gamma
   prior is specified then sample() returns $\kappa$ and $\bm{\beta}.$
-\item update\_yvec(yvec) - updates yvec in \emph{BayesRegression}. This
+\item \code{update\_yvec(yvec)} - updates yvec in \emph{BayesRegression}. This
   is often useful when the class is being used as a part of the MCMC
   sampling scheme.
-\item update\_xmat(xmat) - updates xmat in \emph{BayesRegression}. This
+\item \code{update\_xmat(xmat)} - updates xmat in \emph{BayesRegression}. This
   is often useful when the class is being used as a part of the MCMC
   sampling scheme.
-\item loglike(scale, beta) - returns the log-likelihood.
-\item posterior\_mean() - returns the posterior mean for the scale parameter
+\item \code{loglike(scale, beta)} - returns the log-likelihood.
+\item \code{posterior\_mean()} - returns the posterior mean for the scale parameter
 (either $\sigma$ or $\kappa$ depending on the specified prior) and
 $\bm{\beta}.$
-\item get\_posterior\_covmat() - returns the posterior covariance matrix
+\item \code{get\_posterior\_covmat()} - returns the posterior covariance matrix
 for $\bm{\beta}$.
-\item bic() - returns the Bayesian information criterion; see \cite{KassRaftery1995} for details.
-\item plot({*}{*}kwargs) - produces standard plots. Specifically the
+\item \code{bic()} - returns the Bayesian information criterion; see \cite{KassRaftery1995} for details.
+\item \code{plot({*}{*}kwargs)} - produces standard plots. Specifically the
   marginal posterior density intervals for each element of
   $\bm{\beta}$ and for the scale parameter ($\sigma$ or $\kappa)$.
-\item residuals - returns the residual vector from the regression
+\item \code{residuals} - returns the residual vector from the regression
   analysis.  The residuals are calculated with $\bm{\beta}$ evaluated
   at the marginal posterior mean.
-\item output - produces standard output for the regression analysis.
+\item \code{output} - produces standard output for the regression analysis.
   This includes the means, standard deviations and HPD intervals for
   the marginal posterior densities for each element of $\bm{\beta}$
   and for the scale parameter ($\sigma$ or $\kappa)$. The output also
@@ -923,7 +923,7 @@ p\left(\bm{\beta}|\bm{y},\bm{X},\bm{\beta},\sigma\right)\propto
 $p(\bm{y}|\bm{X},\bm{\beta},\sigma)$ is described in
 (\ref{eq:likelihood regression}) and $p(\bm{\beta})$ is the prior
 \emph{pdf} for $\bm{\beta}.$ To sample from (\ref{eq:post_condbeta}) a
-class named \emph{CondBetaRegSampler} can be used. The user may
+class named \code{CondBetaRegSampler} can be used. The user may
 specify one of three alternative priors.  The default prior is
 Jeffreys prior, which for $\bm{\beta}$ is simply a flat prior over
 the real number line. A normally distributed prior for $\bm{\beta}$ is
@@ -934,33 +934,33 @@ specify their \emph{a priori} beliefs using Zellner's g-prior, where\[
 N\left(\bm{\beta},g\sigma^{2}\bm{X}^{T}\bm{X}\right).\] To initialise
 the class the user must specify:
 \begin{enumerate}
-\item yvec - a one dimensional \pkg{Numpy} array containing the data. 
-\item xmat - a two dimensional \pkg{Numpy} array containing the regressors. 
-\item {*}{*}kwargs - optional arguments:
+\item \code{yvec} - a one dimensional \pkg{Numpy} array containing the data. 
+\item \code{xmat} - a two dimensional \pkg{Numpy} array containing the regressors. 
+\item \code{{*}{*}kwargs} - optional arguments:
 
 \begin{enumerate}
-\item prior - a list containing the name of the prior and the
-  corresponding hyperparameters. Examples: prior={[}`normal',
-  betaubar, Vubar{]} or {[}`g\_prior', betaubar, g{]}. If none of
+\item \code{prior} - a list containing the name of the prior and the
+  corresponding hyperparameters. Examples: \code{prior={[}`normal',
+  betaubar, Vubar{]} or {[}`g\_prior', betaubar, g{]}}. If none of
   these options are chosen or they are miss-specified then the default
   prior will be Jeffreys prior.
 \end{enumerate}
 \end{enumerate}
-\emph{CondBetaRegSampler} contains several functions that may be of interest
+\code{CondBetaRegSampler} contains several functions that may be of interest
 to the user. In particular:
 
 \begin{enumerate}
 
-\item sample(sigma) - returns a sample of $]\bm{\beta}$ from the posterior
+\item \code{sample(sigma)} - returns a sample of $\bm{\beta}$ from the posterior
 distribution specified in \ref{eq:post_condbeta}.
-\item get\_marginal\_posterior\_mean() - returns the marginal posterior
+\item \code{get\_marginal\_posterior\_mean()} - returns the marginal posterior
   mean for \ref{eq:post_condbeta}.
-\item get\_marginal\_posterior\_precision() - returns the marginal posterior
+\item \code{get\_marginal\_posterior\_precision()} - returns the marginal posterior
   precision for the linear conditional posterior distribution specified in \ref{eq:post_condbeta}.
-\item update\_yvec(yvec) - updates yvec in \emph{CondBetaRegSampler}. This
+\item \code{update\_yvec(yvec)} - updates yvec in \emph{CondBetaRegSampler}. This
   is often useful when the class is being used as a part of an MCMC 
   sampling scheme.
-\item update\_xmat(xmat) - updates xmat in \emph{CondBetaRegSampler}. This
+\item \code{update\_xmat(xmat)} - updates xmat in \emph{CondBetaRegSampler}. This
   is often useful when the class is being used as a part of an MCMC 
   sampling scheme.
 \end{enumerate}
@@ -980,21 +980,21 @@ IG\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).\]
 Alternatively, the user may specify a gamma prior for
 $\kappa=\frac{1}{\sigma^{2}},$ where\[ \kappa\sim
 G\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).\] To
-initialise the class \emph{CondScaleSamper} the user may first
+initialise the class \code{CondScaleSamper} the user may first
 specify:
 \begin{enumerate}
-\item {*}{*}kwargs - options arguments:
+\item \code{{*}{*}kwargs} - options arguments:
 \begin{enumerate}
-\item prior - list containing the name of the prior and the
+\item \code{prior} - list containing the name of the prior and the
   corresponding hyperparameters. Examples:
-  prior={[}`gamma',nuubar,subar{]} or {[}`inverted-gamma', nuubar,
-  subar{]}. If no prior is specified the Jeffreys prior is used.
+  \code{prior={[}`gamma',nuubar,subar{]}} or \code{{[}`inverted-gamma', nuubar,
+  subar{]}}. If no prior is specified the Jeffreys prior is used.
 \end{enumerate}
 \end{enumerate}
 \pkg{PyMCMC} also includes another class that can be used for the
 direct analysis of the linear regression model. The class is called
-\emph{StochasticSearch} and can be used in conjunction with the
-class \emph{MCMC}, for the purpose of variable selection.
+\code{StochasticSearch} and can be used in conjunction with the
+class \code{MCMC}, for the purpose of variable selection.
 
 The stochastic search algorithm can be used for variable selection in
 the linear regression model. Given a set of $k$ possible regressors
@@ -1023,16 +1023,16 @@ g-prior, which is described in (\ref{eq:g-prior}).
 MCMC sampling class. To initialise \emph{StochasticSearch} the user
 must specify:
 \begin{enumerate}
-\item yvec - one dimensional \pkg{Numpy} array containing the dependent variable. 
-\item xmat - two dimensional \pkg{Numpy} array containing the regressors. 
-\item prior - list with the following structure {[}betaubar, g{]}.
+\item \code{yvec} - one dimensional \pkg{Numpy} array containing the dependent variable. 
+\item \code{xmat} - two dimensional \pkg{Numpy} array containing the regressors. 
+\item \code{prior} - list with the following structure \code{{[}betaubar, g{]}}.
 \end{enumerate}
-The class \emph{StochasticSearch} also contains the following function:
+The class \code{StochasticSearch} also contains the following function:
 \begin{enumerate}
-\item sample\_gamma(store) - returns a sample of $\bm{\gamma}.$ The
-  only argument to pass into the function sample\_gamma is the storage
+\item \code{sample\_gamma(store)} - returns a sample of $\bm{\gamma}.$ The
+  only argument to pass into the function \code{sample\_gamma} is the storage
   dictionary that is passed by default to each of the classes that are
-  called from the class \emph{MCMC }in \pkg{PyMCMC}.
+  called from the class \code{MCMC }in \pkg{PyMCMC}.
 \end{enumerate}
 
 \section{Empirical Illustrations}
@@ -1041,20 +1041,22 @@ The class \emph{StochasticSearch} also contains the following function:
 \pkg{PyMCMC} is illustrated though three examples. Specifically, a
 linear regression example with variable selection, a log-linear
 example and a linear regression model with first order autoregressive
-errors.  For each example, the model of interest is specified, then the
-code used for estimation is shown, following which a brief description
-of code is given. Each example uses the module
-for \pkg{PyMCMC}, along with the \proglang{Python} libraries
-\pkg{Numpy}, \pkg{Scipy} and \pkg{Matplotlib}: see \citet{NumpyScipy, Matplotlib} for further details of these
-Python libraries.
-Example 3 further uses the library Pysparse.
+errors.  For each example, the model of interest is specified, then
+the code used for estimation is shown, following which a brief
+description of code is given. Each example uses the module for
+\pkg{PyMCMC}, along with the \proglang{Python} libraries \pkg{Numpy},
+\pkg{Scipy} and \pkg{Matplotlib}: see \citet{NumpyScipy, Matplotlib}
+for further details of these Python libraries.  Example 3 further uses
+the library \pkg{Pysparse}.
 
 
 \subsection{Example 1: Linear Regression Model: Variable selection and estimation}
 
-The normal linear regression model in (\ref{eq:regression}) is used for the analysis.
-The data set of interest contains 19 regressors. To select the set of `most probable' regressors we can use the
-stochastic search variable selection approach described in Section \ref{sec: Regression Model}.
+The normal linear regression model in (\ref{eq:regression}) is used
+for the analysis.  The data set of interest contains 19 regressors. To
+select the set of `most probable' regressors we can use the stochastic
+search variable selection approach described in Section \ref{sec:
+  Regression Model}.
 
 \subsubsection{Example Code}
 
@@ -1112,28 +1114,28 @@ breg.plot()
 \end{lstlisting}
 
 
-The code is organised so that the user defined
-functions are at the top and the main program is at the bottom.
-Essentially the user defined functions that are called from the class \emph{MCMC},
-for which there is one in this case, all take the argument
-\emph{store}, which is a dictionary (\proglang{Python} data structure)
-that is passed to all functions that are called from the MCMC sampler.
-The purpose of \emph{store} is that it contains all the data required
-to define functions that sample from, or are used in the evaluation of,
+The code is organised so that the user defined functions are at the
+top and the main program is at the bottom.  Essentially the user
+defined functions that are called from the class \code{MCMC}, for
+which there is one in this case, all take the argument \code{store},
+which is a dictionary (\proglang{Python} data structure) that is
+passed to all functions that are called from the MCMC sampler.  The
+purpose of \code{store} is that it contains all the data required to
+define functions that sample from, or are used in the evaluation of,
 the posterior distribution. For example, in line 15, store{[}'SS'{]}
-contains the class instance for \emph{StochasticSearch}.  Essentially,
-any information that is stored in the dictionary \emph{data}, which is
+contains the class instance for \code{StochasticSearch}.  Essentially,
+any information that is stored in the dictionary \code{data}, which is
 defined on line 30 and augmented to include the class instance for
-\emph{StochasticSearch} defined on line 31 can be accessed from the
-dictionary \emph{store}. Note that the dictionary \emph{data} is an
-argument that is used in the initialisation of the \emph{MCMC} class
-on line 39. In addition to the information stored in \emph{data,} the
+\code{StochasticSearch} defined on line 31 can be accessed from the
+dictionary \code{store}. Note that the dictionary \code{data} is an
+argument that is used in the initialisation of the \code{MCMC} class
+on line 39. In addition to the information stored in \code{data,} the
 value of the previous iterate for each block of the Gibbs scheme is
 also a component of the dictionary store. For example on line 36 the
-class instance \emph{simgam} is initialised. Note that the name
+class instance \code{simgam} is initialised. Note that the name
 'gamma' is specified to refer to the parameter $\bm{\gamma}.$ If the
 user wanted to access the current iteration for 'gamma' from any of
-the functions called from \emph{MCMC}, this would simply be done using
+the functions called from \code{MCMC}, this would simply be done using
 store{[}'gamma'{]}. This feature is not used in this example, but can
 be seen in the proceding examples. A brief description of the code is
 as follows:
@@ -1147,18 +1149,18 @@ of \pkg{PyMCMC}.
 \item The main program starts at line 18.
 \item Lines 21-24 are used to load the data, from which arrays $\bm{y}$
 (yvec) and $\bm{X}$ (xmat) are constructed.
-\item Lines 28-31 construct the dictionary \emph{data}, which includes \emph{yvec,
-xmat} and the class instance of \emph{StochasticSearch}.
-\item Line 36 defines the class instance \emph{simgam}, which defines the
+\item Lines 28-31 construct the dictionary \code{data}, which includes \code{yvec,
+xmat} and the class instance of \code{StochasticSearch}.
+\item Line 36 defines the class instance \code{simgam}, which defines the
 block of the MCMC scheme to sample $\bm{\gamma}$.
 \item Line 39 defines the class instance of MCMC. Note that the Gibbs sampler
 will run for 20000 iterations, of which the first 5000 iterations
 will constitute the burnin and be discarded for the calculations in
 the output. The Gibbs sampler contains one block, which is defined
-by the class instance \emph{simgam}.
+by the class instance \code{simgam}.
 \item Line 40 runs the MCMC sampler.
 \item Line 41 produces the standard output for the MCMC sampler, which is
-saved in the file 'vs.txt'.
+saved in the file \code{'vs.txt'}.
 \item Line 42 produces the custom output from the stochastic search class
 and is saved in the file 'SSVS.out'.
 \item Line 43 produces the custom output for the stochastic search class
@@ -1534,7 +1536,7 @@ defined at iteration $j$ is as follows:
 
 The example code for the linear regression model, with first order
 autocorrelation in the errors uses the \proglang{Python} libraries
-\pkg{Numpy}, \pkg{Scipy} and Pysparse. The code is used to analyse
+\pkg{Numpy}, \pkg{Scipy} and \pkg{Pysparse}. The code is used to analyse
 simulated data.
 
 
@@ -1961,12 +1963,13 @@ the user it is not much more difficult to use \pkg{F2py} to compile
 procedures written in \proglang{C}, which then can be used directly
 from \proglang{Python}. Another popular library that can be used to
 marry \proglang{C}, as well as \proglang{C++}, code with
-\proglang{Python} is SWIG. In our opinion Swig is more difficult than
-f2py for complicated examples. The user may also opt to manually call
-\proglang{C} and \proglang{C++} routines using \proglang{Python} and
-\pkg{Numpy}'s \proglang{C} application interface. Another option for
-\proglang{C++} users is to use \pkg{Boost} \proglang{Python}. These
-alternative approaches are beyond the scope of this paper.
+\proglang{Python} is \pkg{SWIG}. In our opinion \pkg{SWIG} is more
+difficult than \pkg{f2py} for complicated examples. The user may also
+opt to manually call \proglang{C} and \proglang{C++} routines using
+\proglang{Python} and \pkg{Numpy}'s \proglang{C} application
+interface. Another option for \proglang{C++} users is to use
+\pkg{Boost} \proglang{Python}. These alternative approaches are beyond
+the scope of this paper.
 
 
 \subsection{Compiling Code in Windows}
@@ -2074,16 +2077,17 @@ foo.dgemveg()
 \section[PyMCMC interacting with R]{\pkg{PyMCMC} interacting with R}
 \label{sec:PyMCMC-interacting-with}
 
-There are many functions from the \proglang{R} statistical
-language \citet{R} that can be useful in Bayesian analysis. The \pkg{RPy2} \proglang{Python} library can be
-used to integrate \proglang{R} functions into \pkg{PyMCMC} programs. These can
-be accessed in \pkg{PyMCMC} through the \pkg{RPy2} \proglang{Python}
-library. As an example, consider the Log linear model described in
-Section \ref{sub:Example-2:-Log-linear}. The random walk MH requires
-the specification of a candidate density function Equation
-(\ref{random walk candidate}) and an initial value. The R functions
-\texttt{glm }and \texttt{summary.glm} can be used to set this to the
-maximum likelihood estimate $\hat{\beta}$ and the unscaled estimated
+There are many functions from the \proglang{R} statistical language
+\citep{R} that can be useful in Bayesian analysis. The \pkg{RPy2}
+\proglang{Python} library can be used to integrate \proglang{R}
+functions into \pkg{PyMCMC} programs. These can be accessed in
+\pkg{PyMCMC} through the \pkg{RPy2} \proglang{Python} library. As an
+example, consider the Log linear model described in Section
+\ref{sub:Example-2:-Log-linear}. The random walk MH requires the
+specification of a candidate density function Equation (\ref{random
+  walk candidate}) and an initial value. The R functions \texttt{glm
+}and \texttt{summary.glm} can be used to set this to the maximum
+likelihood estimate $\hat{\beta}$ and the unscaled estimated
 covariance matrix of the estimated coefficients. The relevant code is
 summarised below:
 
@@ -2129,10 +2133,10 @@ GS.CODAoutput(filename="loglinear_eg")
 
 
 It may also be useful to take advantage of the many MCMC analysis
-functions in\proglang{R}and associated packages. To facilitate this,
+functions in\proglang{R} and associated packages. To facilitate this,
 \pkg{PyMCMC} includes a CODA
-\citet{Rnews:Plummer+Best+Cowles+Vines:2006} output format which can
-easily be read into\proglang{R}for further analysis. A sample R
+\citep{Rnews:Plummer+Best+Cowles+Vines:2006} output format which can
+easily be read into\proglang{R}for further analysis. A sample \proglang{R}
 session after \pkg{PyMCMC} might look like:
 
 
