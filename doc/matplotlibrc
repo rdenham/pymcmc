@@ -9,17 +9,17 @@ backend        : pdf
 #figure.subplot.hspace	: 0.5  
 
 ## for ex_loglinear.py
-#figure.figsize   : 18, 7   
-#font.size           : 16
+figure.figsize   : 18, 7   
+font.size           : 16
+figure.subplot.wspace	: 0.2    
+figure.subplot.hspace	: 0.6  
+figure.subplot.left    : 0.05  # the left side of the subplots of the figure
+figure.subplot.right   : 0.95    # the right side of the subplots of the figure
+
+## for rho.pdf
+#figure.figsize   : 20, 7   
+#font.size           : 16.0
 #figure.subplot.wspace	: 0.2    
 #figure.subplot.hspace	: 0.1  
 #figure.subplot.left    : 0.05  # the left side of the subplots of the figure
 #figure.subplot.right   : 0.95    # the right side of the subplots of the figure
-
-## for rho.pdf
-figure.figsize   : 18, 7   
-font.size           : 16.0
-figure.subplot.wspace	: 0.2    
-figure.subplot.hspace	: 0.1  
-figure.subplot.left    : 0.05  # the left side of the subplots of the figure
-figure.subplot.right   : 0.95    # the right side of the subplots of the figure
