@@ -1,0 +1,17 @@
+interactive : True
+##backend        : pdf
+##backend      : Agg
+##backend        : CocoaAgg
+##backend        : GD
+##backend        : Paint
+backend        : Qt4Agg
+##backend        : TkAgg
+##backend        : WxAgg
+figure.figsize   : 14, 5    # figure size in inches
+
+##font.size           : 6.0
+font.size           : 10.0
+
+figure.subplot.wspace	: 0.2    
+figure.subplot.hspace	: 0.5  
+
