@@ -1,0 +1,14 @@
+Markov chain Monte Carlo (MCMC) estimation provides a solution to the
+complex integration problems that are faced in the Bayesian analysis
+of statistical problems.  The implementation of MCMC algorithms is,
+however, code intensive and time consuming.  We have developed a
+Python package, which is called PyMCMC, that aids in the construction
+of MCMC samplers and helps to substantially reduce the likelihood of
+coding error, as well as aid in the minimisation of repetitive code.
+PyMCMC contains classes for Gibbs, Metropolis Hastings, independent
+Metropolis Hastings, random walk Metropolis Hastings, orientational
+bias Monte Carlo and slice samplers as well as specific modules for
+common models such as a module for Bayesian regression analysis.
+PyMCMC is straightforward to optimise, taking advantage of the Python
+libraries Numpy and Scipy, as well as being readily extensible with C
+or Fortran.
