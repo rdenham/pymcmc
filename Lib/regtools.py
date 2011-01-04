@@ -58,6 +58,7 @@ class StochasticSearch:
             self.__samplegam = self.__sim_gamma_gprior
         elif prior[0] == 'normal_inverted_gamma':
             self.nu = prior[1]
+            self.nuo = self.nu + self.nobs
             self.nus = prior[2]
             self.R = np.asfortranarray(prior[3])
             self.D = np.asfortranarray(prior[4])
@@ -65,7 +66,7 @@ class StochasticSearch:
             self.vxy = self.xgy
             self.vobar = self.xgxg
             self.vubar = self.work2
-            self.nuobar = self.nu + self.kreg
+            self.nuobar = self.nu + self.nobs
             self.__samplegam = self.__sim_gamma_nig
             self.__samplegam_cond_beta = self.__sim_gamma_nig_cond_beta
         else:
@@ -87,10 +88,10 @@ class StochasticSearch:
                  self.R, self.nuobar, self.ru)
 
 
-    def __sim_gamma_nig_cond_beta(self, sig, beta):
+    def __sim_gamma_nig_cond_beta(self,sig, beta):
         """samples gamma conditional on beta"""
         self.initialise_vubar()
-        ssregcbeta_nig(beta, sig, self.vxy, self.logdetR, self.vubar,
+        ssregcbetas_nig(beta, sig, self.vxy, self.logdetR, self.vubar,
                        self.gam, self.D, self.R, self.ru)
 
     def initialise_vubar(self):
@@ -106,7 +107,7 @@ class StochasticSearch:
             self.update_store()
         return self.gam
 
-    def sample_gamma_cond_beta(self, store, sig, beta):
+    def sample_gamma_cond_beta(self, store,sig, beta):
         it = store['iteration']
         burn = store['length_of_burnin']
         self.ru = np.random.rand(self.kreg)
