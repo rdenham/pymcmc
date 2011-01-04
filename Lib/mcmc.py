@@ -340,15 +340,16 @@ class SliceSampler(BaseSampler):
         BaseSampler.__init__(self, init_theta, name, **kwargs)
         try:
             self.init_theta = float(init_theta)
-            self.func = func
             self.ssize = ssize
             self.accept = 1
             self.count = 1
             self.sN = sN
             if type(func) == type([]):
+                self.func = func
                 self.k = len(func)
             else:
                 self.k = 1
+                self.func = [func]
             self.omega = np.zeros(self.k)
         except TypeError:
             raise TypeError("Error: SliceSampler is only used to sample scalars")
@@ -891,7 +892,7 @@ class MCMC:
                 ltheta = self.storeblock[self.group_names[i]].get_ltheta()
                 for j in xrange(ngroups):
                     if self.storeblock[self.group_names[i]].get_store() == 'all':
-                        self.storeparam[name[j]] = np.zeros([self.nit]+nparam[i])
+                        self.storeparam[name[j]] = np.zeros([self.nit]+nparam[j])
                     self.currentparam[name[j]] = ltheta[j]
 
         self.numdec = 3
