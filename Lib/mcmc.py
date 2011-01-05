@@ -1743,6 +1743,12 @@ class MCMC:
                                       'acceptance rates':acceptance_rates
                                       }
             if self.calcbic == True:
+                #convert to float if needed
+                try:
+                    BIC = BIC[0]
+                    LOGLIKE = LOGLIKE[0]
+                except:
+                    pass
                 print >>destination, "BIC = {bic: .{sigfigs}f}".format(
                     bic = BIC,sigfigs=sigfigs)
                 print >>destination, \
