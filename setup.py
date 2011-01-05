@@ -42,7 +42,7 @@ from numpy.distutils.core import setup, Extension
     
 ## setup the python module
 setup(name = "pymcmc", # name of the package to import later,
-      version = '1.0',
+      version = '1.1',
       description = """A python package for Bayesian estimation \
 using Markov chain Monte Carlo""",
       author = "Christopher Strickland",
