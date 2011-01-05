@@ -6,7 +6,9 @@ from numpy import linalg, array, asfortranarray
 from pymcmc.mcmc import MCMC, RWMH, OBMC
 from pymcmc.regtools import BayesRegression
 from scipy.optimize.minpack import leastsq
+import pymcmc
 import loglinear
+
 
 """ Get the path for the data. If this was installed using setup.py
  it will be in the data directory of the module"""
@@ -74,4 +76,4 @@ samplebeta = RWMH(posterior, scale, init_beta, 'beta')
 #samplebeta = OBMC(posterior,3, scale, init_beta, 'beta')
 ms = MCMC(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
 ms.sampler()
-ms.output(filename='example1c_loop.out') 
+ms.output(filename='example1c_f2py.out') 
