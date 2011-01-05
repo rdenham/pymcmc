@@ -12,3 +12,6 @@ common models such as a module for Bayesian regression analysis.
 PyMCMC is straightforward to optimise, taking advantage of the Python
 libraries Numpy and Scipy, as well as being readily extensible with C
 or Fortran.
+
+This is the development version.
+
