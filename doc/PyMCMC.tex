@@ -87,24 +87,24 @@
 \section{Introduction}
 
 The most common approach currently used in the estimation of Bayesian
-Models is Markov chain Monte Carlo (MCMC). 
-
-\pkg{PyMCMC} is a \proglang{Python} module that is designed to simplify the construction
-of Markov chain Monte Carlo (MCMC) samplers, without sacrificing flexibility
-or performance. \proglang{Python} has extensive scientific libraries, is easily
-extensible, has a clean syntax and powerful programming constructs,
-making it an ideal programming language to build an MCMC library;
-see \citet{Python} for further details on the programming language
-\proglang{Python}. It contains objects for the Gibbs sampler, Metropolis Hastings
-(MH), independent MH, random walk MH, orientational bias Monte Carlo
-(OBMC) as well as the slice sampler. The user can simply piece together
-the algorithms required and can easily include their own modules,
-where necessary. Along with the standard algorithms, \pkg{PyMCMC} includes
-a module for Bayesian regression analysis. This module can be used
-for the direct analysis of linear models, or as a part of an MCMC
-scheme, where the conditional posterior has the form of a linear model.
-It also contains a class that can be used along with Gibbs sampler
-for Bayesian variable selection.
+Models is Markov chain Monte Carlo (MCMC). \pkg{PyMCMC} is a
+\proglang{Python} module that is designed to simplify the construction
+of Markov chain Monte Carlo (MCMC) samplers, without sacrificing
+flexibility or performance. \proglang{Python} has extensive scientific
+libraries, is easily extensible, has a clean syntax and powerful
+programming constructs, making it an ideal programming language to
+build an MCMC library; see \citet{Python} for further details on the
+programming language \proglang{Python}. It contains objects for the
+Gibbs sampler, Metropolis Hastings (MH), independent MH, random walk
+MH, orientational bias Monte Carlo (OBMC) as well as the slice
+sampler. The user can simply piece together the algorithms required
+and can easily include their own modules, where necessary. Along with
+the standard algorithms, \pkg{PyMCMC} includes a module for Bayesian
+regression analysis. This module can be used for the direct analysis
+of linear models, or as a part of an MCMC scheme, where the
+conditional posterior has the form of a linear model.  It also
+contains a class that can be used along with Gibbs sampler for
+Bayesian variable selection.
 
 % \pkg{PyMCMC} is designed to be fully flexible, with respect to MCMC design.
 This is important in practice, as MCMC algorithms usually need to
@@ -176,7 +176,7 @@ contains three empirical examples that demonstrate how to use \pkg{PyMCMC}.
 The first example demonstrates how to use the regression module for
 the Bayesian analysis of the linear model. In particular, the stochastic
 search variable selection algorithm, see \citet{GeorgeMcCulloch1993}
-and\citet{MarinRobert2007}, is used to select a set of `most likely
+and \citet{MarinRobert2007}, is used to select a set of `most likely
 models'. The second example demonstrates how to use \pkg{PyMCMC} to analyse
 the loglinear model and the third example demonstrates how to use
 \pkg{PyMCMC} to analyse a linear model with first order autoregressive errors.
@@ -239,7 +239,7 @@ the implementation of Algorithm \ref{alg:MCMC}, in which the user must
 define functions to sample from each block, ie. a function for each of
 $\bm{\theta}_{i},$ for $i=1,\dots,s.$ These functions may be defined
 using the Metropolis based or slice sampling algorithms that are part
-of \pkg{PyMCMC}. The class is named \emph{MCMC }and the following
+of \pkg{PyMCMC}. The class is named \code{MCMC} and the following
 arguments are required in the initialisation of the class:
 
 \begin{enumerate}
@@ -257,7 +257,7 @@ arguments are required in the initialisation of the class:
   \begin{enumerate}
   \item \code{loglike} - a tuple containing a function that evaluates the log-likelihood,
     number of parameters and the name of the dataset. For example: \code{loglike
-    = (loglike, nparam, 'yvec')}. If this is defined then the log-likelihood
+    = (loglike, nparam, `yvec')}. If this is defined then the log-likelihood
     and the BIC will be reported in the standard output.
   \item \code{transform} - a dictionary, where the keys are the names of the parameters
     and the associated values are functions that transform the iterates
@@ -269,15 +269,16 @@ arguments are required in the initialisation of the class:
 Several functions are included as a part of the class: 
 \begin{enumerate}
 \item \code{sampler()} - used to run the MCMC sampler. 
-\item \code{get\_mean\_cov(listname)} - returns the posterior covariance matrix
-  for the parameters named in listname, where listname is a list that
-  contains the parameter names of interest. 
+\item \code{get\_mean\_cov(listname)} - returns the posterior
+  covariance matrix for the parameters named in \code{listname}, where
+  \code{listname} is a list that contains the parameter names of
+  interest.
 \item \code{get\_parameter(name)} - returns the iterates for the named parameter
   including burnin.
 \item \code{get\_parameter\_exburn(name)} - returns the iterates for the named
   parameter excluding the burnin.
 \item \code{get\_mean\_var(name)} - returns the estimate from the MCMC estimation
-  for the posterior mean and variance for the parameter defined by 'name'. 
+  for the posterior mean and variance for the parameter defined by \code{name}. 
 \item \code{set\_number\_decimals(num)} - sets the number of decimal places for
   the output. 
 \item \code{output({*}{*}kwargs)} - Used to produce output from the MCMC algorithm.
@@ -288,15 +289,15 @@ Several functions are included as a part of the class:
     \item \code{parameters}: A dictionary, list or string specifying the parameters
       that are going to be presented. 
       \begin{itemize}
-      \item If a string is passed (eg: \code{parameters = 'beta'}), all elements of that
+      \item If a string is passed (eg: \code{parameters = `beta'}), all elements of that
         parameter are given.
-      \item If a list, (eg: \code{parameters = {[}'alpha', 'beta'{]})}, all elements
+      \item If a list, (eg: \code{parameters = {[}`alpha', `beta'{]})}, all elements
         of each parameter in the list are given.
-      \item If a dictionary (eg: \code{parameters = \{'alpha':\{'range':range(5)\}\})},
+      \item If a dictionary (eg: \code{parameters = \{`alpha':\{`range':range(5)\}\})},
           then there is the possibility to add an additional argument 'range'
           that tells the output to only print a subset of the parameters. The
-          above example will print information for alpha{[}0{]}, alpha{[}1{]},...,
-          alpha{[}4{]} only.
+          above example will print information for \code{alpha{[}0{]}, alpha{[}1{]},...,
+          alpha{[}4{]}} only.
       \end{itemize}
     \item \code{custom} - A user defined function that produces custom output. 
     \item \code{filename} - A filename to which the output is printed. By default
@@ -320,17 +321,17 @@ Several functions are included as a part of the class:
 
 \begin{enumerate}
 \item \code{elements}: a list of integers specifying the elements that will
-  be plotted. For example, if the blockname is 'beta' and
+  be plotted. For example, if the blockname is \code{`beta'} and
   $\bm{\beta}=(\beta_{0},\beta_{1}\ldots\beta_{n})$ then you may
   specify elements as \code{elements = {[}0,2,5{]}.}
-\item \code{plottypes}: a list giving the type of plot for each parameter. By
-  default the plots are density, acf and trace. A single string is
-  also acceptable.
+\item \code{plottypes}: a list giving the type of plot for each
+  parameter. By default the plots are \code{`density'}, \code{`acf'}
+  and \code{`trace'}. A single string is also acceptable.
 \item \code{filename}: A string providing the name of an output file
   for the plot.  As a plot of a block may be made up of a number of
   subfigures, the output name will be modified to give a separate
   filename for each subfigure. For example, if the filename is passed
-  as \code{"plot.png"}, and there are multiple pages of
+  as \code{`plot.png'}, and there are multiple pages of
   output, it will produce the files \code{plot001.png},
   \code{plot002.png}, etc.  The type of file is determined
   by the extension of the filename, but the output format will also
@@ -371,8 +372,7 @@ Several functions are included as a part of the class:
   supply a dictionary the key is the parameter name. It is also
   permissible to have a range key with a range of elements. If the
   range isn't supplied it is assumed that the user wants all of the
-  elements.  The range parameter may also be specified as, for
-  example, \code{parameters = \{`beta':\{`range':{[}0,2,4{]}\}\}}.
+  elements.  
 \item \code{thin}: integer specifying how to thin the output. For
   examples if \code{thin = 10}, then every tenth element will be
   written to the CODA output.
@@ -431,7 +431,7 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
 \item \code{`none'}, does not store any of the iterates from the parameter of
   interest.
 \end{enumerate}
-\item \code{'fixed\_parameter'} - is used if the user wants to fix the
+\item \code{fixed\_parameter} - is used if the user wants to fix the
   parameter value that is returned. This is used for testing MCMC
   sampling schemes.  This command will override any other
   functionality.
@@ -527,8 +527,8 @@ A typical choice for the distribution of $\bm{\bm{\varepsilon}}$ is a
 Normal distribution,\emph{\ }that is $\bm{\varepsilon\sim}i.i.d.$
 $\bm{N}\left(0,\bm{\Omega}\right)\ $where the covariance matrix
 $\bm{\Omega}$ is viewed as a tuning parameter. \pkg{PyMCMC} includes a
-class for the random walk MH algorithm, named \emph{RWMH}. The class
-\emph{RWMH} is defined assuming $\bm{\varepsilon}$ follows a normal
+class for the random walk MH algorithm, named \code{RWMH}. The class
+\code{RWMH} is defined assuming $\bm{\varepsilon}$ follows a normal
 distribution. Note that more general random walk MH algorithms could
 be constructed using the MH class. To initialise the class the user
 must specify:
@@ -536,9 +536,9 @@ must specify:
 \item \code{post} - a user defined function for the log of full conditional
   posterior distribution for the parameters of interest.
 \item \code{csig} - scale parameter for the random walk MH algorithm.
-\item \code{init\_theta} - initial value for the parameter of interest
+\item \code{init\_theta} - initial value for the parameter of interest.
 \item \code{name} - name of the parameter of interest.
-\item kwargs - optional arguments:
+\item \code{**kwargs} - optional arguments:
 
   \begin{enumerate}
   \item store 
