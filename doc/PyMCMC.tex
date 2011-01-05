@@ -229,7 +229,7 @@ by:
 
 
 An important special case of Algorithm \ref{alg:MCMC} is the Gibbs
-sampler, which is an algorithm that is proposed in . Specficially,
+sampler, which is an algorithm that is proposed in \citet{GelfandSmith1990}. Specficially,
 when each of $\bm{\theta}_{1},\bm{\theta}_{2},\dots,\bm{\theta}_{s},$
 is sampled from a closed form then this algorithm corresponds to that
 of the Gibbs sampler. \pkg{PyMCMC} contains a class that facilitates
@@ -255,7 +255,7 @@ arguments are required in the initialisation of the class:
   \begin{enumerate}
   \item \code{loglike} - a tuple containing a function that evaluates the log-likelihood,
     number of parameters and the name of the dataset. For example: \code{loglike
-    = (loglike, nparam, 'yvec')}. If this is defined then the log-likelihood
+    = (loglike, nparam, `yvec')}. If this is defined then the log-likelihood
     and the BIC will be reported in the standard output.
   \item \code{transform} - a dictionary, where the keys are the names of the parameters
     and the associated values are functions that transform the iterates
@@ -275,7 +275,7 @@ Several functions are included as a part of the class:
 \item \code{get\_parameter\_exburn(name)} - returns the iterates for the named
   parameter excluding the burnin.
 \item \code{get\_mean\_var(name)} - returns the estimate from the MCMC estimation
-  for the posterior mean and variance for the parameter defined by 'name'. 
+  for the posterior mean and variance for the parameter defined by `name'. 
 \item \code{set\_number\_decimals(num)} - sets the number of decimal places for
   the output. 
 \item \code{output({*}{*}kwargs)} - Used to produce output from the MCMC algorithm.
