@@ -96,8 +96,20 @@ gfortran.exe -Wall -mno-cygwin -Wall -mno-cygwin  -shared \
    -L/d/tmp/pymcmc_win_install/BUILDS/lib/  \
    -llapack -lcblas -lf77blas -latlas -lg2c -o ${p3}/stochsearch.pyd
 
-then 
 python setup.py build
+
+gfortran.exe -Wall -mno-cygwin -Wall -mno-cygwin -shared \
+  ${p1}wishartmodule.o                      \
+  ${p1}/fortranobject.o                     \
+  ${p2}/wishart.o                           \
+  -L c:/python26/libs -lpython26            \
+  -L/d/tmp/pymcmc_win_install/BUILDS/lib/   \
+  -llapack -lcblas -lf77blas -latlas -lg2c -o ${p3}/wishart.pyd
+
+python setup.py build
+
+then 
+
 python setup.py bdist
 
 or 
