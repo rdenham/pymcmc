@@ -2,7 +2,6 @@
 \usepackage{listings}
 \usepackage{bm}
 \usepackage{float}
-
 \floatstyle{ruled}
 \newfloat{algorithm}{tbp}{loa}
 \floatname{algorithm}{Algorithm}
@@ -17,7 +16,9 @@
         R. J. Denham\\Department of \\Environment and\\ Resource Management \And
         C. L. Alston\\Queensland University\\ of Technology \And 
         K. L. Mengersen\\Queensland University\\ of Technology}
-\title{\pkg{PyMCMC}: A \proglang{Python} package for Bayesian estimation using Markov chain Monte Carlo}
+
+\title{\pkg{PyMCMC}: A \proglang{Python} Package for Bayesian Estimation 
+  Using Markov Chain Monte Carlo}
 
 %% for pretty printing and a nice hypersummary also set:
 \Plainauthor{C. M. Strickland, R. J. Denham, C. L. Alston, K. L. Mengersen}
@@ -163,11 +164,11 @@ sufficiently fast for practical MCMC analysis without the need for
 specialised modules.
 
 %
-\begin{figure}[H]
+\begin{figure}[t!]
   \begin{center}
 \hspace*{-1cm}\includegraphics[width=18cm]{flowchart.pdf}    
   \end{center}
-\caption{Flow chart of \pkg{PyMCMC}\label{fig:Flow-chart-ofPyMCMC}}
+\caption{Flow chart of \pkg{PyMCMC}.\label{fig:Flow-chart-ofPyMCMC}}
 
 \end{figure}
 
@@ -198,7 +199,7 @@ Section \ref{sec:PyMCMC-interacting-with} describes how to use \pkg{PyMCMC}
 interatively with \proglang{R} and Section \ref{sec:Conclusions} concludes.
 
 
-\section{Bayesian Analysis}
+\section{Bayesian analysis}
 \label{sec:Bayesian-Analysis}
 
 Bayesian analysis quantifies information about the unknown parameter
@@ -213,13 +214,13 @@ The most common approach used for inference about $\bm{\theta}$ is
 MCMC.
 
 
-\subsection{Markov chain Monte Carlo Methods and Implementation}
+\subsection{Markov chain Monte Carlo Methods and implementation}
 
 In the following subsections, a brief description of each algorithm
 and the associated programming interface is included.
 
 
-\subsubsection{Markov chain Monte Carlo Sampling}
+\subsubsection{Markov chain Monte Carlo sampling}
 
 If we partition $\bm{\theta}$ into $s$ blocks, that is
 $\bm{\bm{\theta}}=\left(\bm{\theta}_{1},\bm{\theta}_{2},\ldots,\bm{\theta}_{s}\right)^{T},$
@@ -253,32 +254,32 @@ using the Metropolis based or slice sampling algorithms that are part
 of \pkg{PyMCMC}. The class is named \code{MCMC} and the following
 arguments are required in the initialisation of the class:
 
-\begin{enumerate}
-\item \code{nit} - the number of iterations. 
-\item \code{burn} - the burnin length of the MCMC sampler 
-\item \code{data} - a dictionary (\proglang{Python} data structure)
+\begin{description}
+\item[\code{nit}:]  The number of iterations. 
+\item[\code{burn}:]  The burnin length of the MCMC sampler 
+\item[\code{data}:] A dictionary (\proglang{Python} data structure)
   containing any data, functions or objects that the user would like
   to have access to when defining the functions that are called from
   the Gibbs sampler.
-\item \code{blocks} - a list (\proglang{Python} data structure)
+\item[\code{blocks}:] A list (\proglang{Python} data structure)
   containing functions that are used to sample from the full
   conditional posterior distributions of interest.
-\item \code{{*}{*}kwargs} - optional arguments:
+\item[\code{{*}{*}kwargs}] Optional arguments:
   
-  \begin{enumerate}
-  \item \code{loglike} - a tuple containing a function that evaluates the log-likelihood,
+  \begin{description}
+  \item[\code{loglike}] A tuple containing a function that evaluates the log-likelihood,
     number of parameters and the name of the dataset. For example: \code{loglike
     = (loglike, nparam, `yvec')}. If this is defined then the log-likelihood
     and the BIC will be reported in the standard output.
-  \item \code{transform} - a dictionary, where the keys are the names of the parameters
+  \item[\code{transform}] A dictionary, where the keys are the names of the parameters
     and the associated values are functions that transform the iterates
     stored in the MCMC scheme. This can be useful when the MCMC algorithm
     is defined under a particular parametersation, but where it is desirable
     to report the results under a different parameterisation.
-\end{enumerate}
-\end{enumerate}
+\end{description}
+\end{description}
 Several functions are included as a part of the class: 
-\begin{enumerate}
+\begin{description}
 \item \code{sampler()} - used to run the MCMC sampler. 
 \item \code{get\_mean\_cov(listname)} - returns the posterior
   covariance matrix for the parameters named in \code{listname}, where
@@ -294,9 +295,9 @@ Several functions are included as a part of the class:
   the output. 
 \item \code{output({*}{*}kwargs)} - Used to produce output from the MCMC algorithm.
   
-  \begin{enumerate}
+  \begin{description}
   \item \code{{*}{*}kwargs} - Optional arguments that control the output.
-    \begin{enumerate}
+    \begin{description}
     \item \code{parameters}: A dictionary, list or string specifying the parameters
       that are going to be presented. 
       \begin{itemize}
@@ -313,8 +314,8 @@ Several functions are included as a part of the class:
     \item \code{custom} - A user defined function that produces custom output. 
     \item \code{filename} - A filename to which the output is printed. By default
       output will be printed to stdout.
-    \end{enumerate}
-    \end{enumerate}
+    \end{description}
+    \end{description}
 \item \code{plot(blockname, {*}{*}kwargs)} - Create summary plots of
   the MCMC sampler.  By default, a plot of the marginal posterior
   density, an ACF plot and a trace plot are produced for each
@@ -569,7 +570,7 @@ must specify:
 \end{enumerate}
 \end{enumerate}
 
-\subsubsection{Orientational Bias Monte Carlo}
+\subsubsection{Orientational bias Monte Carlo}
 
 The multiple try Metropolis \citep{LuiLiangWong2000} generalises the
 MH algorithm to allow for multiple proposals. The OBMC algorithm is a
@@ -659,7 +660,7 @@ specify:
 \end{enumerate}
 \end{enumerate}
 
-\subsubsection{Slice Sampler}
+\subsubsection{Slice sampler}
 
 The slice sampler is useful for drawing values from complex densities;
 see \citet{Radford2003} for further details. The required distribution
@@ -785,7 +786,7 @@ to step 1
   \end{enumerate}
 \end{enumerate}
 
-\subsection{Normal Linear Bayesian Regression Model}
+\subsection{Normal linear Bayesian regression model}
 \label{sec: Regression Model}
 
 Many interesting models are partly linear for a subset of the unknown
@@ -1049,7 +1050,7 @@ The class \code{StochasticSearch} also contains the following function:
   called from the class \code{MCMC }in \pkg{PyMCMC}.
 \end{enumerate}
 
-\section{Empirical Illustrations}
+\section{Empirical illustrations}
 \label{sec:Empirical-Illustrations}
 
 \pkg{PyMCMC} is illustrated though three examples. Specifically, a
@@ -1064,7 +1065,7 @@ for further details of these Python libraries.  Example 3 further uses
 the library \pkg{Pysparse}.
 
 
-\subsection{Example 1: Linear Regression Model: Variable selection and estimation}
+\subsection{Example 1: Linear regression model: Variable selection and estimation}
 
 The normal linear regression model in (\ref{eq:regression}) is used
 for the analysis.  The data set of interest contains 19 regressors. To
@@ -1072,7 +1073,7 @@ select the set of `most probable' regressors we can use the stochastic
 search variable selection approach described in Section \ref{sec:
   Regression Model}.
 
-\subsubsection{Example Code}
+\subsubsection{Example code}
 
 
 \begin{lstlisting}[basicstyle={\scriptsize},numbers=left]
@@ -1151,38 +1152,40 @@ dictionary store. For example on line 36 the class instance
 specified to refer to the parameter $\bm{\gamma}.$ If the user wanted
 to access the current iteration for \code{`gamma'} from any of the
 functions called from \code{MCMC}, this would simply be done using
-\code{store{[}`gamma'{]}}.  This feature is not used in this example, but can
-be seen in the proceding examples. A brief description of the code is
-as follows:
+\code{store{[}`gamma'{]}}.  This feature is not used in this example,
+but can be seen in the proceding examples. A brief description of the
+code is as follows:
 \begin{itemize}
-\item Lines 3-7 import the classes and functions that are required in this
-example
-\item Line 11 is used to obtain the path of the data if installed using
-setup.py. Note that this step will not be necessary for normal usage
-of \pkg{PyMCMC}.
-\item Lines 13-15 define the function that is used to sample $\bm{\gamma}.$
+\item Lines 3-7 import the classes and functions that are required in
+  this example.
+\item Line 11 is used to obtain the path of the data if installed
+  using setup.py. Note that this step will not be necessary for normal
+  usage of \pkg{PyMCMC}.
+\item Lines 13-15 define the function that is used to sample
+  $\bm{\gamma}.$
 \item The main program starts at line 18.
-\item Lines 21-24 are used to load the data, from which arrays $\bm{y}$
-(\code{yvec}) and $\bm{X}$ (\code{xmat}) are constructed.
-\item Lines 28-31 construct the dictionary \code{data}, which includes \code{yvec,
-xmat} and the class instance of \code{StochasticSearch}.
-\item Line 36 defines the class instance \code{simgam}, which defines the
-block of the MCMC scheme to sample $\bm{\gamma}$.
-\item Line 39 defines the class instance of \code{MCMC}. Note that the Gibbs sampler
-will run for 20000 iterations, of which the first 5000 iterations
-will constitute the burnin and be discarded for the calculations in
-the output. The Gibbs sampler contains one block, which is defined
-by the class instance \code{simgam}.
+\item Lines 21-24 are used to load the data, from which arrays
+  $\bm{y}$ (\code{yvec}) and $\bm{X}$ (\code{xmat}) are constructed.
+\item Lines 28-31 construct the dictionary \code{data}, which includes
+  \code{yvec, xmat} and the class instance of \code{StochasticSearch}.
+\item Line 36 defines the class instance \code{simgam}, which defines
+  the block of the MCMC scheme to sample $\bm{\gamma}$.
+\item Line 39 defines the class instance of \code{MCMC}. Note that the
+  Gibbs sampler will run for 20000 iterations, of which the first 5000
+  iterations will constitute the burnin and be discarded for the
+  calculations in the output. The Gibbs sampler contains one block,
+  which is defined by the class instance \code{simgam}.
 \item Line 40 runs the MCMC sampler.
-\item Line 41 produces the standard output for the MCMC sampler, which is
-saved in the file \code{`vs.txt'}.
-\item Line 42 produces the custom output from the stochastic search class
-and is saved in the file \code{'SSVS.out'}.
-\item Line 43 produces the custom output for the stochastic search class
-and writes it to the screen.
-\item Lines 45-48 produces regression output, from a Bayesian regression
-analysis based on the most probable model.
-\item Line 49 produces standard plots from the Bayesian regression analysis.
+\item Line 41 produces the standard output for the MCMC sampler, which
+  is saved in the file \code{`vs.txt'}.
+\item Line 42 produces the custom output from the stochastic search
+  class and is sqaved in the file \code{'SSVS.out'}.
+\item Line 43 proqduces the custom output for the stochastic search
+  class and writes it to the screen.
+\item Lines 45-48 produces regression output, from a Bayesian
+  regression analysis based on the most probable model.
+\item Line 49 produces standard plots from the Bayesian regression
+  analysis.
 \end{itemize}
 
 \subsubsection{Analysis}
@@ -1251,7 +1254,7 @@ credible interval, hence the crop yield increases with higher values
 of variable 12. The marginal posterior densities (Figure \ref{Flo:mpd
   reg}) illustrate that this effect is far from zero. %
 
-\begin{figure}
+\begin{figure}[t!]
   \begin{center}
     \includegraphics[width=9.5cm]{mpdreg.pdf}
   \end{center}
@@ -1261,7 +1264,7 @@ of variable 12. The marginal posterior densities (Figure \ref{Flo:mpd
 
 
 
-\subsection{Example 2: Log-linear Model}
+\subsection{Example 2: Log-linear model}
 \label{sub:Example-2:-Log-linear}
 
 For the log-linear model, see \citet{GelmanCarlinSternRubin2004}, the
@@ -1295,7 +1298,7 @@ and\[
 
 
 
-\subsubsection{Example Code}
+\subsubsection{Example code}
 
 The example code for \pkg{PyMCMC} uses two \proglang{Python}
 libraries, \pkg{Numpy} and \pkg{Scipy}, which the user must have
@@ -1456,7 +1459,7 @@ The ACF plots (Figure 2) and low inefficiency factors (see \citet{ChibGreenberg1
 inefficiency factors) of 12.6
 ($\hat{\beta}_{0}$) and 11.4 ($\hat{\beta}_{1}$) show that
 autocorrelation in the sample is relatively low for an MCMC sampler. %
-\begin{figure}
+\begin{figure}[t!]
   \begin{center}
     \includegraphics[width=16cm]{ex_loglinear.pdf}
   \end{center}
@@ -1748,7 +1751,7 @@ the first 2000 are discarded. The total time of estimation is approximately
 is very efficient.
 
 %
-\begin{figure}[h]
+\begin{figure}[t!]
 \label{Flo:AR1}
 \begin{center}
   \includegraphics{rho.pdf}
@@ -1986,7 +1989,7 @@ interface. Another option for \proglang{C++} users is to use
 the scope of this paper.
 
 
-\subsection{Compiling Code in Windows}
+\subsection{Compiling code in Windows}
 \label{CompilingWindows}
 
 The previous section described how one might go about using
