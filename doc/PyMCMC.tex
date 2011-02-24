@@ -168,7 +168,7 @@ specialised modules.
   \begin{center}
 \hspace*{-1cm}\includegraphics[width=18cm]{flowchart.pdf}    
   \end{center}
-\caption{Flow chart of \pkg{PyMCMC}.\label{fig:Flow-chart-ofPyMCMC}}
+\caption{Flow chart illustrating the implementation of \pkg{PyMCMC}.\label{fig:Flow-chart-ofPyMCMC}}
 
 \end{figure}
 
@@ -256,7 +256,7 @@ arguments are required in the initialisation of the class:
 
 \begin{description}
 \item[\code{nit}:]  The number of iterations. 
-\item[\code{burn}:]  The burnin length of the MCMC sampler 
+\item[\code{burn}:]  The burn in length of the MCMC sampler. 
 \item[\code{data}:] A dictionary (\proglang{Python} data structure)
   containing any data, functions or objects that the user would like
   to have access to when defining the functions that are called from
@@ -280,21 +280,21 @@ arguments are required in the initialisation of the class:
 \end{description}
 Several functions are included as a part of the class: 
 \begin{description}
-\item \code{sampler()} - used to run the MCMC sampler. 
-\item \code{get\_mean\_cov(listname)} - returns the posterior
+\item \code{sampler()} - Used to run the MCMC sampler. 
+\item \code{get\_mean\_cov(listname)} - Returns the posterior
   covariance matrix for the parameters named in \code{listname}, where
   \code{listname} is a list that contains the parameter names of
   interest.
-\item \code{get\_parameter(name)} - returns the iterates for the named parameter
+\item \code{get\_parameter(name)} - Returns the iterates for the named parameter
   including burnin.
-\item \code{get\_parameter\_exburn(name)} - returns the iterates for the named
+\item \code{get\_parameter\_exburn(name)} - Returns the iterates for the named
   parameter excluding the burnin.
-\item \code{get\_mean\_var(name)} - returns the estimate from the MCMC estimation
+\item \code{get\_mean\_var(name)} - Returns the estimate from the MCMC estimation
   for the posterior mean and variance for the parameter defined by \code{name}. 
-\item \code{set\_number\_decimals(num)} - sets the number of decimal places for
+\item \code{set\_number\_decimals(num)} - Sets the number of decimal places for
   the output. 
 \item \code{output({*}{*}kwargs)} - Used to produce output from the MCMC algorithm.
-  
+\end{description}
   \begin{description}
   \item \code{{*}{*}kwargs} - Optional arguments that control the output.
     \begin{description}
@@ -315,7 +315,7 @@ Several functions are included as a part of the class:
     \item \code{filename} - A filename to which the output is printed. By default
       output will be printed to stdout.
     \end{description}
-    \end{description}
+   
 \item \code{plot(blockname, {*}{*}kwargs)} - Create summary plots of
   the MCMC sampler.  By default, a plot of the marginal posterior
   density, an ACF plot and a trace plot are produced for each
@@ -323,20 +323,20 @@ Several functions are included as a part of the class:
   of subfigures. By default, the number of columns are approximately
   equal to the square root of the total number of subfigures divided
   by the number of different plot types.
-
+\end{description}
 \begin{enumerate}
 \item \code{blockname} The name of the parameter, for which summary plots are
   to be generated.
-\item \code{{*}{*}kwargs} - an optional dictionary (\proglang{Python} data
+\item \code{{*}{*}kwargs} - An optional dictionary (\proglang{Python} data
   structure) containing information to control the summary plots. The
   available keys are summarised below:
 
 \begin{enumerate}
-\item \code{elements}: a list of integers specifying the elements that will
+\item \code{elements}: A list of integers specifying the elements that will
   be plotted. For example, if the blockname is \code{`beta'} and
   $\bm{\beta}=(\beta_{0},\beta_{1}\ldots\beta_{n})$ then you may
-  specify elements as \code{elements = {[}0,2,5{]}.}
-\item \code{plottypes}: a list giving the type of plot for each
+  specify elements as \code{elements = {[}0,2,5{]}.}.
+\item \code{plottypes}: A list giving the type of plot for each
   parameter. By default the plots are \code{`density'}, \code{`acf'}
   and \code{`trace'}. A single string is also acceptable.
 \item \code{filename}: A string providing the name of an output file
@@ -360,14 +360,14 @@ Several functions are included as a part of the class:
 \item \code{cols}: Integer specifying the number of columns of subfigures on
   a plotting page.
 \end{enumerate}
-\end{enumerate}
+
 \item \code{CODAoutput({*}{*}kwargs)} - Output the results in a format
   suitable for reading in with the statistical package Convergence
   Diagnostic and Output Analysis (CODA). By default, there will be two
   files created, \code{coda.txt} and \code{coda.ind}.
 
 \begin{enumerate}
-\item \code{{*}{*}kwargs} - an optional dictionary controlling the CODA
+\item \code{{*}{*}kwargs} - An optional dictionary controlling the CODA
   output.
 
 \begin{enumerate}
@@ -377,7 +377,7 @@ Several functions are included as a part of the class:
   extension with ind. If no extension is in the filename then two
   files will be created and named by adding the extensions .txt and
   .ind to the given filename.
-\item \code{parameters}: a string, a list or a dictionary that specify
+\item \code{parameters}: A string, a list or a dictionary that specify
   the items written to file. It can be a string such as \code{`alpha'}
   or it can be a list (eg \code{{[}`alpha',`beta'{]}}) or it can be a
   dictionary (eg \code{\{`alpha':\{`range':{[}0,1,5{]}\}\}}.  If you
@@ -385,7 +385,7 @@ Several functions are included as a part of the class:
   permissible to have a range key with a range of elements. If the
   range isn't supplied it is assumed that the user wants all of the
   elements.  
-\item \code{thin}: integer specifying how to thin the output. For
+\item \code{thin}: Integer specifying how to thin the output. For
   examples if \code{thin = 10}, then every tenth element will be
   written to the CODA output.
 \end{enumerate}
@@ -421,14 +421,14 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
 \pkg{PyMCMC} includes a class for the MH algorithm, which is called
 \code{MH}.  To initialise the class the user needs to define:
 \begin{enumerate}
-\item \code{func} - user defined function that returns a sample for the
+\item \code{func} - User defined function that returns a sample for the
   parameter of interest.
-\item \code{actualprob} - user defined function that returns the log
+\item \code{actualprob} - User defined function that returns the log
   probability of the parameters of interest evaluated using the target
   density.
-\item \code{probcandprev} - user defined function that returns the log of
+\item \code{probcandprev} - User defined function that returns the log of
   $q\left(\bm{\theta}^{\ast}|\bm{y},\bm{\theta}^{j-1}\right).$
-\item \code{probprevcand} - user defined function that returns the log of
+\item \code{probprevcand} - User defined function that returns the log of
   $q\left(\bm{\theta}^{j-1}|\bm{y},\bm{\theta}^{*}\right).$
 \item \code{init\_theta} - Initial value for the parameters of interest.
 \item \code{name} - The name of the parameter of interest.
@@ -443,7 +443,7 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
 \item \code{`none'}, does not store any of the iterates from the parameter of
   interest.
 \end{enumerate}
-\item \code{fixed\_parameter} - is used if the user wants to fix the
+\item \code{fixed\_parameter} - Is used if the user wants to fix the
   parameter value that is returned. This is used for testing MCMC
   sampling schemes.  This command will override any other
   functionality.
@@ -475,16 +475,16 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
 \pkg{PyMCMC} contains a class for the independent MH algorithm, named \code{IndMH}.
 To initialise the class the user needs to define: 
 \begin{enumerate}
-\item \code{func} - a user defined function that returns a sample for the
+\item \code{func} - A user defined function that returns a sample for the
   parameter of interest.
-\item \code{actualprob} - a user defined function that returns the log
+\item \code{actualprob} - A user defined function that returns the log
   probability of the parameters of interest evaluated using the target
   density.
-\item \code{candpqrob} - a user defined function that returns the log
+\item \code{candpqrob} - A user defined function that returns the log
   probability of the parameters of interest evaluated using the
   candidate density.
-\item \code{init\_theta} - initial value for the parameters of interest.
-\item \code{name} - name of the parameter of interest.
+\item \code{init\_theta} - Initial value for the parameters of interest.
+\item \code{name} - Name of the parameter of interest.
 \item \code{{*}{*}kwargs}- Optional arguments:
 
 \begin{enumerate}
@@ -495,7 +495,7 @@ To initialise the class the user needs to define:
   \item \code{`none'}, does not store any of the iterates from the parameter
     of interest.
   \end{enumerate}
-\item \code{fixed\_parameter} - is used if the user wants to fix the
+\item \code{fixed\_parameter} - Is used if the user wants to fix the
     parameter value that is returned. This is used for testing MCMC
     sampling schemes.  This command will override any other
     functionality.
@@ -527,7 +527,7 @@ $j=1,2,\ldots,M$ is given\emph{\ }by Algorithm \ref{alg:rwmh}.
   \item Accept $\bm{\theta}^{j}=\bm{\theta}^{\ast}$ with probability
     equal to $\min\left\{
       1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\theta}^{j-1}|\bm{y}\right)}\right\}
-    $
+    $,
   \item Otherwise accept $\bm{\theta}^{j}=\bm{\theta}^{j-1}.$
   \end{enumerate}
   \caption{Random Walk MH}
@@ -537,7 +537,7 @@ $j=1,2,\ldots,M$ is given\emph{\ }by Algorithm \ref{alg:rwmh}.
 
 A typical choice for the distribution of $\bm{\bm{\varepsilon}}$ is a
 Normal distribution,\emph{\ }that is $\bm{\varepsilon\sim}i.i.d.$
-$\bm{N}\left(0,\bm{\Omega}\right)\ $where the covariance matrix
+$\bm{N}\left(0,\bm{\Omega}\right)\ $ where the covariance matrix
 $\bm{\Omega}$ is viewed as a tuning parameter. \pkg{PyMCMC} includes a
 class for the random walk MH algorithm, named \code{RWMH}. The class
 \code{RWMH} is defined assuming $\bm{\varepsilon}$ follows a normal
@@ -545,12 +545,12 @@ distribution. Note that more general random walk MH algorithms could
 be constructed using the MH class. To initialise the class the user
 must specify:
 \begin{enumerate}
-\item \code{post} - a user defined function for the log of full conditional
+\item \code{post} - A user defined function for the log of full conditional
   posterior distribution for the parameters of interest.
-\item \code{csig} - scale parameter for the random walk MH algorithm.
-\item \code{init\_theta} - initial value for the parameter of interest.
-\item \code{name} - name of the parameter of interest.
-\item \code{**kwargs} - optional arguments:
+\item \code{csig} - Scale parameter for the random walk MH algorithm.
+\item \code{init\_theta} - Initial value for the parameter of interest.
+\item \code{name} - Name of the parameter of interest.
+\item \code{**kwargs} - Optional arguments:
 
   \begin{enumerate}
   \item store 
@@ -560,11 +560,11 @@ must specify:
       \item \code{`none'}, does not store any of the iterates from the parameter of
         interest.
       \end{enumerate}
-\item \code{fixed\_parameter} - is used if the user wants to fix the
+\item \code{fixed\_parameter} - Is used if the user wants to fix the
   parameter value that is returned. This is used for testing MCMC
   sampling schemes.  This command will override any other
   functionality.
-\item \code{adaptive} - \code{`GYS'}, then the adaptive random walk MH
+\item \code{adaptive} - \code{`GYS'}, Then the adaptive random walk MH
   algorithm of \citet{GarthwaiteYanScisson2010} will be used to
   optimise $\bm{\Omega}.$
 \end{enumerate}
@@ -597,7 +597,7 @@ as follows:
 \item Accept $\bm{\theta}^{j}=\bm{\theta}^{\ast\ast}$ with probability
   equal to $\min\left\{
     1,\frac{\sum_{l=1}^{L}p\left(\bm{\theta}_{l}^{\ast}|\bm{y}\right)}{\sum_{l=1}^{L}p\left(\bm{r}_{l}|\bm{y}\right)}\right\}
-  $
+  $,
 \item Otherwise accept $\bm{\theta}^{j}=\bm{\theta}^{j-1}.$
 \end{enumerate}
 \caption{Orientational Bias Monte Carlo}
@@ -611,12 +611,12 @@ generalisation of the random walk MH algorithm. The class for the OBMC
 algorithm is named \code{OBMC}. To initialise the class the user must
 specify:
 \begin{enumerate}
-\item \code{post} - a user defined function for the log of full conditional
+\item \code{post} - A user defined function for the log of full conditional
   posterior distribution for the parameters of interest.
-\item \code{ntry} - number of candidates, $L$.
-\item \code{csig} - a scale parameter for the OBMC algorithm.
-\item \code{init\_theta} - initial value for the parameter of interest. 
-\item \code{{*}{*}kwargs} - optional arguments:
+\item \code{ntry} - Number of candidates, $L$.
+\item \code{csig} - A scale parameter for the OBMC algorithm.
+\item \code{init\_theta} - Initial value for the parameter of interest. 
+\item \code{{*}{*}kwargs} - Optional arguments:
 
   \begin{enumerate}
   \item \code{store}
@@ -625,7 +625,7 @@ specify:
         of interest. This is required for certain calculations.
       \item \code{`none'}, does not store any of the iterates from the parameter of interest. 
       \end{enumerate}
-  \item \code{fixed\_parameter} - is used if the user wants to fix the
+  \item \code{fixed\_parameter} - Is used if the user wants to fix the
     parameter value that is returned. This is used for testing MCMC
     sampling schemes.  This command will override any other
     functionality.
@@ -639,12 +639,12 @@ the parameters of interest when there is a closed form solution. The
 name of the class is \code{CFsampler}. To initialise the class the user must
 specify:
 \begin{enumerate}
-\item \code{func} - user defined function that samples from the posterior
+\item \code{func} - User defined function that samples from the posterior
   distribution of interest.
-\item \code{init\_theta} - initial value for the unknown parameter of
+\item \code{init\_theta} - Initial value for the unknown parameter of
   interest.
-\item \code{name} - the name of the parameter of interest.
-\item \code{{*}{*}kwargs} - optional parameters:
+\item \code{name} - The name of the parameter of interest.
+\item \code{{*}{*}kwargs} - Optional parameters:
 
 \begin{enumerate}
 \item \code{store}
@@ -653,7 +653,7 @@ specify:
     interest. This is required for certain calculations.
   \item `none', does not store any of the iterates from the parameter of interest. 
   \end{enumerate}
-\item \code{fixed\_parameter} - is used if the user wants to fix the
+\item \code{fixed\_parameter} - Is used if the user wants to fix the
   parameter value that is returned. This is used for testing MCMC
   sampling schemes.  This command will override any other
   functionality.
@@ -680,8 +680,8 @@ iteration $j$ using Algorithm \ref{alg:slicesamp}.
 %
 \begin{algorithm}[H]
 \begin{enumerate}
-\item For $i=1,2,\dots,n$, draw $\omega_{i}\sim\mbox{Unif}[0,f_{i}(\theta^{j-1})]$ 
-\item Sample $\theta^{j}\sim\mbox{Unif}[A]$ where $A=\left\{ \theta:f_{1}(\theta)\ge\omega_{1}\in f_{2}(\theta)\ge\omega_{2}\in\cdots\in f_{n}(\theta)\ge\omega_{n}\right\} $ 
+\item For $i=1,2,\dots,n$, draw $\omega_{i}\sim\mbox{Unif}[0,f_{i}(\theta^{j-1})]$. 
+\item Sample $\theta^{j}\sim\mbox{Unif}[A]$ where $A=\left\{ \theta:f_{1}(\theta)\ge\omega_{1}\in f_{2}(\theta)\ge\omega_{2}\in\cdots\in f_{n}(\theta)\ge\omega_{n}\right\} $. 
 \end{enumerate}
 \caption{Slice sampler}
 \label{alg:slicesamp}
@@ -704,32 +704,32 @@ The stepping out algorithm (\ref{alg:steppingout}) is:
 \begin{algorithm}[H]
 \begin{enumerate}
 \item Initiate lower (LB) and upper (UB) bounds for slice defined by set
-$A$\end{enumerate}
+$A$.\end{enumerate}
 \begin{itemize}
-\item $U\sim\mbox{Unif}(0,1)$ 
+\item $U\sim\mbox{Unif}(0,1)$; 
 
 \begin{itemize}
-\item $LB=\theta^{j-1}-ss{\times}U$ 
-\item $UB=LB+ss$ 
+\item $LB=\theta^{j-1}-ss{\times}U$, 
+\item $UB=LB+ss$. 
 \end{itemize}
 \end{itemize}
 \begin{enumerate}
-\item Sample $V\sim\mbox{Unif}(0,1)$ 
-\item Set $J=\mbox{Floor}(N{\times}V)$ 
-\item Set $Z=(N-1)-J$ 
-\item Repeat while $J>0$ and $\omega_{i}<f_{i}(LB)\forall i$
+\item Sample $V\sim\mbox{Unif}(0,1)$. 
+\item Set $J=\mbox{Floor}(N{\times}V)$. 
+\item Set $Z=(N-1)-J$. 
+\item Repeat while $J>0$ and $\omega_{i}<f_{i}(LB)\forall i$;
 
 \begin{itemize}
-\item LB = LB - $ss$ 
-\item $J=J-1$ 
+\item LB = LB - $ss$, 
+\item $J=J-1$. 
 \end{itemize}
-\item Repeat while $Z>0$ and $\omega_{i}<f_{i}(UB)\forall i$
+\item Repeat while $Z>0$ and $\omega_{i}<f_{i}(UB)\forall i$;
 
 \begin{itemize}
-\item UB = UB + ss 
-\item Z = Z - 1 
+\item UB = UB + ss, 
+\item Z = Z - 1. 
 \end{itemize}
-\item Sample $\theta^{j}\sim\mbox{Unif}(LB,UB)$ 
+\item Sample $\theta^{j}\sim\mbox{Unif}(LB,UB)$. 
 \end{enumerate}
 \caption{Stepping out}
 \label{alg:steppingout}
@@ -747,15 +747,15 @@ repeating this algorithm until exit conditions are met.
 %
 \begin{algorithm}[H]
 \begin{enumerate}
-\item $U\sim\mbox{Unif}(0,1)$ 
-\item $\theta^{j}=LB+U{\times}(UB-LB)$
+\item $U\sim\mbox{Unif}(0,1)$. 
+\item $\theta^{j}=LB+U{\times}(UB-LB)$;
 
 \begin{itemize}
 \item If $\omega_{i}<f_{i}(\omega_{i})\forall i$, accept $\theta^{j}$
-and exit 
-\item else if $\theta^{j}<\theta^{j-1}$, set $LB=\theta^{j}$ and return
-to step 1 
-\item else set $UB=\theta^{j}$ and return to step 1 
+and exit, 
+\item Else if $\theta^{j}<\theta^{j-1}$, set $LB=\theta^{j}$ and return
+to step 1, 
+\item Else set $UB=\theta^{j}$ and return to step 1. 
 \end{itemize}
 \end{enumerate}
 \caption{Shrinkage}
@@ -766,11 +766,11 @@ to step 1
 \pkg{PyMCMC} includes a class for the slice sampler named \code{SliceSampler.
 }To initialise the class the user must define: 
 \begin{enumerate}
- \item \code{func} - a $k$ dimensional list containing the set of log functions. 
- \item \code{init\_theta} - an initial value for $\theta$. 
- \item \code{ssize} - a user defined value for the typical slice size. 
- \item \code{sN} - an integer limiting slice size to $N\times ss$.
- \item \code{{*}{*}kwargs} - optional arguments:
+ \item \code{func} - A $k$ dimensional list containing the set of log functions. 
+ \item \code{init\_theta} - An initial value for $\theta$. 
+ \item \code{ssize} - A user defined value for the typical slice size. 
+ \item \code{sN} - An integer limiting slice size to $N\times ss$.
+ \item \code{{*}{*}kwargs} - Optional arguments:
    
  \begin{enumerate}
    \item \code{store}
@@ -779,7 +779,7 @@ to step 1
         interest. This is required for certain calculations.
       \item `none', does not store any of the iterates from the parameter of interest. 
      \end{enumerate}
-   \item fixed\_parameter - is used if the user wants to fix the
+   \item fixed\_parameter - Is used if the user wants to fix the
      parameter value that is returned. This is used for testing MCMC
      sampling schemes.  This command will override any other
      functionality.
@@ -876,12 +876,12 @@ where $\bm{\underline{\beta}}$ and $g$ are hyperparameters with
 values that are specified by the user. To initialise the class \code{BayesRegression}
 the user must specify: 
 \begin{enumerate}
-\item \code{yvec} - one dimensional \pkg{Numpy} array containing the data. 
-\item \code{xmat} - two dimensional \pkg{Numpy} array contain the regressors.
-\item \code{{*}{*}kwargs} - optional arguments:
+\item \code{yvec} - One dimensional \pkg{Numpy} array containing the data. 
+\item \code{xmat} - Two dimensional \pkg{Numpy} array contain the regressors.
+\item \code{{*}{*}kwargs} - Optional arguments:
 
 \begin{enumerate}
-\item \code{prior} - a list contain the name of the prior and the
+\item \code{prior} - A list contain the name of the prior and the
   corresponding hyperparameters. Examples: \code{prior = {[}`normal\_gamma',
   betaubar, Vubar, nuubar, Subar{]}},
   \code{prior = {[}`normal\_inverted\_gamma',betaubar, Vubar, nuubar, Subar{]}}
@@ -890,34 +890,34 @@ the user must specify:
   Jeffreys prior.
 \end{enumerate}
 \end{enumerate}
-\code{BayesRegression }contains several functions that may be of interest
+\code{BayesRegression} contains several functions that may be of interest
 to the user. In particular: 
 \begin{enumerate}
-\item \code{sample()} - returns a sample of $\sigma$ and $\bm{\beta}$
+\item \code{sample()} - Returns a sample of $\sigma$ and $\bm{\beta}$
   from the joint posterior distribution for the normal-inverted gamma
   prior, Jeffreys prior and Zellner's g-prior. If the normal-gamma
   prior is specified then \code{sample()} returns $\kappa$ and
   $\bm{\beta}.$
-\item \code{update\_yvec(yvec)} - updates yvec in \code{BayesRegression}. This
+\item \code{update\_yvec(yvec)} - Updates yvec in \code{BayesRegression}. This
   is often useful when the class is being used as a part of the MCMC
   sampling scheme.
-\item \code{update\_xmat(xmat)} - updates xmat in \code{BayesRegression}. This
+\item \code{update\_xmat(xmat)} - Updates xmat in \code{BayesRegression}. This
   is often useful when the class is being used as a part of the MCMC
   sampling scheme.
-\item \code{loglike(scale, beta)} - returns the log-likelihood.
-\item \code{posterior\_mean()} - returns the posterior mean for the scale parameter
+\item \code{loglike(scale, beta)} - Returns the log-likelihood.
+\item \code{posterior\_mean()} - Returns the posterior mean for the scale parameter
 (either $\sigma$ or $\kappa$ depending on the specified prior) and
 $\bm{\beta}.$
-\item \code{get\_posterior\_covmat()} - returns the posterior covariance matrix
+\item \code{get\_posterior\_covmat()} - Returns the posterior covariance matrix
 for $\bm{\beta}$.
-\item \code{bic()} - returns the Bayesian information criterion; see \cite{KassRaftery1995} for details.
-\item \code{plot({*}{*}kwargs)} - produces standard plots. Specifically the
+\item \code{bic()} - Returns the Bayesian information criterion; see \cite{KassRaftery1995} for details.
+\item \code{plot({*}{*}kwargs)} - Produces standard plots. Specifically the
   marginal posterior density intervals for each element of
   $\bm{\beta}$ and for the scale parameter ($\sigma$ or $\kappa)$.
-\item \code{residuals} - returns the residual vector from the regression
+\item \code{residuals} - Returns the residual vector from the regression
   analysis.  The residuals are calculated with $\bm{\beta}$ evaluated
   at the marginal posterior mean.
-\item \code{output} - produces standard output for the regression analysis.
+\item \code{output} - Produces standard output for the regression analysis.
   This includes the means, standard deviations and HPD intervals for
   the marginal posterior densities for each element of $\bm{\beta}$
   and for the scale parameter ($\sigma$ or $\kappa)$. The output also
@@ -949,12 +949,12 @@ specify their \emph{a priori} beliefs using Zellner's g-prior, where\[
 N\left(\bm{\beta},g\sigma^{2}\bm{X}^{T}\bm{X}\right).\] To initialise
 the class the user must specify:
 \begin{enumerate}
-\item \code{yvec} - a one dimensional \pkg{Numpy} array containing the data. 
-\item \code{xmat} - a two dimensional \pkg{Numpy} array containing the regressors. 
-\item \code{{*}{*}kwargs} - optional arguments:
+\item \code{yvec} - A one dimensional \pkg{Numpy} array containing the data. 
+\item \code{xmat} - A two dimensional \pkg{Numpy} array containing the regressors. 
+\item \code{{*}{*}kwargs} - Optional arguments:
 
 \begin{enumerate}
-\item \code{prior} - a list containing the name of the prior and the
+\item \code{prior} - A list containing the name of the prior and the
   corresponding hyperparameters. Examples: \code{prior={[}`normal',
   betaubar, Vubar{]} or {[}`g\_prior', betaubar, g{]}}. If none of
   these options are chosen or they are miss-specified then the default
@@ -966,16 +966,16 @@ to the user. In particular:
 
 \begin{enumerate}
 
-\item \code{sample(sigma)} - returns a sample of $\bm{\beta}$ from the posterior
+\item \code{sample(sigma)} - Returns a sample of $\bm{\beta}$ from the posterior
 distribution specified in \ref{eq:post_condbeta}.
-\item \code{get\_marginal\_posterior\_mean()} - returns the marginal posterior
+\item \code{get\_marginal\_posterior\_mean()} - Returns the marginal posterior
   mean for \ref{eq:post_condbeta}.
-\item \code{get\_marginal\_posterior\_precision()} - returns the marginal posterior
+\item \code{get\_marginal\_posterior\_precision()} - Returns the marginal posterior
   precision for the linear conditional posterior distribution specified in \ref{eq:post_condbeta}.
-\item \code{update\_yvec(yvec)} - updates yvec in \code{CondBetaRegSampler}. This
+\item \code{update\_yvec(yvec)} - Updates yvec in \code{CondBetaRegSampler}. This
   is often useful when the class is being used as a part of an MCMC 
   sampling scheme.
-\item \code{update\_xmat(xmat)} - updates xmat in \code{CondBetaRegSampler}. This
+\item \code{update\_xmat(xmat)} - Updates xmat in \code{CondBetaRegSampler}. This
   is often useful when the class is being used as a part of an MCMC 
   sampling scheme.
 \end{enumerate}
@@ -998,9 +998,9 @@ G\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).\] To
 initialise the class \code{CondScaleSamper} the user may first
 specify:
 \begin{enumerate}
-\item \code{{*}{*}kwargs} - options arguments:
+\item \code{{*}{*}kwargs} - Options arguments:
 \begin{enumerate}
-\item \code{prior} - list containing the name of the prior and the
+\item \code{prior} - List containing the name of the prior and the
   corresponding hyperparameters. Examples:
   \code{prior={[}`gamma',nuubar,subar{]}} or \code{{[}`inverted-gamma', nuubar,
   subar{]}}. If no prior is specified the Jeffreys prior is used.
@@ -1038,13 +1038,13 @@ g-prior, which is described in (\ref{eq:g-prior}).
 MCMC sampling class. To initialise \code{StochasticSearch} the user
 must specify:
 \begin{enumerate}
-\item \code{yvec} - one dimensional \pkg{Numpy} array containing the dependent variable. 
-\item \code{xmat} - two dimensional \pkg{Numpy} array containing the regressors. 
-\item \code{prior} - list with the following structure \code{{[}betaubar, g{]}}.
+\item \code{yvec} - One dimensional \pkg{Numpy} array containing the dependent variable. 
+\item \code{xmat} - Two dimensional \pkg{Numpy} array containing the regressors. 
+\item \code{prior} - List with the following structure \code{{[}betaubar, g{]}}.
 \end{enumerate}
 The class \code{StochasticSearch} also contains the following function:
 \begin{enumerate}
-\item \code{sample\_gamma(store)} - returns a sample of $\bm{\gamma}.$ The
+\item \code{sample\_gamma(store)} - Returns a sample of $\bm{\gamma}.$ The
   only argument to pass into the function \code{sample\_gamma} is the storage
   dictionary that is passed by default to each of the classes that are
   called from the class \code{MCMC }in \pkg{PyMCMC}.
@@ -1073,48 +1073,37 @@ select the set of `most probable' regressors we can use the stochastic
 search variable selection approach described in Section \ref{sec:
   Regression Model}.
 
-\subsubsection{Example code}
+\subsubsection{Example code: Variable selection in regression}
 
 
 \begin{lstlisting}[basicstyle={\scriptsize},numbers=left]
-# example code for variable selection in regression
-
 import os
 from numpy import loadtxt, hstack, ones, random, zeros, asfortranarray, log
 from pymcmc.mcmc import MCMC, CFsampler
 from pymcmc.regtools import StochasticSearch, BayesRegression
 import pymcmc
 
-""" get the path for the data. If this was installed using setup.py
-it will be in the data directory of the module"""
 datadir = os.path.join(os.path.dirname(pymcmc.__file__),'data')
 
 def samplegamma(store):
-    """function that samples vector of indicators"""
     return store['SS'].sample_gamma(store)
 
-# main program
 random.seed(12346)
 
-# loads data
 data = loadtxt(os.path.join(datadir,'yld2.txt'))
 yvec = data[:, 0]
 xmat = data[:, 1:20]
 xmat = hstack([ones((xmat.shape[0], 1)), xmat])
 
-"""data is a dictionary whose elements are accessible from the functions
-in the Gibbs sampler"""
 data ={'yvec':yvec, 'xmat':xmat}
 prior = ['g_prior', zeros(xmat.shape[1]), 100.]
 SSVS = StochasticSearch(yvec, xmat, prior);
 data['SS'] = SSVS
 
-"""initialise gamma"""
 initgamma = zeros(xmat.shape[1], dtype ='i')
 initgamma[0] = 1
 simgam = CFsampler(samplegamma, initgamma, 'gamma', store ='none')
 
-# initialise class for Gibbs samper
 ms = MCMC(20000, 5000, data, [simgam])
 ms.sampler()
 ms.output(filename ='vs.txt')
@@ -1156,35 +1145,35 @@ functions called from \code{MCMC}, this would simply be done using
 but can be seen in the proceding examples. A brief description of the
 code is as follows:
 \begin{itemize}
-\item Lines 3-7 import the classes and functions that are required in
+\item Lines 1-5 import the classes and functions that are required in
   this example.
-\item Line 11 is used to obtain the path of the data if installed
+\item Line 7 is used to obtain the path of the data if installed
   using setup.py. Note that this step will not be necessary for normal
   usage of \pkg{PyMCMC}.
-\item Lines 13-15 define the function that is used to sample
+\item Lines 9-10 define the function that is used to sample
   $\bm{\gamma}.$
-\item The main program starts at line 18.
-\item Lines 21-24 are used to load the data, from which arrays
+\item The main program starts at line 12 with the command to set the random seed.
+\item Lines 14-17 are used to load the data, from which arrays
   $\bm{y}$ (\code{yvec}) and $\bm{X}$ (\code{xmat}) are constructed.
-\item Lines 28-31 construct the dictionary \code{data}, which includes
+\item Lines 19-22 construct the dictionary \code{data}, which includes
   \code{yvec, xmat} and the class instance of \code{StochasticSearch}.
-\item Line 36 defines the class instance \code{simgam}, which defines
+\item Line 26 defines the class instance \code{simgam}, which defines
   the block of the MCMC scheme to sample $\bm{\gamma}$.
-\item Line 39 defines the class instance of \code{MCMC}. Note that the
+\item Line 28 defines the class instance of \code{MCMC}. Note that the
   Gibbs sampler will run for 20000 iterations, of which the first 5000
   iterations will constitute the burnin and be discarded for the
   calculations in the output. The Gibbs sampler contains one block,
   which is defined by the class instance \code{simgam}.
-\item Line 40 runs the MCMC sampler.
-\item Line 41 produces the standard output for the MCMC sampler, which
+\item Line 29 runs the MCMC sampler.
+\item Line 30 produces the standard output for the MCMC sampler, which
   is saved in the file \code{`vs.txt'}.
-\item Line 42 produces the custom output from the stochastic search
+\item Line 31 produces the custom output from the stochastic search
   class and is sqaved in the file \code{'SSVS.out'}.
-\item Line 43 proqduces the custom output for the stochastic search
+\item Line 32 proqduces the custom output for the stochastic search
   class and writes it to the screen.
-\item Lines 45-48 produces regression output, from a Bayesian
+\item Lines 34-37 produces regression output, from a Bayesian
   regression analysis based on the most probable model.
-\item Line 49 produces standard plots from the Bayesian regression
+\item Line 38 produces standard plots from the Bayesian regression
   analysis.
 \end{itemize}
 
@@ -1258,7 +1247,7 @@ of variable 12. The marginal posterior densities (Figure \ref{Flo:mpd
   \begin{center}
     \includegraphics[width=9.5cm]{mpdreg.pdf}
   \end{center}
-\caption{Marginal posterior density plots for the regression coefficients.}
+\caption{Marginal posterior density plots for the regression coefficients in example 1.}
 \label{Flo:mpd reg}
 \end{figure}
 
@@ -1298,7 +1287,7 @@ and\[
 
 
 
-\subsubsection{Example code}
+\subsubsection{Example code: Bayesian estimation of the log-linear model}
 
 The example code for \pkg{PyMCMC} uses two \proglang{Python}
 libraries, \pkg{Numpy} and \pkg{Scipy}, which the user must have
@@ -1307,9 +1296,6 @@ is as follows:
 
 
 \begin{lstlisting}[basicstyle={\scriptsize},numbers=left]
-#!/usr/bin/env python
-# bayesian MCMC estimation of the log - linear model
-
 import os
 from numpy import random, loadtxt, hstack, ones, dot, exp, zeros, outer, diag
 from numpy import linalg
@@ -1318,32 +1304,25 @@ from pymcmc.regtools import BayesRegression
 from scipy.optimize.minpack import leastsq
 import pymcmc
 
-""" Get the path for the data. If this was installed using setup.py
- it will be in the data directory of the module"""
 datadir = os.path.join(os.path.dirname(pymcmc.__file__), 'data')
 
 def minfunc(beta, yvec, xmat ):
-    """function used by nonlinear least squares routine"""
-    return yvec - exp(dot(xmat, beta))
+    return yvec - Exp(dot(xmat, beta))
 
 def prior(store):
-    """function evaluates the prior pdf for beta"""
     mu = zeros(store['beta'].shape[0])
     Prec = diag(0.005 * ones(store['beta'].shape[0]))
     return -0.5 * dot(store['beta'].transpose(), dot(Prec, store['beta']))
 
 def logl(store):
-    """function evaluates the log - likelihood for the log - linear model"""
     xbeta = dot(store['xmat'], store['beta'])
     lamb = exp(xbeta)
-    return sum(store['yvec'] * xbeta - lamb)
+    return sum(store['yvec'] * xbeta - Lamb)
 
 def posterior(store):
-    """function evaluates the posterior probability for the log - linear model"""
     return logl(store) + prior(store)
 
 def llhessian(store, beta):
-    """function returns the hessian for the log - linear model"""
     nobs = store['yvec'].shape[0]
     kreg = store['xmat'].shape[1]
     lamb = exp(dot(store['xmat'], beta))
@@ -1352,17 +1331,16 @@ def llhessian(store, beta):
         sum = sum + lamb[i] * outer(store['xmat'][i], store['xmat'][i])
     return -sum
 
-# main program
-random.seed(12345)       # seed or the random number generator
+random.seed(12345)      
 
-data = loadtxt(os.path.join(datadir,'count.txt'), skiprows = 1)    # loads data from file
+data = loadtxt(os.path.join(datadir,'count.txt'), skiprows = 1)
 yvec = data[:, 0]
 xmat = data[:, 1:data.shape[1]]
 xmat = hstack([ones((data.shape[0], 1)), xmat])
 
 data ={'yvec':yvec, 'xmat':xmat} 
-bayesreg = BayesRegression(yvec, xmat)     # use bayesian regression to initialise
-                                        # nonlinear least squares algorithm
+bayesreg = BayesRegression(yvec, xmat)     
+
 sig, beta0 = bayesreg.posterior_mean()
 init_beta, info = leastsq(minfunc, beta0, args = (yvec, xmat))
 data['betaprec'] =-llhessian(data, init_beta)
@@ -1373,10 +1351,11 @@ ms = MCMC(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec
 ms.sampler()
 ms.output(filename='example1c.out') 
 ms.plot('beta', filename='ex_loglinear.pdf')
-# ms.CODAoutput('beta')
-# ms.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
-# ms.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
-## ms.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")
+
+ms.CODAoutput('beta')
+ms.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
+ms.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
+ms.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")
 
 
 \end{lstlisting}
@@ -1386,14 +1365,14 @@ The code for the analysis of the log-linear model is used to
 demonstrate an application of straight Metropolis Hastings based
 algorithms.  A brief description of the code is as follows:
 \begin{itemize}
-\item Lines 4-10 import the required classes and functions that are
+\item Lines 1-7 import the required classes and functions that are
   used in the program.
-\item Line 14 is used to obtain the path of the data if installed
+\item Line 9 is used to obtain the path of the data if installed
   using \code{setup.py}. Note that this step will not be necessary for
   normal usage of \pkg{PyMCMC}.
-\item Lines 16-18 defines a function, \code{minfunc}, which is
+\item Lines 11-12 defines a function, \code{minfunc}, which is
   required in the non-linear least squares routine.
-\item Lines 20-24 defines a function that evaluates the log of the
+\item Lines 14-17 defines a function that evaluates the log of the
   prior pdf for, $\bm{\beta}.$ As in the variable selection example,
   \code{store} is a \proglang{Python} dictionary used to store all the
   information of interest that needs to be accessed by functions that
@@ -1401,23 +1380,24 @@ algorithms.  A brief description of the code is as follows:
   seen that \code{store{[}'beta'{]}} provides access to the vector
   $\bm{\beta}.$ Note the name \code{`beta'} is specified on line 72
   when the class for the random walk MH algorithm is initialised.
-\item Lines 26-30 defines the log-likelihood function.
-\item Lines 32-34 defines a function that evaluates the log of the
+\item Lines 19-22 defines the log-likelihood function.
+\item Lines 24-25 defines a function that evaluates the log of the
   posterior pdf for $\bm{\beta}.$
-\item Lines 36-44 defines a function that returns the hessian for the
+\item Lines 27-34 defines a function that returns the hessian for the
   log-linear model.
-\item The main program begins on line 47.
-\item Lines 49-52 load the data, from which arrays $\bm{y}$
+\item The main program begins on line 36 with the command to set the random seed.
+\item Lines 38-41 load the data, from which arrays $\bm{y}$
   (\code{yvec}) and $\bm{X}$ (\code{xmat}) are constructed.
-\item Line 62 initialises the class \code{RWMH}. 
-\item Line 63 initialises the class \code{MCMC} . Note that the
+\item Lines 43-44 use Bayesian regression to initialise the nonlinear least squares algorithm.
+\item Lines 46-49 perform nonlinear least squares operation.
+\item Line 51 initialises the class \code{RWMH}. 
+\item Line 52 initialises the class \code{MCMC} . Note that the
   sampling algorithm will be run for 20000 iterations and the first
   4000 will be discarded. The MCMC scheme has only one block and is a
   MH sampling scheme.
-\item Line 64 runs the sampling scheme.
-\item Lines 65-66 produce output.
-\item Lines 67-70 have been commented out, but they are there to
-  demonstrate an example of how to produce CODA output and different
+\item Line 53 runs the sampling scheme.
+\item Lines 54-55 produce output.
+\item Lines 57-60 demonstrate an example of how to produce CODA output and different
   ways in which plotting may be produced.
 \end{itemize}
 
@@ -1464,7 +1444,7 @@ autocorrelation in the sample is relatively low for an MCMC sampler. %
     \includegraphics[width=16cm]{ex_loglinear.pdf}
   \end{center}
 \caption{Plots of the marginal posterior density, autocorrelation and trace
-plots for the MCMC estimation of the log linear model.}
+plots for the MCMC estimation of the log linear model in example 2.}
 
 \end{figure}
 
@@ -1549,7 +1529,7 @@ defined at iteration $j$ is as follows:
 \item Sample $\rho^{(j)}$ from $p(\rho|\bm{y},\bm{\beta},\kappa).$ 
 \end{enumerate}
 
-\subsubsection{Code}
+\subsubsection{Code: Example linear regression model with first order autocorrelation in the errors}
 
 The example code for the linear regression model, with first order
 autocorrelation in the errors uses the \proglang{Python} libraries
@@ -1558,8 +1538,6 @@ simulated data.
 
 
 \begin{lstlisting}[basicstyle={\scriptsize},numbers=left,tabsize=4]
-# example linear regression model with first order autocorrelation in the errors
-
 from numpy import random, ones, zeros, dot, hstack, eye, log
 from scipy import sparse
 from pysparse import spmatrix
@@ -1567,7 +1545,6 @@ from pymcmc.mcmc import MCMC, SliceSampler, RWMH, OBMC, MH, CFsampler
 from pymcmc.regtools import BayesRegression 
 
 def simdata(nobs, kreg):
-    """function simulates data from a first order autoregressive regression"""
     xmat = hstack((ones((nobs, 1)), random.randn(nobs, kreg - 1)))
     beta = random.randn(kreg)
     sig = 0.2
@@ -1581,7 +1558,6 @@ def simdata(nobs, kreg):
     return yvec, xmat
 
 def calcweighted(store):
-    """re - weights yvec and xmat, for use in weighted least squares regression"""
     nobs = store['yvec'].shape[0]
     store['Upper'].put(-store['rho'], range(0, nobs - 1), range(1, nobs))
     store['Upper'].matvec(store['yvec'], store['yvectil'])
@@ -1589,14 +1565,12 @@ def calcweighted(store):
         store['Upper'].matvec(store['xmat'][:, i], store['xmattil'][:, i])
 
 def WLS(store):
-    """computes weighted least square regression"""
     calcweighted(store)
     store['regsampler'].update_yvec(store['yvectil'])
     store['regsampler'].update_xmat(store['xmattil'])
     return store['regsampler'].sample()
 
 def loglike(store):
-    """calculates log - likelihood for the the first order autoregressive regression model"""
     nobs = store['yvec'].shape[0]
     calcweighted(store)
     store['regsampler'].update_yvec(store['yvectil'])
@@ -1604,7 +1578,6 @@ def loglike(store):
     return store['regsampler'].loglike(store['sigma'], store['beta'])
 
 def prior_rho(store):
-    """evaulates the log of the prior distribution for rho. the beta distribution is used"""
     if store['rho'] > 0. and store['rho'] < 1.0:
         alpha = 1.0
         beta = 1.0
@@ -1613,36 +1586,27 @@ def prior_rho(store):
         return -1E256
 
 def post_rho(store):
-    """evaulates the log of the posterior distrbution for rho"""
     return loglike(store) + prior_rho(store)
 
-
-# testfunctions used to test generic MH algorithm
 def gencand(store):
     return store['rho'] + 0.02 * random.randn(1)[0]
 
 def probcandgprev(store):
-    res = store['rho'] - store['previous_rho']
+    res = store['rho'] - Store['previous_rho']
     return -0.5/(0.02**2) * res**2
 
 def probprevgcand(store):
     return probcandgprev(store)
 
-# Main program
 random.seed(12345)
 nobs = 1000
 kreg = 3
 
 yvec, xmat = simdata(nobs, kreg)
 
-# we use a g - prior for the regression coefficients.
 priorreg = ('g_prior', zeros(kreg), 1000.0)
 regs = BayesRegression(yvec, xmat, prior = priorreg)
 
-"""A dictionary is set up. The contents of the dictionary will be
-available for use for by the functions that make up the MCMC sampler.
-Note that we pass in storage space as well as the class intance used
-to sample the regression from."""
 data ={'yvec':yvec, 'xmat':xmat, 'regsampler':regs}
 U = spmatrix.ll_mat(nobs, nobs, 2 * nobs - 1)
 U.put(1.0, range(0, nobs), range(0, nobs))
@@ -1650,76 +1614,62 @@ data['yvectil'] = zeros(nobs)
 data['xmattil'] = zeros((nobs, kreg))
 data['Upper'] = U
 
-# Use Bayesian regression to initialise MCMC sampler
 bayesreg = BayesRegression(yvec, xmat)
 sig, beta = bayesreg.posterior_mean()
 
 simsigbeta = CFsampler(WLS, [sig, beta], ['sigma', 'beta'])
-scale = 0.002                       # tuning parameter for RWMH
+scale = 0.002                       
 rho = 0.9
-##rho = [1] ## to test exception handling
-# simrho = RWMH(post_rho, scale, rho, 'rho')
 simrho = SliceSampler([post_rho], 0.1, 5, rho, 'rho')
-#simrho = OBMC(post_rho, 3, scale, rho, 'rho')
-# simrho = MH(gencand, post_rho, probcandgprev, probprevgcand, rho, 'rho')
 blocks = [simrho, simsigbeta]
 loglikeinfo = (loglike, kreg + 2, 'yvec')
 ms = MCMC(10000, 2000, data, blocks, loglike = loglikeinfo)
 ms.sampler()
 ms.output()
-#ms.plot('sigbeta')
 ms.plot('rho', filename ='rho')
 ms.CODAoutput(parameters = ['rho'])
-
-
-
 \end{lstlisting}
 
 
 A brief description of the code above is as follows: 
 \begin{itemize}
-\item Lines 3-7 import the specific functions and classes that are used
+\item Lines 1-5 import the specific functions and classes that are used
 in the analysis. 
-\item Lines 9-21 define a function that is used to produce the simulated
+\item Lines 7-18 define a function that is used to produce the simulated
 data. 
-\item Lines 23-29 define a function that calculates $\tilde{\bm{y}}$
-  and $\bm{\tilde{X}}.$ Note that line 26 updates $\bm{L}^{T}$ based
+\item Lines 20-25 define a function that calculates $\tilde{\bm{y}}$
+  and $\bm{\tilde{X}}.$ Note that line 22 updates $\bm{L}^{T}$ based
   on the latest iteration in the MCMC scheme. Note that $\bm{L}^{T}$
   is stored in the \proglang{Python} dictionary \code{store} and is
   accessed using the key \code{`Upper'}. It is stored in sparse matrix format
   using the library \pkg{Pysparse}.
-\item Lines 31-36 define a function that is used to sample $\bm{\beta},$
+\item Lines 27-31 define a function that is used to sample $\bm{\beta},$
 from its conditional posterior distribution.
-\item Lines 38-44 define a function that evaluates the log-likelihood
-\item Lines 46-53 define the log of the prior pdf for $\rho$.
-\item Lines 55-57 define a function that evaluates the log of the posterior
+\item Lines 33-38 define a function that evaluates the log-likelihood
+\item Lines 40-46 define the log of the prior pdf for $\rho$.
+\item Lines 48-49 define a function that evaluates the log of the posterior
 pdf for $\rho.$
-\item Lines 61 to 69 define functions that can be used to demonstrate
+\item Lines 51 to 59 define functions that can be used to demonstrate
   the generic MH algorithm.
-\item The main program begins on line 72.
-\item Lines 86-91 construct the \proglang{Python} dictionary data, which is used to
+\item The main program begins with the command to set the random seed on line 61.
+\item Lines 67-68 use g-prior for the regression coefficients.
+\item Lines 70-75 construct the \proglang{Python} dictionary data, which is used to
 store information that will be passed to functions that are called
 from the MCMC sampler.
-\item Line 97 initialises the class instance \code{simsigbeta}, which is
+\item Lines 77-78 to use Bayesian regression to initialise the MCMC sampler.
+\item Line 80 initialises the class instance \code{simsigbeta}, which is
 used to jointly sample $\sigma$ and $\bm{\beta}.$ 
-\item Line 101 provides an example of how to set up \pkg{PyMCMC} to sample $\rho$
-using the random walk MH algorithm.
-\item Line 102 provides an example of how to set up \pkg{PyMCMC} to sample $\rho$
+\item Line 83 provides an example of how to set up \pkg{PyMCMC} to sample $\rho$
 using the Slice Sampler. This is the method that is used in the analysis
-below.
-\item Line 103 provides and example of how to set up \pkg{PyMCMC} to sample $\rho$
-using the OBMC algorithm. Note that the OBMC algorithm is set up to
-use three trials.
-\item Line 104 provides an example of how to set up \pkg{PyMCMC} to sample $\rho$
-using the generic MH algorithm.
-\item Line 105 constructs a \proglang{Python} list that contain the class instances
+below. Other algorithms which could be used here to simulate $\rho$ include RWMH, OBMC and generic MH.
+\item Line 84 constructs a \proglang{Python} list that contain the class instances
 that define the MCMC sampler. In particular, it implies that the MCMC
 sampler consists of two blocks. Further, $\rho$ will be the first
 element sampled in the MCMC scheme. 
-\item Line 107 initialises \code{MCMC}. The MCMC sampler is run for 8000
+\item Line 86 initialises \code{MCMC}. The MCMC sampler is run for 8000
 iterations and the first 2000 iterations are discarded in this instance.
-\item Line 108 runs the sampler.
-\item Lines 109-112 produce output from the MCMC sampler.
+\item Line 87 runs the sampler.
+\item Lines 88-90 produce output from the MCMC sampler.
 \end{itemize}
 
 \subsubsection{Output}
@@ -1757,7 +1707,7 @@ is very efficient.
   \includegraphics{rho.pdf}
 \end{center}
 \caption{Marginal posterior density, autocorrelation function and trace plot
-based on the MCMC analysis.}
+based on the MCMC analysis for example 3.}
 
 \end{figure}
 
@@ -1830,11 +1780,10 @@ loop is explicitly used to calculate the log likelihood.
 
 \begin{lstlisting}[basicstyle={\scriptsize}]
 def logl(store):
-    """function evaluates the log - likelihood for the log - linear model"""
     suml=0.0
     for i in xrange(store['yvec'].shape[0]):
         xbeta=dot(store['xmat'][i,:],store['beta'])
-        suml=suml+store['yvec'][i] * xbeta - exp(xbeta)
+        suml=suml+store['yvec'][i] * xbeta - Exp(xbeta)
     return suml
 \end{lstlisting}
 
@@ -1856,14 +1805,12 @@ problem area in the code. An example is given below.
 
 \begin{lstlisting}[basicstyle={\scriptsize}]
 def logl(store):
-    """function evaluates the log - likelihood for the log - linear model"""
-
     code = """     
 		double sum = 0.0, xbeta;
 		for(int i=0; i<nobs; i++){
 			xbeta = 0.0;
 			for(int j=0; j<kreg; j++){xbeta += xmat[i+j*kreg] * beta[j];}
-			sum += yvec[i] * xbeta - exp(xbeta);
+			sum += yvec[i] * xbeta - Exp(xbeta);
 		}     
 		return_val = sum;
     """
@@ -1941,7 +1888,6 @@ above. The log-likelihood function is then modified as follows
 
 \begin{lstlisting}[basicstyle={\scriptsize},numbers=left]
 def logl(store):
-	"""function evaluates the log - likelihood for the log - linear model"""
 	loglike=array(0.0)     
 	return loglinear.logl(store['xb'],store['xmatf'], store['beta'],store['yvec'],loglike)
     
@@ -2113,11 +2059,8 @@ summarised below:
 import rpy2.robjects.numpy2ri
 from rpy2 import rinterface
 import rpy2.robjects as robjects
-...
+
 def initial_values(yvec,xmat):
-    '''
-    Use rpy2 to get the initial values
-    '''
     ry = rinterface.SexpVector(yvec,rinterface.INTSXP)
     rx = rinterface.SexpVector(xmat[:,1:],rinterface.INTSXP)
     robjects.globalenv['y'] = ry
@@ -2128,17 +2071,14 @@ def initial_values(yvec,xmat):
     scale = array(modsummary.rx2('cov.unscaled'))
     return init_beta,scale
 
-#main program
-random.seed(12345)       #seed or the random number generator
-
-data=loadtxt('count.txt',skiprows=1)    #loads data from file
+random.seed(12345) 
+data=loadtxt('count.txt',skiprows=1)
 yvec=data[:,0]
 xmat=data[:,1:data.shape[1]]
 xmat=hstack([ones((data.shape[0],1)),xmat])
 
 data={'yvec':yvec,'xmat':xmat} 
 
-#use R to obtain the initial vector for beta and the scale matrix
 init_beta,scale=initial_values(yvec,xmat)
 
 samplebeta=RWMH(posterior,scale,init_beta,'beta')
@@ -2159,7 +2099,7 @@ easily be read into\proglang{R}for further analysis. A sample
 
 \begin{lstlisting}[basicstyle={\scriptsize},language=R,numbers=left]
 library(coda)
-aa <- read.coda("loglinear_eg.txt","loglinear_eg.ind")
+aa <- Read.coda("loglinear_eg.txt","loglinear_eg.ind")
 plot(aa)
 summary(aa)
 raftery.diag(aa)
