@@ -276,7 +276,7 @@ incorectly specified"
                         self.nuubar = self.prior[1]
                         self.subar = self.prior[2]
                         self.betaubar = self.prior[3]
-                        self.vubar = self.prior[4]
+                        self.vubar = np.atleast_2d(self.prior[4])
                         self.lndetvubar = 2.0 * \
                         np.sum(np.log(np.diag(np.linalg.cholesky(self.vubar))))
 
@@ -292,7 +292,7 @@ incorectly specified"
                         self.nuubar = self.prior[1]
                         self.subar = self.prior[2]
                         self.betaubar = self.prior[3]
-                        self.vubar = self.prior[4]
+                        self.vubar = np.atleast_2d(self.prior[4])
                         self.lndetvubar = 2.0 * \
                         np.sum(np.log(np.diag(np.linalg.cholesky(self.vubar))))
                         self.__log_marginal_likelihood = \
