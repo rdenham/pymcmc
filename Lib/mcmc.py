@@ -1584,11 +1584,11 @@ class MCMC:
                         "{0: >0{colwidth}}".format("NA", colwidth = colwidth - 1),
                     summary_vals[2] = np.nan
                     summary_vals[3] = np.nan
-                if ifactor[position[0]].dtype == np.dtype('|S2'):
+		if ifactor[position[0]].dtype == np.dtype('|S2'):
                     ## then not numeric.
                     ## Is there a better way of testing?
-                    print  >>destination,     \
-                          "{val1: >0{colwidth}}".format(val1 = ifactor[position],
+		    print  >>destination,     \
+                       "{val1: >0{colwidth}}".format(val1 = ifactor[position],
                                                         colwidth = colwidth)
                     summary_vals[4] = np.nan
                 else:
@@ -1684,8 +1684,13 @@ class MCMC:
                 else:
                     if type(meanp) == types.FloatType or type(meanp) == np.float64:
                         ifactor = ['NA']
-                    else:
+                    elif np.array(meanp).ndim == 1:
                         ifactor = ['NA'] * len(meanp)
+                    elif np.array(meanp).ndim == 2:
+                        ifactor =  np.resize(np.array(['NA']),meanp.shape)
+                    else:
+                        print "ERROR: I don't know how to deal with arrays of shape",meanp.shape,"yet"
+                        return None
                 ## ifactor.shape = meanp.shape
                 ## and calc hpds'
                 if self.storeblock[self.name_group[paramname]].get_store() =='all':
