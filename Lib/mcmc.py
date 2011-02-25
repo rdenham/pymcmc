@@ -984,8 +984,14 @@ class MCMC:
                                           
                 if self.storeblock[self.group_names[i]].get_store() == 'all':
                     for j in xrange(self.ngroups[i]):
-                        self.storeparam[name[j]][it] = self.update_param[name[j]](name[j])
-
+		        try:
+                       	    self.storeparam[name[j]][it] = self.update_param[name[j]](name[j])
+                        except ValueError as err:
+                            print "ERROR, problem with %s" % name[j]
+                            print "\t%s has shape" % name[j],self.storeparam[name[j]][it].shape
+                            print "\tupdate_param has shape", self.update_param[name[j]](name[j]).shape
+                            print err
+                            sys.exit(1)
             if it >= self.burn:
                 if self.transform2_ind == True:
                     self.__update_transformed_not_stored()

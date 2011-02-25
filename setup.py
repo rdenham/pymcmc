@@ -9,8 +9,9 @@ import os
 
 # this works for ubuntu using libatlas-base-dev
 # also libatlas3gf-sse
-#atlas_libs = ['lapack_atlas','blas']
-atlas_libs = ['atlas','lapack','f77blas','cblas']
+atlas_libs = ['lapack_atlas','blas']
+
+#atlas_libs = ['atlas','lapack','f77blas','cblas']
 
 extra_link_args = []
 
