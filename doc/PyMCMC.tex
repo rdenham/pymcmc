@@ -1113,29 +1113,52 @@ the library \pkg{Pysparse}.
 \subsection{Example 1: Linear regression model: Variable selection and
   estimation}
 
+The data used in this example are a response of crop yield modelled
+using various chemical measurements from the soil. As the results of
+the chemical analysis of soil cores are done in a laboratory, many
+input variables are available (30) and the data analyst would like to
+determine the variables that are most appropriate to use in the model.
+
 The normal linear regression model in (\ref{eq:regression}) is used
-for the analysis.  The data set of interest contains 19 regressors. To
-select the set of `most probable' regressors we can use the stochastic
-search variable selection approach described in Section \ref{sec:
-  Regression Model}.
+for the analysis.  To select the set of `most probable'
+regressors we use the stochastic search variable selection approach
+described in Section \ref{sec: Regression Model} using a subset of 19
+explanatory variables.
 
-\subsubsection{Example code: Variable selection in regression}
+%%\subsubsection{Example code: Variable selection in regression}
 
+In addition to \pkg{PyMCMC}, this example uses functions from
+\pkg{numpy}, so the first step is to import the relevant packages:
 
-\begin{lstlisting}[basicstyle={\scriptsize},numbers=left]
+\begin{Code}
 import os
 from numpy import loadtxt, hstack, ones, random, zeros, asfortranarray, log
 from pymcmc.mcmc import MCMC, CFsampler
 from pymcmc.regtools import StochasticSearch, BayesRegression
-import pymcmc
+\end{Code}
 
-datadir = os.path.join(os.path.dirname(pymcmc.__file__),'data')
+The remaining code is typically organised so that the user defined
+functions are at the top and the main program is at the bottom.  We
+begin by defining functions that are called from the class
+\code{MCMC}, all of which take the argument \code{store}. In this
+example there is one such function:
 
+\begin{Code}
 def samplegamma(store):
     return store['SS'].sample_gamma(store)
+\end{Code}
+In this case, \code{samplegamma} simply uses the predefined function
+available in the \code{StochasticSearch} class to sample from
+$\gamma$. The single argument to \code{samplegamma}, \code{store}, is
+a dictionary (\proglang{Python} data structure) that is passed to all
+functions that are called from the MCMC sampler.  The purpose of
+\code{store} is to contain all the data required to define functions
+that sample from, or are used in the evaluation of, the posterior
+distribution. In this example, \code{store} is defined to contain the
+observational vector, $\bm{y}$, the matrix of regressors $\bm{X}$ and
+the class instance for \code{StochasticSearch}:
 
-random.seed(12346)
-
+\begin{Code}
 data = loadtxt(os.path.join(datadir,'yld2.txt'))
 yvec = data[:, 0]
 xmat = data[:, 1:20]
@@ -1145,128 +1168,128 @@ data ={'yvec':yvec, 'xmat':xmat}
 prior = ['g_prior', zeros(xmat.shape[1]), 100.]
 SSVS = StochasticSearch(yvec, xmat, prior);
 data['SS'] = SSVS
+\end{Code}
 
+Notice that in this example we use Zellner's g-prior with
+$\bm{\underline{\beta}} = 0$ and $g=100$. The normal-inverted-gamma
+prior could also be used.
+
+The next step is to initialise $\gamma$ and set up the appropriate
+sampler for the model. In this case, since the full conditionals are
+of closed form, we can use the \code{CFsampler} class, called with our
+\code{samplegmma} function defined earlier, initial values and a
+parameter name \code{gamma}. The initial value for $\gamma$ is
+$(1,0,\ldots,0)$. 
+
+\begin{Code}
 initgamma = zeros(xmat.shape[1], dtype ='i')
 initgamma[0] = 1
 simgam = CFsampler(samplegamma, initgamma, 'gamma', store ='none')
+\end{Code}
 
+By default, each sampler in PyMCMC will add a dictionary called
+\code{store}, which stores the parameter value at each iteration. This
+means that the user can access the current iteration by calling
+\code{store{[}`gamma'{]}} ***CHECK****. In this example, we turn this
+feature off by setting \code{store = `none'}.
+
+The actual sampling is done by setting a random seed and running the
+MCMC sampler:
+\begin{Code}
+random.seed(12346)
 ms = MCMC(20000, 5000, data, [simgam])
 ms.sampler()
-ms.output(filename ='vs.txt')
-ms.output(custom = SSVS.output, filename = 'SSVS.out')
+\end{Code}
+
+The \code{MCMC} sampler is initialised by setting the number of
+iterations (2000), the burn in (500), providing the data dictionary
+\code{data} and a list containing the information used to sample from
+the full conditional posterior distributions. In this case, this list
+consists a single element, \code{simgam}, the \code{CFsampler}
+instance.
+
+The default output from the \code{MCMC} object is a summary of each
+parameter providing the posterior mean, posterior standard deviation,
+95\% credible intervals and inefficiency factors. This can output
+directly to screen, or captured in an output file. A sample of this
+output, giving only the first four elments of $\gamma$ is:
+
+\begin{CodeChunk}
+\begin{CodeInput}
+ms.output()
+\end{CodeInput}
+\begin{CodeOutput}
+--------------------------------------------------------
+
+The time (seconds) for the MCMC sampler =  7.4
+Number of blocks in MCMC sampler =  1
+
+                    mean          sd         2.5%       97.5%      IFactor
+    gamma[0]           1           0            1           1       -1e+04
+    gamma[1]      0.0929        0.29            0           1         3.75
+    gamma[2]      0.0941       0.292            0           1         3.54
+    gamma[3]      0.0939       0.292            0           1         3.54
+\end{CodeOutput}
+\end{CodeChunk}
+
+In this case, the standard output isn't all that useful as a summary
+of the variable selection. A more useful output, giving the 10 most
+likely models ordered by decreasing posterior probabilities, is
+available using the output function in the \code{StochasticSearch}
+class. This can be called by using the \code{custom} argument to
+\code{output}:
+
+\begin{CodeChunk}
+\begin{CodeInput}
 ms.output(custom = SSVS.output)
-
-txmat = SSVS.extract_regressors(0)
-g_prior = ['g_prior', 0.0, 100.]
-breg = BayesRegression(yvec,txmat,prior = g_prior)
-breg.output(filename = 'SSVS1.out')
-breg.plot()
-\end{lstlisting}
-
-
-The code is organised so that the user defined functions are at the
-top and the main program is at the bottom.  Essentially the user
-defined functions that are called from the class \code{MCMC}, for
-which there is one in this case, all take the argument \code{store},
-which is a dictionary (\proglang{Python} data structure) that is
-passed to all functions that are called from the MCMC sampler.  The
-purpose of \code{store} is that it contains all the data required to
-define functions that sample from, or are used in the evaluation of,
-the posterior distribution. For example, in line 15,
-\code{store{[}`SS'{]}} contains the class instance for
-\code{StochasticSearch}.  Essentially, any information that is stored
-in the dictionary \code{data}, which is defined on line 30 and
-augmented to include the class instance for \code{StochasticSearch}
-defined on line 31 can be accessed from the dictionary \code{store}.
-Note that the dictionary \code{data} is an argument that is used in
-the initialisation of the \code{MCMC} class on line 39. In addition to
-the information stored in \code{data,} the value of the previous
-iterate for each block of the Gibbs scheme is also a component of the
-dictionary store. For example on line 36 the class instance
-\code{simgam} is initialised. Note that the name \code{`gamma'} is
-specified to refer to the parameter $\bm{\gamma}.$ If the user wanted
-to access the current iteration for \code{`gamma'} from any of the
-functions called from \code{MCMC}, this would simply be done using
-\code{store{[}`gamma'{]}}.  This feature is not used in this example,
-but can be seen in the proceding examples. A brief description of the
-code is as follows:
-\begin{itemize}
-\item Lines 1-5 import the classes and functions that are required in
-  this example.
-\item Line 7 is used to obtain the path of the data if installed
-  using setup.py. Note that this step will not be necessary for normal
-  usage of \pkg{PyMCMC}.
-\item Lines 9-10 define the function that is used to sample
-  $\bm{\gamma}.$
-\item The main program starts at line 12 with the command to set the random seed.
-\item Lines 14-17 are used to load the data, from which arrays
-  $\bm{y}$ (\code{yvec}) and $\bm{X}$ (\code{xmat}) are constructed.
-\item Lines 19-22 construct the dictionary \code{data}, which includes
-  \code{yvec, xmat} and the class instance of \code{StochasticSearch}.
-\item Line 26 defines the class instance \code{simgam}, which defines
-  the block of the MCMC scheme to sample $\bm{\gamma}$.
-\item Line 28 defines the class instance of \code{MCMC}. Note that the
-  Gibbs sampler will run for 20000 iterations, of which the first 5000
-  iterations will constitute the burnin and be discarded for the
-  calculations in the output. The Gibbs sampler contains one block,
-  which is defined by the class instance \code{simgam}.
-\item Line 29 runs the MCMC sampler.
-\item Line 30 produces the standard output for the MCMC sampler, which
-  is saved in the file \code{`vs.txt'}.
-\item Line 31 produces the custom output from the stochastic search
-  class and is sqaved in the file \code{'SSVS.out'}.
-\item Line 32 proqduces the custom output for the stochastic search
-  class and writes it to the screen.
-\item Lines 34-37 produces regression output, from a Bayesian
-  regression analysis based on the most probable model.
-\item Line 38 produces standard plots from the Bayesian regression
-  analysis.
-\end{itemize}
-
-\subsubsection{Analysis}
-
-The data used in this example are a response of crop yield modelled
-using various chemical measurements from the soil. As the results of
-the chemical analysis of soil cores are done in a laboratory, many
-input variables are available (30) and the data analyst would like to
-determine the variables that are most appropriate to use in the model.
-
-%
-\begin{minipage}[t]{1\columnwidth}%
-\begin{verbatim}
-
+\end{CodeInput}
+\begin{CodeOutput}
 Most likely models ordered by decreasing posterior probability
 
 ------------------------------------------------------------
 probability | model       
 ------------------------------------------------------------
-0.09353333  | 0,12        
-0.0504      | 0,11,12     
-0.026       | 0,10,12     
-0.01373333  | 0,9,12      
-0.01353333  | 0,8,12      
-0.013       | 0,4,12      
-0.01293333  | 0,12,19     
-0.01206667  | 0,7,12      
-0.01086667  | 0,11,12,17  
-0.01086667  | 0,12,17     
+0.09353333  | 0, 12       
+0.0504      | 0, 11, 12   
+0.026       | 0, 10, 12   
+0.01373333  | 0, 9, 12    
+0.01353333  | 0, 8, 12    
+0.013       | 0, 4, 12    
+0.01293333  | 0, 12, 19   
+0.01206667  | 0, 7, 12    
+0.01086667  | 0, 11, 12, 17
+0.01086667  | 0, 12, 17   
 ------------------------------------------------------------
-
-\end{verbatim}%
-\end{minipage}
+\end{CodeOutput}
+\end{CodeChunk}
 
 As indicated earlier, the MCMC analysis is conducted using 20000
 iterations, of which the first 5000 are discarded. The estimation
-takes 10.35 seconds in total.  The results indicate that a model
+takes 7.4 seconds in total.  The results indicate that a model
 containing variable 12 along with a constant (indicated in the table
 by 0) is the most likely (prob = 0.09). Furthermore, variable 12 is
 contained in each of the 10 most likely models, indicating its strong
 association with crop yield.
 
-%
-\begin{minipage}[t]{1\columnwidth}%
-\begin{verbatim}
+Following the variable selection procedure, we may wish to fit a
+regression to the most likely model. This can be done using the
+\code{BayesRegression} class. First, extract the explanatory variables
+from the most likely model:
+\begin{Code}
+txmat = SSVS.extract_regressors(0)
+\end{Code}
+and fit the model using the desired prior:
+\begin{Code}
+g_prior = ['g_prior', 0.0, 100.]
+breg = BayesRegression(yvec,txmat,prior = g_prior)
+\end{Code}
 
+The output summarises the fit:
+\begin{CodeChunk}
+\begin{CodeInput}
+breg.output()
+\end{CodeInput}
+\begin{CodeOutput}
           ---------------------------------------------------           
                    Bayesian Linear Regression Summary                   
                                 g_prior                                 
@@ -1277,25 +1300,29 @@ association with crop yield.
        sigma      0.3853     0.03152          NA         NA
 
 loglikelihood = -4.143      
-marginal likelihood = nan         
-BIC  = -0.4017     
-
-\end{verbatim}%
-\end{minipage}
+log marginal likelihood = nan         
+BIC  = 21.32       
+\end{CodeOutput}
+\end{CodeChunk}
 
 The parameter associated with variable 12, $\hat{\beta_{1}}$, is
 estimated as a positive value, 0.7587, with a 95\% credible interval
 {[}0.7139,~0.8035{]}. We note that zero is not contained in the
 credible interval, hence the crop yield increases with higher values
-of variable 12. The marginal posterior densities (Figure \ref{Flo:mpd
-  reg}) illustrate that this effect is far from zero. %
+of variable 12. The marginal posterior densities (Figure
+\ref{Flo:mpdreg}) can be created using
+\begin{Code}
+breg.plot()
+\end{Code}
+
+This clearly shows this effect is far from zero. %
 
 \begin{figure}[t!]
   \begin{center}
     \includegraphics[width=9.5cm]{mpdreg.pdf}
   \end{center}
 \caption{Marginal posterior density plots for the regression coefficients in example 1.}
-\label{Flo:mpd reg}
+\label{Flo:mpdreg}
 \end{figure}
 
 
