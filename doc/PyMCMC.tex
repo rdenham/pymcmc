@@ -1539,11 +1539,18 @@ Log likelihood =  3864.453
 It can be seen from the output that estimation is very fast (7.5
 seconds), and that both $\beta_{0}$ and $\beta_{1}$ are positive
 values, with $\hat{\beta}_{0}$ = 1.14 {[}1.05, 1.23{]} and
-$\hat{\beta}_{1}$ = 0.157 {[}0.148, 0.165{]}. The marginal posterior
-densities of these estimates (Figure 2) confirm that both estimates
-are far from zero.
+$\hat{\beta}_{1}$ = 0.157 {[}0.148, 0.165{]}. 
 
-The ACF plots (Figure \ref{fig:plot_output_eg2}) and low inefficiency
+Summary plots can also be produced (Figure \ref{fig:plot_output_eg2}):
+\begin{CodeChunk}
+\begin{CodeInput}
+ms.plot('beta')
+\end{CodeInput}
+\end{CodeChunk}
+
+The marginal posterior densities of these estimates (Figure
+\ref{fig:plot_output_eg2}) confirm that both estimates are far from
+zero. The ACF plots (Figure \ref{fig:plot_output_eg2}) and low inefficiency
 factors (see \citet{ChibGreenberg1996} for details on inefficiency
 factors) of 13.5 ($\hat{\beta}_{0}$) and 12.2 ($\hat{\beta}_{1}$) show
 that autocorrelation in the sample is relatively low for an MCMC
@@ -1561,6 +1568,9 @@ sampler. %
 
 \subsection{Example 3: First order autoregressive regression}
 \label{sub:Example-3:-First}
+
+The final example demonstrates first order autoregressive regression
+using a simulated data set, with 1000 observations and 3 regressors.
 
 The linear regression model, with first order autocorrelated serial
 correlation in the residuals, see \citet{Zellner1971} is defined such
@@ -1656,22 +1666,30 @@ A MCMC sampling scheme, for the posterior distribution in
 \item Sample $\rho^{(j)}$ from $p(\rho|\bm{y},\bm{\beta},\kappa).$
 \end{enumerate}
 
-\subsubsection{Code: Example linear regression model with first order
-  autocorrelation in the errors}
 
-The example code for the linear regression model, with first order
-autocorrelation in the errors uses the \proglang{Python} libraries
-\pkg{Numpy}, \pkg{Scipy} and \pkg{Pysparse}. The code is used to
-analyse simulated data.
+The code for this model follows the structure of the previous
+examples, and begins by importing the required packages:
 
 
-\begin{lstlisting}[basicstyle={\scriptsize},numbers=left,tabsize=4]
+% The example code for the linear regression model, with first order
+% autocorrelation in the errors uses the \proglang{Python} libraries
+% \pkg{Numpy}, \pkg{Scipy} and \pkg{Pysparse}. The code is used to
+% analyse simulated data.
+
+
+%\begin{lstlisting}[basicstyle={\scriptsize},numbers=left,tabsize=4]
+\begin{Code}
 from numpy import random, ones, zeros, dot, hstack, eye, log
 from scipy import sparse
 from pysparse import spmatrix
 from pymcmc.mcmc import MCMC, SliceSampler, RWMH, OBMC, MH, CFsampler
 from pymcmc.regtools import BayesRegression 
+\end{Code}
 
+Since this example uses simulated data, the first function is used to
+derive this data:
+
+\begin{Code}
 def simdata(nobs, kreg):
     xmat = hstack((ones((nobs, 1)), random.randn(nobs, kreg - 1)))
     beta = random.randn(kreg)
@@ -1684,7 +1702,13 @@ def simdata(nobs, kreg):
         eps[i + 1] = rho * eps[i] + sig * random.randn(1)
     yvec = dot(xmat, beta) + eps
     return yvec, xmat
+\end{Code}
 
+Next, define a function that calculates $\tilde{\bm{y}}$ and
+$\bm{\tilde{X}}$:
+
+
+\begin{Code}
 def calcweighted(store):
     nobs = store['yvec'].shape[0]
     store['Upper'].put(-store['rho'], range(0, nobs - 1), range(1, nobs))
@@ -1692,12 +1716,28 @@ def calcweighted(store):
     for i in xrange(store['xmat'].shape[1]):
         store['Upper'].matvec(store['xmat'][:, i], store['xmattil'][:, i])
 
+\end{Code}
+ Note that $\bm{L}^{T}$ is updated based on the
+latest iteration in the MCMC scheme. Further, $\bm{L}^{T}$ is stored
+in the \proglang{Python} dictionary \code{store} and is accessed using
+the key \code{`Upper'}. It is stored in sparse matrix format using the
+library \pkg{Pysparse}.
+
+Next define a function that is used to sample $\bm{\beta},$ from its
+conditional posterior distribution:
+
+\begin{Code}
 def WLS(store):
     calcweighted(store)
     store['regsampler'].update_yvec(store['yvectil'])
     store['regsampler'].update_xmat(store['xmattil'])
     return store['regsampler'].sample()
+\end{Code}
 
+Now define functions to evaluate the log-likelihood (\code{loglike}),
+the log of the prior pdf for $\rho$ (\code{prior_rho}) and a function to evaluate the log of the posterior pdf for $\rho$ (\code{post_rho}):
+
+\begin{Code}
 def loglike(store):
     nobs = store['yvec'].shape[0]
     calcweighted(store)
@@ -1715,98 +1755,84 @@ def prior_rho(store):
 
 def post_rho(store):
     return loglike(store) + prior_rho(store)
+\end{Code}
 
-def gencand(store):
-    return store['rho'] + 0.02 * random.randn(1)[0]
+% def gencand(store):
+%     return store['rho'] + 0.02 * random.randn(1)[0]
 
-def probcandgprev(store):
-    res = store['rho'] - Store['previous_rho']
-    return -0.5/(0.02**2) * res**2
+% def probcandgprev(store):
+%     res = store['rho'] - Store['previous_rho']
+%     return -0.5/(0.02**2) * res**2
 
-def probprevgcand(store):
-    return probcandgprev(store)
+% def probprevgcand(store):
+%     return probcandgprev(store)
 
+The main program begins by setting the seed and constructing the
+\proglang{Python} dictionary \code{data}, which is used to store
+information that will be passed to functions that are called from the
+MCMC sampler:
+
+\begin{Code}
 random.seed(12345)
 nobs = 1000
 kreg = 3
-
 yvec, xmat = simdata(nobs, kreg)
-
 priorreg = ('g_prior', zeros(kreg), 1000.0)
 regs = BayesRegression(yvec, xmat, prior = priorreg)
-
 data ={'yvec':yvec, 'xmat':xmat, 'regsampler':regs}
 U = spmatrix.ll_mat(nobs, nobs, 2 * nobs - 1)
 U.put(1.0, range(0, nobs), range(0, nobs))
 data['yvectil'] = zeros(nobs)
 data['xmattil'] = zeros((nobs, kreg))
 data['Upper'] = U
+\end{Code}
 
+Initial values for $\sigma$ and $\beta$ are set using Bayesian regression:
+\begin{Code}
 bayesreg = BayesRegression(yvec, xmat)
 sig, beta = bayesreg.posterior_mean()
+\end{Code}
 
+The parameters $\sigma$ and $\beta$ are jointly sampled using the
+closed form class:
+\begin{Code}
 simsigbeta = CFsampler(WLS, [sig, beta], ['sigma', 'beta'])
-scale = 0.002                       
+\end{Code}
+
+The parameter $\rho$ is sampled using the Slice Sampler, with initial value 0.9:
+%scale = 0.002                       
+\begin{Code}
 rho = 0.9
 simrho = SliceSampler([post_rho], 0.1, 5, rho, 'rho')
+\end{Code}
+
+In this example, there are two blocks in the MCMC sampler. The code:
+\begin{Code}
 blocks = [simrho, simsigbeta]
+\end{Code}
+constructs a \proglang{Python} list that contains the
+class instances that define the MCMC sampler. In particular, it
+implies that the MCMC sampler consists of two blocks. Further,
+$\rho$ will be the first element sampled in the MCMC scheme.
+
+
+Finally, the sampler can be initialised and sampling undertaken:
+
+\begin{Code}
 loglikeinfo = (loglike, kreg + 2, 'yvec')
 ms = MCMC(10000, 2000, data, blocks, loglike = loglikeinfo)
 ms.sampler()
+\end{Code}
+
+
+The MCMC sampler is run for 10000
+iterations and the first 2000 are discarded. A summary can be generated by the \code{output} command:
+
+\begin{CodeChunk}
+\begin{CodeInput}
 ms.output()
-ms.plot('rho', filename ='rho')
-ms.CODAoutput(parameters = ['rho'])
-\end{lstlisting}
-
-
-A brief description of the code above is as follows:
-\begin{itemize}
-\item Lines 1-5 import the specific functions and classes that are
-  used in the analysis.
-\item Lines 7-18 define a function that is used to produce the
-  simulated data.
-\item Lines 20-25 define a function that calculates $\tilde{\bm{y}}$
-  and $\bm{\tilde{X}}.$ Note that line 22 updates $\bm{L}^{T}$ based
-  on the latest iteration in the MCMC scheme. Note that $\bm{L}^{T}$
-  is stored in the \proglang{Python} dictionary \code{store} and is
-  accessed using the key \code{`Upper'}. It is stored in sparse matrix
-  format using the library \pkg{Pysparse}.
-\item Lines 27-31 define a function that is used to sample
-  $\bm{\beta},$ from its conditional posterior distribution.
-\item Lines 33-38 define a function that evaluates the log-likelihood
-\item Lines 40-46 define the log of the prior pdf for $\rho$.
-\item Lines 48-49 define a function that evaluates the log of the
-  posterior pdf for $\rho.$
-\item Lines 51 to 59 define functions that can be used to demonstrate
-  the generic MH algorithm.
-\item The main program begins with the command to set the random seed
-  on line 61.
-\item Lines 67-68 use g-prior for the regression coefficients.
-\item Lines 70-75 construct the \proglang{Python} dictionary data,
-  which is used to store information that will be passed to functions
-  that are called from the MCMC sampler.
-\item Lines 77-78 to use Bayesian regression to initialise the MCMC sampler.
-\item Line 80 initialises the class instance \code{simsigbeta}, which is
-used to jointly sample $\sigma$ and $\bm{\beta}.$ 
-\item Line 83 provides an example of how to set up \pkg{PyMCMC} to
-  sample $\rho$ using the Slice Sampler. This is the method that is
-  used in the analysis below. Other algorithms which could be used
-  here to simulate $\rho$ include RWMH, OBMC and generic MH.
-\item Line 84 constructs a \proglang{Python} list that contain the
-  class instances that define the MCMC sampler. In particular, it
-  implies that the MCMC sampler consists of two blocks. Further,
-  $\rho$ will be the first element sampled in the MCMC scheme.
-\item Line 86 initialises \code{MCMC}. The MCMC sampler is run for
-  8000 iterations and the first 2000 iterations are discarded in this
-  instance.
-\item Line 87 runs the sampler.
-\item Lines 88-90 produce output from the MCMC sampler.
-\end{itemize}
-
-\subsubsection{Output}
-
-\begin{verbatim}
-
+\end{CodeInput}
+\begin{CodeOutput}
 The time (seconds) for the Gibbs sampler =  27.72
 Number of blocks in Gibbs sampler =  2
 
@@ -1823,29 +1849,28 @@ Acceptance rate  rho  =  1.0
 BIC =  [-331.398]
 Log likelihood =  [ 182.969]
 
-\end{verbatim}
+\end{CodeOutput}
+\end{CodeChunk}
 
-The analysis is conducted on a simulated data set, with 1000
-observations and 3 regressors. The MCMC sampler is run for 10000
-iterations and the first 2000 are discarded. The total time of
-estimation is approximately 35 seconds. From the inefficiency factors
-it is clear that the algorithm is very efficient.
+
+The total time of estimation is approximately 28 seconds. From the
+inefficiency factors it is clear that the algorithm is very efficient.
+
+Summary plots generated using \code{ms.plot(`rho')} (Figure
+\ref{Flo:AR1}) provide the marginal posterior density,
+autocorrelation plot and the trace plot for the iterates.
+
 
 %
 \begin{figure}[t!]
-\label{Flo:AR1}
 \begin{center}
   \includegraphics{rho.pdf}
 \end{center}
 \caption{Marginal posterior density, autocorrelation function and
   trace plot based on the MCMC analysis for Example 3. Note summaries
   are calculated after removing the burnin.}
-
+\label{Flo:AR1}
 \end{figure}
-
-
-Figure \ref{Flo:AR1} plots the marginal posterior density, autocorrelation
-plot and the trace plot for the iterates. 
 
 
 \section[Using PyMCMC  efficiently]{Using \pkg{PyMCMC}  efficiently}
@@ -1853,7 +1878,7 @@ plot and the trace plot for the iterates.
 
 The fact that MCMC algorithms rely on a large number of iterations to
 achieve reasonable results and are often implemented on very large
-problems, limits the practioners choice of a suitable environment, in
+problems, limits the practioner's choice of a suitable environment, in
 which they can implement efficient code. This efficiency comes through
 an understanding of what makes a simulation efficient MCMC sampler,
 and also the ability to produce computationally efficient code.
@@ -1864,9 +1889,9 @@ rather than the alternative of a single move sampler. From the
 perspective of simulation efficiency it is well known that indvidually
 sampling correlated parameters induces correlation in the resultant
 Markov chain and thus leads to a poorly mixing sampler. A classic
-example in the literature are using \emph{simulation smoothers }to
-jointly sample the state vector in a state space model; see for
-example \citet{CarterKohn1994} and \citet{deJongShepard1995}.  Whilst
+example in the literature uses \emph{simulation smoothers }to jointly
+sample the state vector in a state space model; see for example
+\citet{CarterKohn1994} and \citet{deJongShepard1995}.  Whilst
 implementing a simulation smoother is required to achieve simulation
 efficient code, the sequential nature of their implementation often
 renders higher level languages impractical for large problems and thus
@@ -1875,7 +1900,7 @@ language. This is an inefficient use of time as usually only a small
 percentage of code needs to be optimised. This drawback is easily
 circumvented in \pkg{PyMCMC} as \proglang{Python} makes it easy to use
 a lower level language to write the specialised module and use the
-function directly from \proglang{Python}. This ensures \pkg{PyMCMC}'s
+functions directly from \proglang{Python}. This ensures \pkg{PyMCMC}'s
 modules can be used for rapid development from \proglang{Python} and
 lower level languages are only resorted to when necessary.
 
@@ -1905,8 +1930,8 @@ then this could mean that a large proportion of the total computation
 is being done by \proglang{Python}, rather than a library that was
 generated from optimised compiled code. This can have a dramatic
 effect on the total computation time. As a simple and somewhat trivial
-example we modify Example \ref{sub:Example-2:-Log-linear} so that a
-loop is explicitly used to calculate the log likelihood.
+example we modify Example 2 from Section \ref{sub:Example-2:-Log-linear}
+so that a loop is explicitly used to calculate the log likelihood.
 
 
 
@@ -1967,8 +1992,7 @@ details. \pkg{F2py} allows for the seamless integration of
 \proglang{Fortran} and \proglang{Python} code. Following on using the
 same trivial example we use the following \proglang{Fortran77} code.
 This example requires that the user have basic linear algebra
-subprograms (\pkg{BLAS}) and preferable also the automatically
-tuned
+subprograms (\pkg{BLAS}) and preferably also the automatically tuned
 linear algebra software (\pkg{ATLAS}).\\
  
 \begin{lstlisting}[basicstyle={\scriptsize}]
@@ -1983,7 +2007,7 @@ c     linear model. Subroutine uses BLAS.
 
 cf2py intent(in,out) logl
 cf2py intent(in) yv
-cf2py intent(ini bv
+cf2py intent(in) bv
 cf2py intent(in) xmat 
 cf2py intent(in) xb 
 
@@ -1999,55 +2023,70 @@ cf2py intent(in) xb
 \end{lstlisting}
 
 
-The code is compiled with the command (Note: see the following
-subsection if you are a Microsoft Windows user, this command is for
-UNIX type environments such as Linux and OSX): In UNIX type
-environments, such as Linux and OSX the code is compiled with the
-following command (Windows users see Section \ref{CompilingWindows})
+In UNIX type environments, such as Linux and OSX the code is compiled
+with the following command (Windows users see Section
+\ref{CompilingWindows}):
 
+\begin{Code}
 f2py -c loglinear.f -m loglinear -lblas -latlas
+\end{Code}
 
-then called from \proglang{Python} as follows
+The loglinear library can then be imported as a python module, and the function \code{logl} accessed as a standard python function:
 
-
-\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{CodeChunk}
+\begin{CodeInput}
 import loglinear
-\end{lstlisting}
+print loglinear.logl.__doc__
+\end{CodeInput}
+\begin{CodeOutput}
+logl - Function signature:
+  llike = logl(xb,xm,bv,yv,llike,[n,k])
+Required arguments:
+  xb : input rank-1 array('d') with bounds (n)
+  xm : input rank-2 array('d') with bounds (n,k)
+  bv : input rank-1 array('d') with bounds (k)
+  yv : input rank-1 array('d') with bounds (n)
+  llike : input float
+Optional arguments:
+  n := len(xb) input int
+  k := shape(xm,1) input int
+Return objects:
+  llike : float
+\end{CodeOutput}
+\end{CodeChunk}
 
+Note that this function requires as input \code{xb} a rank-1 array of length
+\code{n}. We add this to the \code{data} dictionary:
+\begin{Code}
+data['xb']=zeros(yvec.shape[0])
+\end{Code}
+The array \code{data{[}`xb'{]}} is a work array used for the
+calculation of $\bm{X}\bm{\beta}.$ As it is stored in the
+\proglang{Python} dictionary \code{data} it is only created once
+rather that each time the function \code{logl} is called.
 
-The loglinear library must be imported to be accessible and is done as
-above. The log-likelihood function is then modified as follows
+It is useful to pass arrays stored in column major order to \pkg{F2py}
+functions since this is what is used in \proglang{Fortran}, rather
+than the \proglang{Python} default, which is row major order the
+default for the \proglang{C} programming language. This can be
+achieved using the \pkg{Numpy} function \code{asfortranarray}:
+\begin{Code}
+data['xmatf']=asfortranarray(xmat)
+\end{Code}
+If \code{store{[}`xmat'{]}} were passed to the function
+\code{loglinear.logl} then \pkg{F2py} will automatically produce a
+copy and convert it to column major order each time the function
+\code{logl} is called.
 
+The function \code{logl} can now be rewritten as:
 
-\begin{lstlisting}[basicstyle={\scriptsize},numbers=left]
+\begin{Code}
+import loglinear
 def logl(store):
 	loglike=array(0.0)     
-	return loglinear.logl(store['xb'],store['xmatf'], store['beta'],store['yvec'],loglike)
-    
-\end{lstlisting}
-
-
-The code in example1c.py is further modified by inserting the
-following code before line 64 in the original program.
-
-
-\begin{lstlisting}[basicstyle={\scriptsize}]
-data['xb']=zeros(yvec.shape[0])
-data['xmatf']=asfortranarray(xmat)
-\end{lstlisting}
-
-
-The array \code{data{[}`xb'{]}} is a work array used for the
-calculation of $\bm{X}\bm{\beta}.$ It is stored in the
-\proglang{Python} dictionary \code{data}, so it is only created once
-rather that each time the function \code{logl} is called. The second
-array \code{data{[}`xmatf'{]}} stores $\bm{X}$ in column major order,
-which is what is used in \proglang{Fortran}, rather than the
-\proglang{Python} default, which is row major order the default for
-the \proglang{C} programming language. If \code{store{[}`xmat'{]}} is
-passed to the function \code{loglinear.logl} then \pkg{F2py} will
-automatically produce a copy and convert it to column major order each
-time the function \code{logl} is called.
+	return loglinear.logl(store['xb'],store['xmatf'], 
+                  store['beta'],store['yvec'],loglike)
+\end{Code}
 
 The total time for the MCMC sampler when using f2py is 4.03 seconds.
 This is slightly faster that the version that uses \pkg{Weave}, where most
@@ -2129,11 +2168,11 @@ a=100
 under Windows, follow the instructions at
 http://www.scipy.org/F2PY\_Windows, and make sure the simple example
 provided works on your system. The examples presented above
-additionally require \pkg{BLAS} or \pkg{ATLAS} to be available. This
-can be built under windows (see instructions at
+additionally require \pkg{BLAS} or \mbox{\pkg{ATLAS}} to be available.
+This can be built under windows (see instructions at \linebreak
 http://www.scipy.org/Installing\_SciPy/Windows, for example). To check
-that \pkg{F2py} and \pkg{ATLAS} are installed correctly, save the
-following code as, for example, \code{blas\_eg.f90}:
+that \pkg{F2py} and \mbox{\pkg{ATLAS}} are installed correctly, save
+the following code as, for example, \code{blas\_eg.f90}:
 
 
 \begin{lstlisting}[basicstyle={\scriptsize}]
