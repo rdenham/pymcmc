@@ -110,7 +110,8 @@ build an MCMC library; see \citet{Python} for further details on the
 programming language \proglang{Python}. \pkg{PyMCMC} contains objects
 for the Gibbs sampler, Metropolis Hastings (MH), independent MH,
 random walk MH, orientational bias Monte Carlo (OBMC) as well as the
-slice sampler. The user can simply piece together the algorithms
+slice sampler: see for example \citet{RobertCassela1999} for details on
+standard MCMC algorithms. The user can simply piece together the algorithms
 required and can easily include their own modules, where necessary.
 Along with the standard algorithms, \pkg{PyMCMC} includes a module for
 Bayesian regression analysis. This module can be used for the direct
@@ -157,7 +158,7 @@ using a module called \pkg{F2py} \citep{F2PY}, or inline \proglang{C}
 using \pkg{Weave}, which is a part of \pkg{Scipy} \citep{NumpyScipy},
 and use the subroutines directly from \proglang{Python}. \pkg{F2py}
 can also be used to directly call \proglang{C} routines with the aid
-of \proglang{Fortran} signature file. This enables the use of
+of a \proglang{Fortran} signature file. This enables the use of
 \pkg{PyMCMC} and \proglang{Python} as a rapid application development
 environment, without comprimising on performance by requiring only very
 small segments of code written in a compiled language. It should be
@@ -263,7 +264,7 @@ arguments are required in the initialisation of the class:
 
 \begin{description}
 \item[\code{nit}:]  The number of iterations. 
-\item[\code{burn}:]  The burn in length of the MCMC sampler. 
+\item[\code{burn}:]  The burnin length of the MCMC sampler. 
 \item[\code{data}:] A dictionary (\proglang{Python} data structure)
   containing any data, functions or objects that the user would like
   to have access to when defining the functions that are called from
@@ -296,7 +297,7 @@ Several functions are included as a part of the class:
   \code{listname} is a list that contains the parameter names of
   interest.
 \item \code{get\_parameter(name)} - Returns the iterates for the named
-  parameter including burnin.
+  parameter including the burnin.
 \item \code{get\_parameter\_exburn(name)} - Returns the iterates for
   the named parameter excluding the burnin.
 \item \code{get\_mean\_var(name)} - Returns the estimate from the MCMC
@@ -474,8 +475,8 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
 \end{description}
 \paragraph{Independent Metropolis Hastings}
 
-The independent MH algorithm is a special case of the MH algorithm
-described in Section \ref{sub:Metropolis-Hastings}. Specifically, the
+The independent MH is a special case of the MH 
+described in Algorithm \ref{alg:MH}. Specifically, the
 independent MH algorithm is applicable when we have a candidate
 density
 $q(\bm{\theta}|\bm{y})=q(\bm{\theta}|\bm{y},\bm{\theta}^{j-1})$.  The
@@ -830,7 +831,7 @@ linear or partly linear models. In particular the classes
 \code{BayesRegression}, \code{CondRegBetaSampler},
 \code{CondScaleSampler} and \code{StochasticSearch} are useful for
 this purpose. These classes are described in this section.  For the
-standard linear regression model (see \citet{Zellner1971}), assume the
+standard linear regression model (see \citet{Zellner1971}, assume the
 $\left(n\times1\right)$ observational vector, $\bm{y},$ is generated
 according to\begin{equation}
   \bm{y}=\bm{X}\bm{\beta}+\bm{\varepsilon};\,\,\,\bm{\varepsilon}\sim
@@ -869,8 +870,8 @@ prior is defined such that
 where $I(\bm{\theta})$ is the Fisher information matrix for
 $\bm{\theta}.$ For the normal linear regression model in
 \ref{eq:regression}, given the assumption that $\beta$ and $\sigma$
-are \emph{a priori} independent, Jeffreys prior is flat prior over the
-real number line for $\beta$, and for $\sigma$ is distributed such
+are \emph{a priori} independent, Jeffreys prior is flat over the
+real number line for $\beta$, and $\sigma$ is distributed such
 that
 \begin{equation}
 		p\left(\sigma\right)\propto\frac{1}{\sigma}.
@@ -1075,7 +1076,7 @@ further details see \citet{MarinRobert2007}.
 
 To use the class \code{StochasticSearch }the user must specify their
 \emph{a priori} beliefs that the unknown parameters of interest,
-$(\sigma,\bm{\beta}^{T})^{T},$ are specified according Zellner's
+$(\sigma,\bm{\beta}^{T})^{T},$ are distributed following Zellner's
 g-prior, which is described in (\ref{eq:g-prior}).
 \code{StochasticSearch }is designed to be used in conjunction with the
 MCMC sampling class. To initialise \code{StochasticSearch} the user
@@ -1118,7 +1119,7 @@ the library \pkg{Pysparse}.
 The data used in this example are a response of crop yield modelled
 using various chemical measurements from the soil. As the results of
 the chemical analysis of soil cores are done in a laboratory, many
-input variables are available (30) and the data analyst would like to
+input variables are available and the data analyst would like to
 determine the variables that are most appropriate to use in the model.
 
 The normal linear regression model in (\ref{eq:regression}) is used
@@ -1204,7 +1205,7 @@ ms.sampler()
 \end{Code}
 
 The \code{MCMC} sampler is initialised by setting the number of
-iterations (2000), the burn in (500), providing the data dictionary
+iterations (2000), the burnin (500), providing the data dictionary
 \code{data} and a list containing the information used to sample from
 the full conditional posterior distributions. In this case, this list
 consists a single element, \code{simgam}, the \code{CFsampler}
@@ -1813,7 +1814,7 @@ it is clear that the algorithm is very efficient.
 \end{center}
 \caption{Marginal posterior density, autocorrelation function and
   trace plot based on the MCMC analysis for Example 3. Note summaries
-  are calculated after removing the burn in.}
+  are calculated after removing the burnin.}
 
 \end{figure}
 
