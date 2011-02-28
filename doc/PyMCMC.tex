@@ -1151,49 +1151,55 @@ def samplegamma(store):
 \end{Code}
 In this case, \code{samplegamma} simply uses the predefined function
 available in the \code{StochasticSearch} class to sample from
-$\gamma$. The single argument to \code{samplegamma}, \code{store}, is
-a dictionary (\proglang{Python} data structure) that is passed to all
-functions that are called from the MCMC sampler.  The purpose of
-\code{store} is to contain all the data required to define functions
-that sample from, or are used in the evaluation of, the posterior
-distribution. In this example, \code{store} is defined to contain the
-observational vector, $\bm{y}$, the matrix of regressors $\bm{X}$ and
-the class instance for \code{StochasticSearch}:
+$\gamma$. 
 
+The data and an instance of the class \code{StochasticSearch} are now
+initialised:
 \begin{Code}
-data = loadtxt(os.path.join(datadir,'yld2.txt'))
+data = loadtxt('yld2.txt')
 yvec = data[:, 0]
 xmat = data[:, 1:20]
 xmat = hstack([ones((xmat.shape[0], 1)), xmat])
-
 data ={'yvec':yvec, 'xmat':xmat}
+
 prior = ['g_prior', zeros(xmat.shape[1]), 100.]
 SSVS = StochasticSearch(yvec, xmat, prior);
 data['SS'] = SSVS
 \end{Code}
 
-Notice that in this example we use Zellner's g-prior with
+
+Notice that \code{data} is augmented to include the class instance for
+\code{StochasticSearch}.  In this example we use Zellner's g-prior with
 $\bm{\underline{\beta}} = 0$ and $g=100$. The normal-inverted-gamma
 prior could also be used.
 
 The next step is to initialise $\gamma$ and set up the appropriate
 sampler for the model. In this case, since the full conditionals are
-of closed form, we can use the \code{CFsampler} class, called with our
-\code{samplegmma} function defined earlier, initial values and a
-parameter name \code{gamma}. The initial value for $\gamma$ is
-$(1,0,\ldots,0)$. 
+of closed form, we can use the \code{CFsampler} class:
 
 \begin{Code}
 initgamma = zeros(xmat.shape[1], dtype ='i')
 initgamma[0] = 1
-simgam = CFsampler(samplegamma, initgamma, 'gamma', store ='none')
+simgam = CFsampler(samplegamma, initgamma, 'gamma')
 \end{Code}
 
-By default, each sampler in PyMCMC will add a dictionary called
-\code{store}, which stores the parameter value at each iteration. This
-means that the user can access the current iteration by calling
-\code{store{[}`gamma'{]}} ***CHECK****. In this example, we turn this
-feature off by setting \code{store = `none'}.
+The required arguments to \code{CFSampler} are a function that samples
+from the posterior \newline (\code{samplegamma}), the initial value
+for $\gamma$ (\code{initgamma}) and the name of the parameter of
+interest (\code{`gamma'}). The single argument to \code{samplegamma},
+\code{store}, is a dictionary (\proglang{Python} data structure) that
+is passed to all functions that are called from the MCMC sampler.  The
+purpose of \code{store} is to contain all the data required to define
+functions that sample from, or are used in the evaluation of, the
+posterior distribution. For example, we see that \code{samplegamma}
+accesses \code{store[`SS']}, which contains the class instance for
+\code{StochasticSearch}. In addition to all the information contained
+in \code{data}, \code{store} contains the value of the previous
+iterate for each block of the MCMC scheme. It is possible, for
+example, to access the current iteration for any named parameter (in
+this case \code{`gamma'}) from any of the functions called from MCMC
+by using \code{store[`gamma']}. This feature is not used in this
+example, but can be seen in the proceding examples.
 
 The actual sampling is done by setting a random seed and running the
 MCMC sampler:
@@ -1332,6 +1338,15 @@ This clearly shows this effect is far from zero. %
 \subsection{Example 2: Log-linear model}
 \label{sub:Example-2:-Log-linear}
 
+The data analysed in this example are the number of nutgrass shoots
+counted, in randomly scattered quadrats, at weekly intervals, during
+the growing season. A log linear model is used; \begin{equation}
+  \log(\mbox{count})=\beta_{0}+\beta_{1}\mbox{week}\end{equation}
+where the intercept, $\beta_{0}$, is expected to be positive in value,
+as nutgrass is always present in this study site, and $\beta_{1}$ is
+also expected to be positive as the population of nutgrass increases
+during the growing season.
+
 For the log-linear model, see \citet{GelmanCarlinSternRubin2004}, the
 $i^{th}$ observation $y_{i}$, for $i=1,2,\dots,n$, is generated as
 follows
@@ -1367,28 +1382,35 @@ and\[
 \bm{\Omega}^{-1}=-\sum_{i=1}^{n}\exp\left(\bm{x}_{i}^{T}\bm{\beta}_{nls}\right)\bm{x}_{i}\bm{x}_{i}^{T}.\]
 
 
-
-\subsubsection{Example code: Bayesian estimation of the log-linear model}
-
 The example code for \pkg{PyMCMC} uses two \proglang{Python}
 libraries, \pkg{Numpy} and \pkg{Scipy}, which the user must have
-installed to run the code.  The code for the program is as follows:
+installed to run the code.  
 
+As before, the code begins by importing the required packages:
 
-\begin{lstlisting}[basicstyle={\scriptsize},numbers=left]
+\begin{Code}
 import os
 from numpy import random, loadtxt, hstack, ones, dot, exp, zeros, outer, diag
 from numpy import linalg
 from pymcmc.mcmc import MCMC, RWMH, OBMC
 from pymcmc.regtools import BayesRegression
 from scipy.optimize.minpack import leastsq
-import pymcmc
+\end{Code}
 
-datadir = os.path.join(os.path.dirname(pymcmc.__file__), 'data')
+The import statements are followed by the definition of a number or
+required functions.
 
+A function \code{minfunc} used in the non-linear least squares routine:
+\begin{Code}
 def minfunc(beta, yvec, xmat ):
     return yvec - Exp(dot(xmat, beta))
+\end{Code}
 
+A function \code{prior} to evaluate the log of the prior pdf
+$\bm{\beta}.$ and a function \code{logl} defining the log-likelihood
+function:
+
+\begin{Code}
 def prior(store):
     mu = zeros(store['beta'].shape[0])
     Prec = diag(0.005 * ones(store['beta'].shape[0]))
@@ -1398,10 +1420,29 @@ def logl(store):
     xbeta = dot(store['xmat'], store['beta'])
     lamb = exp(xbeta)
     return sum(store['yvec'] * xbeta - Lamb)
+\end{Code}
 
+As in the variable selection example, \code{store} is a
+\proglang{Python} dictionary used to store all the information of
+interest that needs to be accessed by functions that are called from
+the MCMC sampler. For example, the function \code{logl} uses
+\code{store{[}'beta'{]}} which provides access to the vector $\bm{\beta}.$
+
+% Note the name \code{`beta'} is specified on line 72 when the class for
+% the random walk MH algorithm is initialised.  
+
+A function \code{posterior} which evaluates the log
+of the posterior pdf for $\bm{\beta}$:
+
+\begin{Code}
 def posterior(store):
     return logl(store) + prior(store)
+\end{Code}
 
+A function \code{llhessian} which returns the hessian for the
+log-linear model:
+
+\begin{Code}
 def llhessian(store, beta):
     nobs = store['yvec'].shape[0]
     kreg = store['xmat'].shape[1]
@@ -1410,91 +1451,75 @@ def llhessian(store, beta):
     for i in xrange(nobs):
         sum = sum + lamb[i] * outer(store['xmat'][i], store['xmat'][i])
     return -sum
+\end{Code}
 
+Following the function definitions, the main program begins with the
+command to set the random seed:
+\begin{Code}
 random.seed(12345)      
+\end{Code}
 
-data = loadtxt(os.path.join(datadir,'count.txt'), skiprows = 1)
+and the set up of the data:
+\begin{Code}
+data = loadtxt('count.txt', skiprows = 1)
 yvec = data[:, 0]
 xmat = data[:, 1:data.shape[1]]
 xmat = hstack([ones((data.shape[0], 1)), xmat])
-
 data ={'yvec':yvec, 'xmat':xmat} 
-bayesreg = BayesRegression(yvec, xmat)     
+\end{Code}
 
+Bayesian regression is used to initialise the non-linear least squares
+algorithm:
+\begin{Code}
+bayesreg = BayesRegression(yvec, xmat)
 sig, beta0 = bayesreg.posterior_mean()
+\end{Code}
+
+The function \code{leastsq} from \pkg{Scipy} is used to perform the
+non-linear least squares operation:
+
+\begin{Code}
 init_beta, info = leastsq(minfunc, beta0, args = (yvec, xmat))
 data['betaprec'] =-llhessian(data, init_beta)
 scale = linalg.inv(data['betaprec'])
+\end{Code}
 
+Initialise the random walk MH algorithm:
+\begin{Code}
 samplebeta = RWMH(posterior, scale, init_beta, 'beta')
+\end{Code}
+
+Finally, setup and run the sampling scheme.  Note that the sampling
+algorithm will be run for 20000 iterations and the first 4000 will be
+discarded. The MCMC scheme has only one block and is a MH sampling
+scheme:
+
+\begin{Code}
 ms = MCMC(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
 ms.sampler()
-ms.output(filename='example1c.out') 
-ms.plot('beta', filename='ex_loglinear.pdf')
-
-ms.CODAoutput('beta')
-ms.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
-ms.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
-ms.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")
+\end{Code}
 
 
-\end{lstlisting}
+
+% ms.output(filename='example1c.out') 
+% ms.plot('beta', filename='ex_loglinear.pdf')
+
+% ms.CODAoutput('beta')
+% ms.plot('beta', elements = [0], plottypes ="trace", filename ="xx.pdf")
+% ms.plot('beta', elements = [0], plottypes ="density", filename ="xx.png")
+% ms.plot('beta', elements = [0], plottypes ="acf", filename ="yy.ps")
 
 
-The code for the analysis of the log-linear model is used to
-demonstrate an application of straight Metropolis Hastings based
-algorithms.  A brief description of the code is as follows:
-\begin{itemize}
-\item Lines 1-7 import the required classes and functions that are
-  used in the program.
-\item Line 9 is used to obtain the path of the data if installed
-  using \code{setup.py}. Note that this step will not be necessary for
-  normal usage of \pkg{PyMCMC}.
-\item Lines 11-12 defines a function, \code{minfunc}, which is
-  required in the non-linear least squares routine.
-\item Lines 14-17 defines a function that evaluates the log of the
-  prior pdf for, $\bm{\beta}.$ As in the variable selection example,
-  \code{store} is a \proglang{Python} dictionary used to store all the
-  information of interest that needs to be accessed by functions that
-  are called from the MCMC sampler. For example, on line 22 it can be
-  seen that \code{store{[}'beta'{]}} provides access to the vector
-  $\bm{\beta}.$ Note the name \code{`beta'} is specified on line 72
-  when the class for the random walk MH algorithm is initialised.
-\item Lines 19-22 defines the log-likelihood function.
-\item Lines 24-25 defines a function that evaluates the log of the
-  posterior pdf for $\bm{\beta}.$
-\item Lines 27-34 defines a function that returns the hessian for the
-  log-linear model.
-\item The main program begins on line 36 with the command to set the
-  random seed.
-\item Lines 38-41 load the data, from which arrays $\bm{y}$
-  (\code{yvec}) and $\bm{X}$ (\code{xmat}) are constructed.
-\item Lines 43-44 use Bayesian regression to initialise the nonlinear
-  least squares algorithm.
-\item Lines 46-49 perform nonlinear least squares operation.
-\item Line 51 initialises the class \code{RWMH}. 
-\item Line 52 initialises the class \code{MCMC} . Note that the
-  sampling algorithm will be run for 20000 iterations and the first
-  4000 will be discarded. The MCMC scheme has only one block and is a
-  MH sampling scheme.
-\item Line 53 runs the sampling scheme.
-\item Lines 54-55 produce output.
-\item Lines 57-60 demonstrate an example of how to produce CODA output
-  and different ways in which plotting may be produced.
-\end{itemize}
+% \item Lines 54-55 produce output.
+% \item Lines 57-60 demonstrate an example of how to produce CODA output
+%   and different ways in which plotting may be produced.
 
-\subsubsection{Analysis}
-
-The data analysed in this example are the number of nutgrass shoots
-counted, in randomly scattered quadrats, at weekly intervals, during
-the growing season. A log linear model is used; \begin{equation}
-  \log(\mbox{count})=\beta_{0}+\beta_{1}\mbox{week}\end{equation}
-where the intercept, $\beta_{0}$, is expected to be positive in value,
-as nutgrass is always present in this study site, and $\beta_{1}$ is
-also expected to be positive as the population of nutgrass increases
-during the growing season.
-
-\begin{verbatim}
+A summary of the model fit can be produced using the \code{output} function:
+\begin{CodeChunk}
+\begin{CodeInput}
+ms.output()
+\end{CodeInput}
+\begin{CodeOutput}
 
 --------------------------------------------------------
 
@@ -1507,8 +1532,8 @@ Number of blocks in Gibbs sampler =  1
 Acceptance rate  beta  =  0.5625
 BIC =  -7718.074
 Log likelihood =  3864.453
-
-\end{verbatim}
+\end{CodeOutput}
+\end{CodeChunk}
 
 It can be seen from the output that estimation is very fast (7.5
 seconds), and that both $\beta_{0}$ and $\beta_{1}$ are positive
