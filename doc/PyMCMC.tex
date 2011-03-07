@@ -177,7 +177,7 @@ specialised modules.
 \end{figure}
 
 
-Figure \ref{fig:Flow-chart-ofPyMCMC} is a flow chart that depicts
+Figure~\ref{fig:Flow-chart-ofPyMCMC} is a flow chart that depicts
 the structure of \pkg{PyMCMC}. Essentially, the implementation of an MCMC
 sampler can be seen to centred around the class \code{MCMC}, which
 acts as a container for various algorithms that are used in sampling
@@ -1110,7 +1110,7 @@ description of code is given. Each example uses the module for
 \pkg{PyMCMC}, along with the \proglang{Python} libraries \pkg{Numpy},
 \pkg{Scipy} and \pkg{Matplotlib}: see \citet{NumpyScipy, Matplotlib}
 for further details of these Python libraries.  Example 3 further uses
-the library \pkg{Pysparse}.
+the library \pkg{Pysparse} \citep{geus11}.
 
 
 \subsection{Example 1: Linear regression model: Variable selection and
@@ -1318,8 +1318,8 @@ The parameter associated with variable 12, $\hat{\beta_{1}}$, is
 estimated as a positive value, 0.7587, with a 95\% credible interval
 {[}0.7139,~0.8035{]}. We note that zero is not contained in the
 credible interval, hence the crop yield increases with higher values
-of variable 12. The marginal posterior densities (Figure
-\ref{Flo:mpdreg}) can be created using
+of variable 12. The marginal posterior densities
+(Figure~\ref{Flo:mpdreg}) can be created using
 \begin{Code}
 breg.plot()
 \end{Code}
@@ -1541,20 +1541,20 @@ seconds), and that both $\beta_{0}$ and $\beta_{1}$ are positive
 values, with $\hat{\beta}_{0}$ = 1.14 {[}1.05, 1.23{]} and
 $\hat{\beta}_{1}$ = 0.157 {[}0.148, 0.165{]}. 
 
-Summary plots can also be produced (Figure \ref{fig:plot_output_eg2}):
+Summary plots can also be produced (Figure~\ref{fig:plot_output_eg2}):
 \begin{CodeChunk}
 \begin{CodeInput}
 ms.plot('beta')
 \end{CodeInput}
 \end{CodeChunk}
 
-The marginal posterior densities of these estimates (Figure
-\ref{fig:plot_output_eg2}) confirm that both estimates are far from
-zero. The ACF plots (Figure \ref{fig:plot_output_eg2}) and low inefficiency
-factors (see \citet{ChibGreenberg1996} for details on inefficiency
-factors) of 13.5 ($\hat{\beta}_{0}$) and 12.2 ($\hat{\beta}_{1}$) show
-that autocorrelation in the sample is relatively low for an MCMC
-sampler. %
+The marginal posterior densities of these estimates
+(Figure~\ref{fig:plot_output_eg2}) confirm that both estimates are far
+from zero. The ACF plots (Figure~\ref{fig:plot_output_eg2}) and low
+inefficiency factors (see \citet{ChibGreenberg1996} for details on
+inefficiency factors) of 13.5 ($\hat{\beta}_{0}$) and 12.2
+($\hat{\beta}_{1}$) show that autocorrelation in the sample is
+relatively low for an MCMC sampler. %
 \begin{figure}[t!]
   \begin{center}
     \includegraphics[width=16cm]{ex_loglinear.pdf}
@@ -1856,8 +1856,8 @@ Log likelihood =  [ 182.969]
 The total time of estimation is approximately 28 seconds. From the
 inefficiency factors it is clear that the algorithm is very efficient.
 
-Summary plots generated using \code{ms.plot(`rho')} (Figure
-\ref{Flo:AR1}) provide the marginal posterior density,
+Summary plots generated using \code{ms.plot(`rho')}
+(Figure~\ref{Flo:AR1}) provide the marginal posterior density,
 autocorrelation plot and the trace plot for the iterates.
 
 
@@ -1936,15 +1936,15 @@ so that a loop is explicitly used to calculate the log likelihood.
 
 
 
-\begin{lstlisting}[basicstyle={\scriptsize}]
+%\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{Code}
 def logl(store):
     suml=0.0
     for i in xrange(store['yvec'].shape[0]):
         xbeta=dot(store['xmat'][i,:],store['beta'])
         suml=suml+store['yvec'][i] * xbeta - Exp(xbeta)
     return suml
-\end{lstlisting}
-
+\end{Code}
 
 Whilst the two functions to calculate the log-likelihood are
 mathematically equivalent, the one with the explicit loop is
@@ -1961,7 +1961,8 @@ library, to write inline \proglang{C} code which will accelerate the
 problem area in the code. An example is given below.
 
 
-\begin{lstlisting}[basicstyle={\scriptsize}]
+%\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{Code}
 def logl(store):
     code = """     
 		double sum = 0.0, xbeta;
@@ -1978,8 +1979,7 @@ def logl(store):
 	beta = store['beta']
     return weave.inline(code,['yvec','xmat', 'beta','nobs','kreg'],\ 
                        compiler='gcc')
-\end{lstlisting}
-
+\end{Code}
 
 The total time taken for \pkg{Weave} version is 4.33 seconds. The reason for
 the speed increase over the original version that uses \pkg{Numpy}
@@ -1995,7 +1995,8 @@ This example requires that the user have basic linear algebra
 subprograms (\pkg{BLAS}) and preferably also the automatically tuned
 linear algebra software (\pkg{ATLAS}).\\
  
-\begin{lstlisting}[basicstyle={\scriptsize}]
+%\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{Code}
 c     fortran 77 code used to calculate the likelihood of a log
 c     linear model. Subroutine uses BLAS.
 
@@ -2020,7 +2021,7 @@ cf2py intent(in) xb
           llike=llike+yv(i)*xb(i)-exp(xb(i))
       enddo
       end
-\end{lstlisting}
+\end{Code}
 
 
 In UNIX type environments, such as Linux and OSX the code is compiled
@@ -2143,17 +2144,19 @@ as expected, make sure that the \pkg{mingw} bin directory is in your
 path, and try the following code:
 
 
-\begin{lstlisting}[basicstyle={\scriptsize}]
+%\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{Code}
 import scipy.weave 
 a=100 
 scipy.weave.inline('printf("a=%d\\n",a);',['a'],verbose=1)
-\end{lstlisting}
+\end{Code}
 
 
 The output should be similar to:
 
 
-\begin{lstlisting}[basicstyle={\scriptsize}]
+%\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{Code}
 In [4]: scipy.weave.inline('printf("a=%d\\n",a);',['a'],verbose=1)
 <weave: compiling>
 No module named msvccompiler in numpy.distutils; trying from distutils
@@ -2161,7 +2164,7 @@ Compiling code...
 Found executable c:\mingw\bin\g++.exe
 finished compiling (sec):  2.73600006104
 a=100
-\end{lstlisting}
+\end{Code}
 
 
 \pkg{F2py} requires a \proglang{Fortran} compiler. To set this up
@@ -2175,7 +2178,8 @@ that \pkg{F2py} and \mbox{\pkg{ATLAS}} are installed correctly, save
 the following code as, for example, \code{blas\_eg.f90}:
 
 
-\begin{lstlisting}[basicstyle={\scriptsize}]
+%\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{Code}
 subroutine dgemveg()
   REAL*8 X(2, 3) /1.D0, 2.D0, 3.D0, 4.D0, 5.D0, 6.D0/
   REAL*8 Y(3) /2.D0, 2.D0, 2.D0/
@@ -2183,7 +2187,8 @@ subroutine dgemveg()
   CALL DGEMV('N', 2, 3, 1.D0, X, 2, Y, 1, 0.D0, Z, 1)
   PRINT *, Z
 end subroutine dgemveg
-\end{lstlisting}
+\end{Code}
+
 
 
 Set the location of your \pkg{ATLAS} libraries appropriately, and ensure
@@ -2191,45 +2196,45 @@ that \pkg{gfortran} is in your path and compile. The following provides a
 template:
 
 
-\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{Code}
 ATLAS_LIB_DIR="/d/tmp/pymcmc_win_install/BUILDS/lib"
 export PATH=${PATH}:/c/Program\ Files/gfortran/libexec/gcc/i586-pc-mingw32/4.6.0:/c/Program\ Files/gfortran/bin:/c/python26 
 python /c/Python26/Scripts/f2py.py -c -m foo \
    --fcompiler=gfortran \
    blas_eg.f90 -L${ATLAS_LIB_DIR} -lf77blas -latlas -lg2c 
-\end{lstlisting}
+\end{Code}
 
 
 This should produce a \proglang{Python} dll (\code{foo.pyd}), which can be imported
 into \proglang{Python}:
 
 
-\begin{lstlisting}[basicstyle={\scriptsize}]
+\begin{Code}
 import foo
 dir(foo) 
 print foo.__doc__
 foo.dgemveg() 
-\end{lstlisting}
+\end{Code}
 
 \section[PyMCMC interacting with R]{\pkg{PyMCMC} interacting with R}
 \label{sec:PyMCMC-interacting-with}
 
 There are many functions from the \proglang{R} statistical language
 \citep{R} that can be useful in Bayesian analysis. The \pkg{RPy2}
-\proglang{Python} library can be used to integrate \proglang{R}
-functions into \pkg{PyMCMC} programs. These can be accessed in
-\pkg{PyMCMC} through the \pkg{RPy2} \proglang{Python} library. As an
-example, consider the log linear model described in Section
-\ref{sub:Example-2:-Log-linear}. The random walk MH requires the
-specification of a candidate density function Equation (\ref{random
-  walk candidate}) and an initial value. The R functions \texttt{glm
-}and \texttt{summary.glm} can be used to set this to the maximum
-likelihood estimate $\hat{\beta}$ and the unscaled estimated
+\citep{gautier:_rpy2} \proglang{Python} library can be used to
+integrate \proglang{R} functions into \pkg{PyMCMC} programs. These can
+be accessed in \pkg{PyMCMC} through the \pkg{RPy2} \proglang{Python}
+library. As an example, consider the log linear model described in
+Section \ref{sub:Example-2:-Log-linear}. The random walk MH requires
+the specification of a candidate density function Equation
+(\ref{random walk candidate}) and an initial value. The R functions
+\texttt{glm }and \texttt{summary.glm} can be used to set this to the
+maximum likelihood estimate $\hat{\beta}$ and the unscaled estimated
 covariance matrix of the estimated coefficients. The relevant code is
 summarised below:
 
 
-\begin{lstlisting}[basicstyle={\scriptsize},numbers=left,tabsize=4]
+\begin{Code}
 import rpy2.robjects.numpy2ri
 from rpy2 import rinterface
 import rpy2.robjects as robjects
@@ -2260,7 +2265,7 @@ GS=Gibbs(20000,4000,data, [samplebeta],loglike=(logl,xmat.shape[1],'yvec'))
 GS.sampler()
 GS.CODAoutput(filename="loglinear_eg") 
 
-\end{lstlisting}
+\end{Code}
 
 
 It may also be useful to take advantage of the many MCMC analysis
@@ -2271,7 +2276,7 @@ easily be read into \proglang{R} for further analysis. A sample
 \proglang{R} session after \pkg{PyMCMC} might look like:
 
 
-\begin{lstlisting}[basicstyle={\scriptsize},language=R,numbers=left]
+\begin{Code}
 library(coda)
 aa <- Read.coda("loglinear_eg.txt","loglinear_eg.ind")
 plot(aa)
@@ -2281,7 +2286,7 @@ xyplot(aa)
 densityplot(aa)
 acfplot(aa,lag.max=500)
 
-\end{lstlisting}
+\end{Code}
 
 
 
