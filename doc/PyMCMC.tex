@@ -1175,7 +1175,7 @@ $\bm{\underline{\beta}} = 0$ and $g=100$. The normal-inverted-gamma
 prior could also be used.
 
 The next step is to initialise $\gamma$ and set up the appropriate
-sampler for the model. In this case, since the full conditionals are
+sampler for the model. In this case, as the full conditionals are
 of closed form, we can use the \code{CFsampler} class:
 
 \begin{Code}
@@ -1211,7 +1211,7 @@ ms.sampler()
 \end{Code}
 
 The \code{MCMC} sampler is initialised by setting the number of
-iterations (2000), the burnin (500), providing the data dictionary
+iterations (20000), the burnin (5000), providing the data dictionary
 \code{data} and a list containing the information used to sample from
 the full conditional posterior distributions. In this case, this list
 consists a single element, \code{simgam}, the \code{CFsampler}
@@ -1234,7 +1234,7 @@ The time (seconds) for the MCMC sampler =  7.4
 Number of blocks in MCMC sampler =  1
 
                     mean          sd         2.5%       97.5%      IFactor
-    gamma[0]           1           0            1           1       -1e+04
+    gamma[0]           1           0            1           1         NA
     gamma[1]      0.0929        0.29            0           1         3.75
     gamma[2]      0.0941       0.292            0           1         3.54
     gamma[3]      0.0939       0.292            0           1         3.54
@@ -1404,7 +1404,7 @@ required functions.
 A function \code{minfunc} used in the non-linear least squares routine:
 \begin{Code}
 def minfunc(beta, yvec, xmat ):
-    return yvec - Exp(dot(xmat, beta))
+    return yvec - exp(dot(xmat, beta))
 \end{Code}
 
 A function \code{prior} to evaluate the log of the prior pdf
@@ -1427,7 +1427,7 @@ As in the variable selection example, \code{store} is a
 \proglang{Python} dictionary used to store all the information of
 interest that needs to be accessed by functions that are called from
 the MCMC sampler. For example, the function \code{logl} uses
-\code{store{[}'beta'{]}} which provides access to the vector $\bm{\beta}.$
+\code{store{[}`beta'{]}} which provides access to the vector $\bm{\beta}.$
 
 % Note the name \code{`beta'} is specified on line 72 when the class for
 % the random walk MH algorithm is initialised.  
@@ -1491,7 +1491,7 @@ samplebeta = RWMH(posterior, scale, init_beta, 'beta')
 \end{Code}
 
 Finally, setup and run the sampling scheme.  Note that the sampling
-algorithm will be run for 20000 iterations and the first 4000 will be
+algorithm is run for 20000 iterations and the first 4000 is
 discarded. The MCMC scheme has only one block and is a MH sampling
 scheme:
 
@@ -1686,7 +1686,7 @@ from pymcmc.mcmc import MCMC, SliceSampler, RWMH, OBMC, MH, CFsampler
 from pymcmc.regtools import BayesRegression 
 \end{Code}
 
-Since this example uses simulated data, the first function is used to
+As this example uses simulated data the first function is used to
 derive this data:
 
 \begin{Code}
@@ -1697,7 +1697,7 @@ def simdata(nobs, kreg):
     rho = 0.90
     yvec = zeros(nobs)
     eps = zeros(nobs)
-    eps[0] = sig**2/(1.-rho**2)
+    eps[0] = sig ** 2 / (1. - rho ** 2)
     for i in xrange(nobs - 1):
         eps[i + 1] = rho * eps[i] + sig * random.randn(1)
     yvec = dot(xmat, beta) + eps
