@@ -221,7 +221,7 @@ The most common approach used for inference about $\bm{\theta}$ is
 MCMC.
 
 
-\subsection{Markov chain Monte Carlo Methods and implementation}
+\subsection{Markov chain Monte Carlo methods and implementation}
 
 In the following subsections, a brief description of each algorithm
 and the associated programming interface is included.
@@ -473,7 +473,7 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
     functionality.
   \end{description}
 \end{description}
-\paragraph{Independent Metropolis Hastings}
+\subsubsection{Independent Metropolis Hastings}
 
 The independent MH is a special case of the MH 
 described in Algorithm \ref{alg:MH}. Specifically, the
@@ -526,8 +526,8 @@ to $\min\left\{ 1,\frac{p\left(\bm{\theta}^{\ast}|\bm{y}\right)}{p\left(\bm{\the
   \end{description}
 \end{description}
 
-\paragraph{Random Walk Metropolis Hastings \protect \protect \\
-}
+\subsubsection{Random walk Metropolis Hastings}
+
 
 A useful and simple way to construct an MH candidate distribution is
 via\begin{equation}
@@ -545,8 +545,8 @@ $j=1,2,\ldots,M$ is given\emph{\ }by Algorithm \ref{alg:rwmh}.
 %
 \begin{algorithm}[H]
   \begin{enumerate}
-  \item Draw a candidate $\bm{\theta}^{\ast}$ from equation
-    (\ref{random walk candidate}) where the random disturbance
+  \item Draw a candidate $\bm{\theta}^{\ast}$ from
+    Equation~\ref{random walk candidate} where the random disturbance
     $\bm{\varepsilon}$ has a distribution symmetric about zero.
   \item Accept $\bm{\theta}^{j}=\bm{\theta}^{\ast}$ with probability
     equal to $\min\left\{
@@ -842,8 +842,7 @@ $\left(k\times1\right)$ vector of regression coefficients and
 $\bm{\varepsilon}$ is a normally distributed random variable with a
 mean vector $\bm{0}$ and an $\left(n\times n\right)$ covariance
 matrix, $\sigma^{2}\bm{I}.$ Assuming that both $\bm{\beta}$ and
-$\sigma$ are unknown then the posterior distribution for
-(\ref{eq:regression}) is given by\begin{equation}
+$\sigma$ are unknown then the posterior distribution for Equation~\ref{eq:regression} is given by\begin{equation}
   p(\bm{\beta},\sigma|\bm{y},\bm{X})\propto
   p(\bm{y}|\bm{X},\bm{\beta},\sigma)\times
   p(\bm{\beta},\sigma),\label{eq:post regression}
@@ -858,11 +857,11 @@ $\sigma$, and\emph{ $p(\bm{\beta},\sigma)$ } denotes the joint
 prior \emph{pdf} for $\bm{\beta}$ and $\sigma$.
 
 A class named \code{BayesRegression} is defined to sample from the
-posterior distribution in (\ref{eq:post regression}). One of four
-alternative priors may be used in the specification of the model.  The
-default choice is Jeffreys prior. Denoting the full set of unknown
+posterior distribution in Equation~\ref{eq:post regression}. One of
+four alternative priors may be used in the specification of the model.
+The default choice is Jeffreys prior. Denoting the full set of unknown
 parameters as $\bm{\theta}=(\bm{\beta}^{T},\sigma)^{T},$ then Jeffreys
-prior is defined such that 
+prior is defined such that
 \begin{equation}
   p(\bm{\theta})\propto|I(\bm{\theta})|^{-1/2},\label{eq:Jeffrey's
     Prior}
@@ -919,11 +918,14 @@ that are specified by the user. To initialise the class
 
   \begin{description}
   \item \code{prior} - A list containing the name of the prior and the
-    corresponding hyperparameters. Examples: \code{prior =
-      {[}`normal\_gamma', betaubar, Vubar, nuubar, Subar{]}},
+    corresponding hyperparameters. Examples: \newline
+     \code{prior = {[}`normal\_gamma', betaubar, Vubar, nuubar, Subar{]}}
+     ,\newline
     \code{prior = {[}`normal\_inverted\_gamma',betaubar, Vubar,
-      nuubar, Subar{]}} and \code{prior = {[}`g\_prior', betaubar,
-      g{]}}. If none of these options are chosen or they are
+      nuubar, Subar{]}} and \newline
+    \code{prior = {[}`g\_prior', betaubar,
+      g{]}}. \newline
+    If none of these options are chosen or they are
     miss-specified then the default prior will be Jeffreys prior.
   \end{description}
 \end{description}
@@ -967,7 +969,7 @@ In MCMC sampling schemes it is common that for a subset of the unknown
 parameters of interest the full conditional posterior distribution
 will correspond to that of a linear regression model, where the scale
 parameter is known. For the linear regression model specified in
-(\ref{eq:regression}) the posterior distribution for the case that
+Equation~\ref{eq:regression} the posterior distribution for the case that
 $\sigma$ is known is as follows
 \begin{equation} 
 p\left(\bm{\beta}|\bm{y},\bm{X},\bm{\beta},\sigma\right)\propto
@@ -975,8 +977,8 @@ p\left(\bm{\beta}|\bm{y},\bm{X},\bm{\beta},\sigma\right)\propto
   p(\bm{\beta}),\label{eq:post_condbeta}
 \end{equation} where
 $p(\bm{y}|\bm{X},\bm{\beta},\sigma)$ is described in
-(\ref{eq:likelihood regression}) and $p(\bm{\beta})$ is the prior
-\emph{pdf} for $\bm{\beta}.$ To sample from (\ref{eq:post_condbeta}) a
+Equation~\ref{eq:likelihood regression} and $p(\bm{\beta})$ is the prior
+\emph{pdf} for $\bm{\beta}.$ To sample from Equation~\ref{eq:post_condbeta} a
 class named \code{CondBetaRegSampler} can be used. The user may
 specify one of three alternative priors.  The default prior is
 Jeffreys prior, which for $\bm{\beta}$ is simply a flat prior over
@@ -996,10 +998,11 @@ the class the user must specify:
 
 \begin{description}
 \item \code{prior} - A list containing the name of the prior and the
-  corresponding hyperparameters. Examples: \code{prior={[}`normal',
-    betaubar, Vubar{]} or {[}`g\_prior', betaubar, g{]}}. If none of
-  these options are chosen or they are miss-specified then the default
-  prior will be Jeffreys prior.
+  corresponding hyperparameters. Examples: \newline
+  \code{prior={[}`normal', betaubar, Vubar{]} or {[}`g\_prior',
+    betaubar, g{]}}. \newline If none of these options are chosen or
+  they are miss-specified then the default prior will be Jeffreys
+  prior.
 \end{description}
 \end{description}
 \code{CondBetaRegSampler} contains several functions that may be of
@@ -1031,7 +1034,7 @@ wish to sample from
 \end{equation} where $\bm{\theta}$ is the set of unknown
 parameters of interest excluding $\sigma.$ The user may choose to use
 one of three priors.  The Jeffreys prior, which for $\sigma$ given
-the posterior in (\ref{eq:posterior sigma}) is as follows \[
+the posterior in Equation~\ref{eq:posterior sigma} is as follows \[
 p(\sigma)\propto\frac{1}{\sigma}.\] The second option is to specify an
 inverted-gamma prior, such that\[ \sigma\sim
 IG\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).\]
@@ -1044,9 +1047,9 @@ specify:
 \item \code{{*}{*}kwargs} - Options arguments:
 \begin{description}
 \item \code{prior} - List containing the name of the prior and the
-  corresponding hyperparameters. Examples:
-  \code{prior={[}`gamma',nuubar,subar{]}} or
-  \code{{[}`inverted-gamma', nuubar, subar{]}}. If no prior is
+  corresponding hyperparameters. Examples: \newline
+  \code{prior={[}`gamma',nuubar,subar{]}} or \newline
+  \code{prior={[}`inverted-gamma', nuubar, subar{]}}. If no prior is
   specified the Jeffreys prior is used.
 \end{description}
 \end{description}
@@ -1077,7 +1080,7 @@ further details see \citet{MarinRobert2007}.
 To use the class \code{StochasticSearch }the user must specify their
 \emph{a priori} beliefs that the unknown parameters of interest,
 $(\sigma,\bm{\beta}^{T})^{T},$ are distributed following Zellner's
-g-prior, which is described in (\ref{eq:g-prior}).
+g-prior, which is described in Equation~\ref{eq:g-prior}.
 \code{StochasticSearch }is designed to be used in conjunction with the
 MCMC sampling class. To initialise \code{StochasticSearch} the user
 must specify:
@@ -1122,7 +1125,7 @@ the chemical analysis of soil cores are done in a laboratory, many
 input variables are available and the data analyst would like to
 determine the variables that are most appropriate to use in the model.
 
-The normal linear regression model in (\ref{eq:regression}) is used
+The normal linear regression model in Equation~\ref{eq:regression} is used
 for the analysis.  To select the set of `most probable'
 regressors we use the stochastic search variable selection approach
 described in Section \ref{sec: Regression Model} using a subset of 19
@@ -1368,12 +1371,12 @@ $\bm{\beta}$ is given by
 where $p(\bm{y}|\bm{\beta},\bm{X})$ is the joint \emph{pdf }for
 $\bm{y}$ conditional on the $\bm{\beta}$ and $\bm{X}$, and
 $p(\bm{\beta})$ denotes the prior \emph{pdf }for $\bm{\beta}.$ From
-(\ref{eq:observation equation log linear model}) it is apparent that\[
+Equation~\ref{eq:observation equation log linear model} it is apparent that\[
 p(\bm{y}|\bm{\beta},\bm{X})=\prod_{i=1}^{n}\frac{\mu_{i}^{y_{i}}\exp(-\mu_{i})}{\mu_{i}!}.\]
 A \emph{priori }we assume that \[ \bm{\beta}\sim
 N(\bm{\underline{\bm{\beta}}},\bm{V}^{-1}).\]
 
-To sample from (\ref{eq:post log_linear}), a random walk MH algorithm
+To sample from Equation~\ref{eq:post log_linear}, a random walk MH algorithm
 is implemented, where the candidate $\bm{\beta}^{*}$, at each
 iteration, is sampled following \begin{equation} \bm{\beta}^{*}\sim
   N\left(\bm{\beta}^{j-1},\bm{\Omega}\right),\label{eq:candidate
@@ -1496,7 +1499,8 @@ discarded. The MCMC scheme has only one block and is a MH sampling
 scheme:
 
 \begin{Code}
-ms = MCMC(20000, 4000, data, [samplebeta], loglike = (logl, xmat.shape[1], 'yvec'))
+ms = MCMC(20000, 4000, data, [samplebeta], 
+      loglike = (logl, xmat.shape[1], 'yvec'))
 ms.sampler()
 \end{Code}
 
@@ -1593,32 +1597,32 @@ is an independent identically normally distributed random variable
 with a mean of 0 and a variance of $\sigma^{2}.$ Under the assumption
 that the process driving the errors is stationary, that is $|\rho|<1,$
 and assuming that the process has been running since time immemorial
-then (\ref{eq:observation ar}) and (\ref{eq:error ar}) can be
+then Equation~\ref{eq:observation ar} and Equation~\ref{eq:error ar} can be
 expressed as
 
 \begin{equation}
-\bm{y}=\bm{X}\bm{\beta}+\bm{\varepsilon};\,\,\,\,\bm{\varepsilon}\sim N\left(\bm{0},\kappa^{-1}\bm{\Omega^{-1}}\right),\label{eq:observation2 ar}\end{equation}
- where \[
+  \bm{y}=\bm{X}\bm{\beta}+\bm{\varepsilon};\,\,\,\,\bm{\varepsilon}\sim N\left(\bm{0},\kappa^{-1}\bm{\Omega^{-1}}\right),\label{eq:observation2 ar}\end{equation}
+where \[
 \bm{\Omega}=\left[\begin{array}{cccccc}
-1 & -\rho & 0 & 0 & \cdots & 0\\
--\rho & 1+\rho^{2} & -\rho & 0 & \ddots & 0\\
-0 & -\rho & 1+\rho^{2} & \ddots & \ddots & \vdots\\
-0 & 0 & \ddots & \ddots & -\rho & 0\\
-\vdots & \vdots & \ddots & -\rho & 1+\rho^{2} & -\rho\\
-0 & 0 & \cdots & 0 & -\rho & 1\end{array}\right].\]
- Further, if we factorise $\bm{\Omega}=\bm{L}\bm{L}^{T},$ using the
+    1 & -\rho & 0 & 0 & \cdots & 0\\
+    -\rho & 1+\rho^{2} & -\rho & 0 & \ddots & 0\\
+    0 & -\rho & 1+\rho^{2} & \ddots & \ddots & \vdots\\
+    0 & 0 & \ddots & \ddots & -\rho & 0\\
+    \vdots & \vdots & \ddots & -\rho & 1+\rho^{2} & -\rho\\
+    0 & 0 & \cdots & 0 & -\rho & 1\end{array}\right].\]
+Further, if we factorise $\bm{\Omega}=\bm{L}\bm{L}^{T},$ using the
 Cholesky decomposition, it is straightforward to derive $\bm{L},$
 where\[
 \bm{L}=\left[\begin{array}{cccccc}
-1 & -\rho & 0 & 0 & \cdots & 0\\
-0 & 1 & -\rho & \ddots & \ddots & 0\\
-0 & 0 & \ddots & \ddots & \ddots & \vdots\\
-\vdots & \ddots & \ddots & \ddots & \ddots & 0\\
-\vdots & \ddots & \ddots & \ddots & 1 & -\rho\\
-0 & 0 & \cdots & \cdots & 0 & \sqrt{1-\rho^{2}}\end{array}\right].\]
- Pre-multiplying (\ref{eq:observation2 ar}), by $\bm{L}$ gives\begin{equation}
-\bm{\tilde{y}}=\bm{\tilde{X}}\bm{\beta}+\bm{\tilde{\varepsilon}},\label{eq:trans_obs_ar}\end{equation}
- where $\bm{\tilde{y}}=\bm{L}^{T}\bm{y}$, $\bm{\tilde{X}}=\bm{L}^{T}\bm{X}$
+    1 & -\rho & 0 & 0 & \cdots & 0\\
+    0 & 1 & -\rho & \ddots & \ddots & 0\\
+    0 & 0 & \ddots & \ddots & \ddots & \vdots\\
+    \vdots & \ddots & \ddots & \ddots & \ddots & 0\\
+    \vdots & \ddots & \ddots & \ddots & 1 & -\rho\\
+    0 & 0 & \cdots & \cdots & 0 & \sqrt{1-\rho^{2}}\end{array}\right].\]
+Pre-multiplying Equation~\ref{eq:observation2 ar}, by $\bm{L}$ gives\begin{equation}
+  \bm{\tilde{y}}=\bm{\tilde{X}}\bm{\beta}+\bm{\tilde{\varepsilon}},\label{eq:trans_obs_ar}\end{equation}
+where $\bm{\tilde{y}}=\bm{L}^{T}\bm{y}$, $\bm{\tilde{X}}=\bm{L}^{T}\bm{X}$
 and $\tilde{\bm{\varepsilon}}=\bm{L}^{T}\bm{\varepsilon}.$ Note that
 $\bm{\varepsilon}\sim N(0,\kappa^{-1}\bm{I})$.
 
@@ -1633,7 +1637,7 @@ conditional on $\bm{\beta},$ $\kappa,$ and $\rho$,
 $p(\bm{\beta},\kappa)$ is the joint prior \emph{pdf} for $\bm{\beta}$
 and $\kappa,$ and $p(\rho)$ denotes the prior density function for
 $\rho.$ The likelihood function, which is defined following
-(\ref{eq:observation ar}) and (\ref{eq:error ar}) is defined as
+Equation~\ref{eq:observation ar} and Equation~\ref{eq:error ar} is defined as
 follows
 \begin{eqnarray}
   p(\bm{y}|\bm{\beta},\kappa,\rho) & \propto & \kappa^{n/2}|\bm{\Omega}|^{1/2}\exp\left\{ -\frac{\kappa}{2}\left(\bm{y}-\bm{X}\bm{\beta}\right)^{T}\bm{\Omega}\left(\bm{y}-\bm{X}\bm{\beta}\right)\right\} \nonumber \\
@@ -1650,8 +1654,8 @@ $\kappa$, such that
   G\left(\frac{\underline{\nu}}{2},\frac{\underline{S}}{2}\right).
   \label{eq:prior
     beta AR1}
-\end{equation} It follows from (\ref{eq:Likelihood AR1})
-and (\ref{eq:prior beta AR1}) that sampling $\bm{\beta}$ and $\kappa$
+\end{equation} It follows from Equation~\ref{eq:Likelihood AR1}
+and Equation~\ref{eq:prior beta AR1} that sampling $\bm{\beta}$ and $\kappa$
 conditional on $\rho$ is simply equivalent to sampling from a linear
 regression model with a normal-gamma prior. A beta prior is assumed
 for $\rho$ there by restricting the autocorrelation of the time series
@@ -1659,7 +1663,7 @@ to be both positive and stationary. Specifically\[
 \rho\sim\mathcal{B}e\left(\alpha,\beta\right).\]
 
 A MCMC sampling scheme, for the posterior distribution in
-(\ref{eq:post_ar}), defined at iteration $j$ is as follows:
+Equation~\ref{eq:post_ar}, defined at iteration $j$ is as follows:
 \begin{enumerate}
 \item Sample $\bm{\beta}^{(j)},\kappa^{(j)}$ from
   $p(\bm{\beta},\kappa|\bm{y},\rho^{(j-1)}).$
@@ -1749,7 +1753,8 @@ def prior_rho(store):
     if store['rho'] > 0. and store['rho'] < 1.0:
         alpha = 1.0
         beta = 1.0
-        return (alpha - 1.) * log(store['rho']) + (beta - 1.) * log(1.-store['rho'])
+        return (alpha - 1.) * log(store['rho']) + (beta - 1.) * \
+          log(1.-store['rho'])
     else:
         return -1E256
 
@@ -1968,7 +1973,9 @@ def logl(store):
 		double sum = 0.0, xbeta;
 		for(int i=0; i<nobs; i++){
 			xbeta = 0.0;
-			for(int j=0; j<kreg; j++){xbeta += xmat[i+j*kreg] * beta[j];}
+			for(int j=0; j<kreg; j++){
+                          xbeta += xmat[i+j*kreg] * beta[j];
+                        }
 			sum += yvec[i] * xbeta - Exp(xbeta);
 		}     
 		return_val = sum;
@@ -2198,7 +2205,9 @@ template:
 
 \begin{Code}
 ATLAS_LIB_DIR="/d/tmp/pymcmc_win_install/BUILDS/lib"
-export PATH=${PATH}:/c/Program\ Files/gfortran/libexec/gcc/i586-pc-mingw32/4.6.0:/c/Program\ Files/gfortran/bin:/c/python26 
+export PATH=${PATH}:\
+/c/Program\ Files/gfortran/libexec/gcc/i586-pc-mingw32/4.6.0:\
+/c/Program\ Files/gfortran/bin:/c/python26 
 python /c/Python26/Scripts/f2py.py -c -m foo \
    --fcompiler=gfortran \
    blas_eg.f90 -L${ATLAS_LIB_DIR} -lf77blas -latlas -lg2c 
@@ -2226,12 +2235,12 @@ integrate \proglang{R} functions into \pkg{PyMCMC} programs. These can
 be accessed in \pkg{PyMCMC} through the \pkg{RPy2} \proglang{Python}
 library. As an example, consider the log linear model described in
 Section \ref{sub:Example-2:-Log-linear}. The random walk MH requires
-the specification of a candidate density function Equation
-(\ref{random walk candidate}) and an initial value. The R functions
-\texttt{glm }and \texttt{summary.glm} can be used to set this to the
-maximum likelihood estimate $\hat{\beta}$ and the unscaled estimated
-covariance matrix of the estimated coefficients. The relevant code is
-summarised below:
+the specification of a candidate density function
+Equation~\ref{random walk candidate} and an initial value. The R
+functions \texttt{glm }and \texttt{summary.glm} can be used to set
+this to the maximum likelihood estimate $\hat{\beta}$ and the unscaled
+estimated covariance matrix of the estimated coefficients. The
+relevant code is summarised below:
 
 
 \begin{Code}
@@ -2312,8 +2321,8 @@ demonstrate how to call \proglang{R} functions using \pkg{RPy2}.
 \subsection*{Acknowledgements}
 
 This research has been supported by an Australian Research Council
-Linkage Grant; LP100100565. The code was primarily developed and
-tested using Arch Linux http://www.archlinux.org/ and Kubuntu
+Linkage Grant; \newline LP100100565. The code was primarily developed and
+tested using Arch Linux \newline http://www.archlinux.org/ and Kubuntu
 http://www.kubuntu.org/.
 
 \bibliography{chris}
