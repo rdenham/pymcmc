@@ -1,4 +1,4 @@
--\documentclass[article]{jss}
+\documentclass[article]{jss}
 \usepackage{listings}
 \usepackage{bm}
 \usepackage{float}
@@ -149,7 +149,7 @@ for the implementation of very general code. Another feature of
 \proglang{Python}, which is particularly important, is it is also
 extremely easy to include modules from compiled languages such as
 \proglang{C} and \proglang{Fortran}. This is important to many
-practioners who are forced, by the size and complexity of their
+practitioners who are forced, by the size and complexity of their
 problems, to write their MCMC programs entirely in compiled languages,
 such as \proglang{C/C++} and \proglang{Fortran} in order to obtain the
 necessary speed for feasible practical analysis. With
@@ -160,7 +160,7 @@ and use the subroutines directly from \proglang{Python}. \pkg{F2py}
 can also be used to directly call \proglang{C} routines with the aid
 of a \proglang{Fortran} signature file. This enables the use of
 \pkg{PyMCMC} and \proglang{Python} as a rapid application development
-environment, without comprimising on performance by requiring only very
+environment, without compromising on performance by requiring only very
 small segments of code written in a compiled language. It should be
 mentioned that for most reasonable sized problems \pkg{PyMCMC} is
 sufficiently fast for practical MCMC analysis without the need for
@@ -202,7 +202,7 @@ with first order autoregressive errors.  Section
 \ref{sec:Using-PyMCMC-efficiently} contains discussion on the
 efficient implementation of the MCMC algorithms using \pkg{PyMCMC}.
 Section \ref{sec:PyMCMC-interacting-with} describes how to use
-\pkg{PyMCMC} interatively with \proglang{R} and Section
+\pkg{PyMCMC} interactively with \proglang{R} and Section
 \ref{sec:Conclusions} concludes.
 
 
@@ -251,12 +251,12 @@ by:
 
 An important special case of Algorithm \ref{alg:MCMC} is the Gibbs
 sampler, which is an algorithm that is proposed in
-\citet{GelfandSmith1990}. Specficially, when each of
+\citet{GelfandSmith1990}. Specifically, when each of
 $\bm{\theta}_{1},\bm{\theta}_{2},\dots,\bm{\theta}_{s},$ is sampled
 from a closed form then this algorithm corresponds to that of the
 Gibbs sampler. \pkg{PyMCMC} contains a class that facilitates the
 implementation of Algorithm \ref{alg:MCMC}, in which the user must
-define functions to sample from each block, ie. a function for each of
+define functions to sample from each block, i.e.,. a function for each of
 $\bm{\theta}_{i},$ for $i=1,\dots,s.$ These functions may be defined
 using the Metropolis based or slice sampling algorithms that are part
 of \pkg{PyMCMC}. The class is named \code{MCMC} and the following
@@ -285,7 +285,7 @@ arguments are required in the initialisation of the class:
     of the parameters and the associated values are functions that
     transform the iterates stored in the MCMC scheme. This can be
     useful when the MCMC algorithm is defined under a particular
-    parametersation, but where it is desirable to report the results
+    parameterisation, but where it is desirable to report the results
     under a different parameterisation.
   \end{description}
 \end{description}
@@ -314,12 +314,12 @@ Several functions are included as a part of the class:
     \item \code{parameters}: A dictionary, list or string specifying
       the parameters that are going to be presented.
       \begin{itemize}
-      \item If a string is passed (eg: \code{parameters = `beta'}),
+      \item If a string is passed (e.g.,: \code{parameters = `beta'}),
         all elements of that parameter are given.
-      \item If a list (eg: \code{parameters = {[}`alpha',
+      \item If a list (e.g.,: \code{parameters = {[}`alpha',
           `beta'{]})}, all elements of each parameter in the list are
         given.
-      \item If a dictionary (eg: \code{parameters =
+      \item If a dictionary (e.g.,: \code{parameters =
           \{`alpha':\{`range':range(5)\}\})}, then there is the
         possibility to add an additional argument \code{`range'} that
         tells the output to only print a subset of the parameters. The
@@ -401,8 +401,8 @@ Several functions are included as a part of the class:
         to the given filename.
       \item \code{parameters}: A string, a list or a dictionary that
         specify the items written to file. It can be a string such as
-        \code{`alpha'} or it can be a list (eg
-        \code{{[}`alpha',`beta'{]}}) or it can be a dictionary (eg \newline
+        \code{`alpha'} or it can be a list (e.g.,
+        \code{{[}`alpha',`beta'{]}}) or it can be a dictionary (e.g., \newline
         \code{\{`alpha':\{`range':{[}0,1,5{]}\}\}}.  If you supply a
         dictionary the key is the parameter name. It is also
         permissible to have a range key with a range of elements. If
@@ -1224,7 +1224,7 @@ The default output from the \code{MCMC} object is a summary of each
 parameter providing the posterior mean, posterior standard deviation,
 95\% credible intervals and inefficiency factors. This can output
 directly to screen, or captured in an output file. A sample of this
-output, giving only the first four elments of $\gamma$ is:
+output, giving only the first four elements of $\gamma$ is:
 
 \begin{CodeChunk}
 \begin{CodeInput}
@@ -1883,7 +1883,7 @@ autocorrelation plot and the trace plot for the iterates.
 
 The fact that MCMC algorithms rely on a large number of iterations to
 achieve reasonable results and are often implemented on very large
-problems, limits the practioner's choice of a suitable environment, in
+problems, limits the practitioner's choice of a suitable environment, in
 which they can implement efficient code. This efficiency comes through
 an understanding of what makes a simulation efficient MCMC sampler,
 and also the ability to produce computationally efficient code.
@@ -1891,7 +1891,7 @@ Interestingly, the two are related. To achieve both simulation and
 computationally efficient code in MCMC samplers it is often extremely
 important that large numbers of parameters are sampled in blocks,
 rather than the alternative of a single move sampler. From the
-perspective of simulation efficiency it is well known that indvidually
+perspective of simulation efficiency it is well known that individually
 sampling correlated parameters induces correlation in the resultant
 Markov chain and thus leads to a poorly mixing sampler. A classic
 example in the literature uses \emph{simulation smoothers }to jointly
@@ -2131,7 +2131,7 @@ experience under Windows, we suggest a few additional packages, all of
 which are freely available:
 \begin{itemize}
 \item \pkg{mingw} (http://www.mingw.org/) which provides, among other
-  things, the GNU compler suite. The user should choose at least
+  things, the GNU compiler suite. The user should choose at least
   \pkg{gcc} and \pkg{g++}.
 \item \pkg{msys} (http://www.mingw.org/wiki/MSYS) which provides a set
   of GNU utilities commonly found on Linux. This will make building
