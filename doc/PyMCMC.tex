@@ -1,4 +1,4 @@
-\documentclass[article]{jss}
+-\documentclass[article]{jss}
 \usepackage{listings}
 \usepackage{bm}
 \usepackage{float}
@@ -383,13 +383,13 @@ Several functions are included as a part of the class:
 
 \item \code{CODAoutput({*}{*}kwargs)} - Output the results in a format
   suitable for reading in with the statistical package Convergence
-  Diagnostic and Output Analysis (CODA)
+  Diagnostic and Output Analysis (\pkg{CODA})
   \citep{Rnews:Plummer+Best+Cowles+Vines:2006}. By default, there will
   be two files created, \code{coda.txt} and \code{coda.ind}.
 
     \begin{description}
     \item \code{{*}{*}kwargs} - An optional dictionary controlling the
-      CODA output.
+      \pkg{CODA} output.
 
       \begin{description}
       \item \code{filename}: A string to provide an alternative
@@ -410,7 +410,7 @@ Several functions are included as a part of the class:
         of the elements.
       \item \code{thin}: Integer specifying how to thin the output.
         For examples if \code{thin = 10}, then every tenth element
-        will be written to the CODA output.
+        will be written to the \pkg{CODA} output.
       \end{description}
     \end{description}
   \end{description}
@@ -1134,7 +1134,7 @@ explanatory variables.
 %%\subsubsection{Example code: Variable selection in regression}
 
 In addition to \pkg{PyMCMC}, this example uses functions from
-\pkg{numpy}, so the first step is to import the relevant packages:
+\pkg{Numpy}, so the first step is to import the relevant packages:
 
 \begin{Code}
 import os
@@ -2096,7 +2096,7 @@ def logl(store):
                   store['beta'],store['yvec'],loglike)
 \end{Code}
 
-The total time for the MCMC sampler when using f2py is 4.03 seconds.
+The total time for the MCMC sampler when using \pkg{F2py} is 4.03 seconds.
 This is slightly faster that the version that uses \pkg{Weave}, where most
 likely the small gain can be attributed to the use of \pkg{ATLAS}.
 
@@ -2141,7 +2141,7 @@ which are freely available:
   to the idle interface that is distributed with \proglang{Python}.
 \item \pkg{pyreadline}
   (http://ipython.scipy.org/moin/PyReadline/Intro), which provides
-  Windows readline capabilities for IPython.
+  Windows readline capabilities for \pkg{IPython}.
 \item \pkg{gfortran} (http://gcc.gnu.org/wiki/GFortranBinaries), which
   provides a native Windows \proglang{Fortran} compiler.
 \end{itemize}
@@ -2225,7 +2225,8 @@ print foo.__doc__
 foo.dgemveg() 
 \end{Code}
 
-\section[PyMCMC interacting with R]{\pkg{PyMCMC} interacting with R}
+\section[PyMCMC interacting with R]{\pkg{PyMCMC} 
+interacting with \proglang{R}}
 \label{sec:PyMCMC-interacting-with}
 
 There are many functions from the \proglang{R} statistical language
@@ -2235,12 +2236,12 @@ integrate \proglang{R} functions into \pkg{PyMCMC} programs. These can
 be accessed in \pkg{PyMCMC} through the \pkg{RPy2} \proglang{Python}
 library. As an example, consider the log linear model described in
 Section \ref{sub:Example-2:-Log-linear}. The random walk MH requires
-the specification of a candidate density function
-Equation~\ref{random walk candidate} and an initial value. The R
-functions \texttt{glm }and \texttt{summary.glm} can be used to set
-this to the maximum likelihood estimate $\hat{\beta}$ and the unscaled
-estimated covariance matrix of the estimated coefficients. The
-relevant code is summarised below:
+the specification of a candidate density function Equation~\ref{random
+  walk candidate} and an initial value. The \proglang{R} functions
+\texttt{glm }and \texttt{summary.glm} can be used to set this to the
+maximum likelihood estimate $\hat{\beta}$ and the unscaled estimated
+covariance matrix of the estimated coefficients. The relevant code is
+summarised below:
 
 
 \begin{Code}
@@ -2279,7 +2280,7 @@ GS.CODAoutput(filename="loglinear_eg")
 
 It may also be useful to take advantage of the many MCMC analysis
 functions in \proglang{R} and associated packages. To facilitate this,
-\pkg{PyMCMC} includes a CODA
+\pkg{PyMCMC} includes a \pkg{CODA}
 \citep{Rnews:Plummer+Best+Cowles+Vines:2006} output format which can
 easily be read into \proglang{R} for further analysis. A sample
 \proglang{R} session after \pkg{PyMCMC} might look like:
@@ -2316,7 +2317,7 @@ demonstrate how to optimise \pkg{PyMCMC} using \pkg{Numpy} functions,
 inline \proglang{C} code using \pkg{Weave} and with
 \proglang{Fortran77} using \pkg{F2py}, where necessary.  We further
 demonstrate how to call \proglang{R} functions using \pkg{RPy2}.
-
+ 
 
 \subsection*{Acknowledgements}
 
@@ -2328,3 +2329,5 @@ http://www.kubuntu.org/.
 \bibliography{chris}
 
 \end{document}
+perl -ne '/proglang{(.*?)}/;print "$1\n"' PyMCMC.tex|sort -u
+perl -ne '/pkg{(.*?)}/;print "$1\n"' PyMCMC.tex|sort -u
