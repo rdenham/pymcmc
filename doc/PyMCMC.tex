@@ -1974,9 +1974,9 @@ def logl(store):
 		for(int i=0; i<nobs; i++){
 			xbeta = 0.0;
 			for(int j=0; j<kreg; j++){
-                          xbeta += xmat[i+j*kreg] * beta[j];
+                          xbeta += xmat(i,j) * beta(j);
                         }
-			sum += yvec[i] * xbeta - Exp(xbeta);
+			sum += yvec(i) * xbeta - exp(xbeta);
 		}     
 		return_val = sum;
     """
@@ -1985,7 +1985,7 @@ def logl(store):
 	nobs, kreg = xmat.shape
 	beta = store['beta']
     return weave.inline(code,['yvec','xmat', 'beta','nobs','kreg'],\ 
-                       compiler='gcc')
+                       compiler='gcc',type_converters=converters.blitz)
 \end{Code}
 
 The total time taken for \pkg{Weave} version is 4.33 seconds. The reason for
@@ -2245,13 +2245,14 @@ summarised below:
 
 
 \begin{Code}
-import rpy2.robjects.numpy2ri
-from rpy2 import rinterface
+
 import rpy2.robjects as robjects
 
 def initial_values(yvec,xmat):
-    ry = rinterface.SexpVector(yvec,rinterface.INTSXP)
-    rx = rinterface.SexpVector(xmat[:,1:],rinterface.INTSXP)
+    ry = robjects.FloatVector(yvec)
+    rv = robjects.FloatVector(xmat[:,1:].flatten())
+    rx = robjects.r['matrix'](rv, nrow=xmat.shape[0],
+                              byrow=True)
     robjects.globalenv['y'] = ry
     robjects.globalenv['x'] = rx
     mod = robjects.r.glm("y~x", family="poisson")
@@ -2259,6 +2260,7 @@ def initial_values(yvec,xmat):
     modsummary = robjects.r.summary(mod)
     scale = array(modsummary.rx2('cov.unscaled'))
     return init_beta,scale
+
 
 random.seed(12345) 
 data=loadtxt('count.txt',skiprows=1)
@@ -2271,9 +2273,9 @@ data={'yvec':yvec,'xmat':xmat}
 init_beta,scale=initial_values(yvec,xmat)
 
 samplebeta=RWMH(posterior,scale,init_beta,'beta')
-GS=Gibbs(20000,4000,data, [samplebeta],loglike=(logl,xmat.shape[1],'yvec'))
-GS.sampler()
-GS.CODAoutput(filename="loglinear_eg") 
+ms=MCMC(20000,4000,data, [samplebeta],loglike=(logl,xmat.shape[1],'yvec'))
+ms.sampler()
+ms.CODAoutput(filename="loglinear_eg", parameter="beta") 
 
 \end{Code}
 
@@ -2288,7 +2290,7 @@ easily be read into \proglang{R} for further analysis. A sample
 
 \begin{Code}
 library(coda)
-aa <- Read.coda("loglinear_eg.txt","loglinear_eg.ind")
+aa <- read.coda("loglinear_eg.txt","loglinear_eg.ind")
 plot(aa)
 summary(aa)
 raftery.diag(aa)
@@ -2329,5 +2331,4 @@ http://www.kubuntu.org/.
 \bibliography{chris}
 
 \end{document}
-perl -ne '/proglang{(.*?)}/;print "$1\n"' PyMCMC.tex|sort -u
-perl -ne '/pkg{(.*?)}/;print "$1\n"' PyMCMC.tex|sort -u
+
