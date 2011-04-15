@@ -1,0 +1,8 @@
+library(coda)
+aa <- read.coda("loglinear_eg.txt","loglinear_eg.ind")
+plot(aa)
+summary(aa)
+raftery.diag(aa)
+xyplot(aa)
+densityplot(aa)
+acfplot(aa,lag.max=500)
