@@ -1375,7 +1375,7 @@ class MCMC:
             else:
                 print "Can't write coda output for arrays with dim > 4"
             tmp = np.transpose(np.array([itnumbers, param[myslice]]))
-            np.savetxt(fobj, tmp, ["%xd", "%.06f"])
+            np.savetxt(fobj, tmp, ["%d", "%.06f"])
             findixobj.write("%s %d %d\n" % (pname, start, start+nitems -1))
             start = start + nitems
             offset = offset + nitems
