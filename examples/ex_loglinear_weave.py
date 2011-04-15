@@ -7,6 +7,7 @@ from pymcmc.mcmc import MCMC, RWMH, OBMC
 from pymcmc.regtools import BayesRegression
 from scipy.optimize.minpack import leastsq
 from scipy import weave
+from scipy.weave import converters
 
 ## get the path for the data,
 ## If this was installed using setup.py
@@ -35,23 +36,21 @@ def logl(store):
     double sum = 0.0, xbeta;
     for(int i=0; i<nobs; i++){
     xbeta = 0.0;
-        for(int j=0; j<kreg; j++){xbeta += xmat[i+j*kreg] * beta[j];}
-        sum += yvec[i] * xbeta - exp(xbeta);
+        for(int j=0; j<kreg; j++){
+          xbeta += xmat(i,j) * beta(j);
+        }
+        sum += yvec(i) * xbeta - exp(xbeta);
     }
     return_val = sum;
     """
-
     yvec = store['yvec']
     xmat = store['xmat']
     nobs, kreg = xmat.shape
     beta = store['beta']
     return weave.inline(code,['yvec','xmat', 'beta','nobs','kreg'],\
-                        compiler='gcc')
-
-    #for i in xrange(store['yvec'].shape[0]):
-    #    xbeta=dot(store['xmat'][i,:],store['beta'])
-    #    suml=suml+store['yvec'][i] * xbeta - exp(xbeta)
-    #return suml
+                        compiler='gcc',
+                        type_converters=converters.blitz
+                        )
 
 def posterior(store):
     """function evaluates the posterior probability for the log - linear model"""
