@@ -113,13 +113,33 @@ scale = linalg.inv(data['betaprec'])
 
 samplebeta = RWMH(posterior, scale, init_beta, 'beta')
 
-print 
+def ptitle(mystr,ncol=80):
+    '''
+    Little function for printing a header
+    to separate the output a bit.
+    '''
+    ##force mystr to be a list
+    if type(mystr) == type('a string'):
+        mystr = [(mystr)]
+    print '{0:#^{1}}'.format('',ncol)
+    print '##{0:^{1}}##'.format("",ncol-4)
+    for element in mystr:
+        print '##{0:^{1}}##'.format(element,ncol-4)
+    print '##{0:^{1}}##'.format("",ncol-4)
+    print '{0:#^{1}}'.format('',ncol)
+
 print
-print "        Four different ways to calculate the   "
-print "        log-likelihood."
+intro = '''This example shows four different ways of
+programming the likelihood function. Three of these
+ways are efficient, using Numpy, weave or f2py. The
+fourth uses looping in python, and is thus much slower.'''
+
+ptitle(intro.split('\n'))
+
 print
 print
-print "#############      Numpy           ############"
+
+ptitle("Numpy")
 logl = loglnumpy
 random.seed(12345)
 ms = MCMC(20000, 4000, data, [samplebeta],
@@ -127,10 +147,9 @@ ms = MCMC(20000, 4000, data, [samplebeta],
 ms.sampler()
 ms.output()
 
+print
 
-print
-print
-print "#############      loop            ############"
+ptitle("loop (the slow one)")
 logl = loglloop
 random.seed(12345)
 samplebeta = RWMH(posterior, scale, init_beta, 'beta')
@@ -140,8 +159,7 @@ ms.sampler()
 ms.output()
 
 print
-print
-print "#############      weave           ############"
+ptitle("weave")
 logl = loglweave
 random.seed(12345)       # seed or the random number generator
 samplebeta = RWMH(posterior, scale, init_beta, 'beta')
@@ -151,17 +169,18 @@ ms = MCMC(20000, 4000, data, [samplebeta],
 ms.sampler()
 ms.output()
 
+print
+f2pystring = '''
+Now using f2py, this will need compiled code:    
+try something like:                              
+  f2py -c loglinear.f -m loglinear -lblas -latlas
+or for non-standard libraries:                   
+  f2py -c loglinear.f -m loglinear \             
+       -L/opt/sw/fw/rsc/atlas/3.9.25//lib/ \     
+       -latlas -lf77blas -lcblas                 
+'''
+ptitle(f2pystring.split('\n'))
 
-## Now using f2py, this will need compiled code:
-## try something like:
-## f2py -c loglinear.f -m loglinear -lblas -latlas
-## or for non-standard libraries:
-## f2py -c loglinear.f -m loglinear \
-##     -L/opt/sw/fw/rsc/atlas/3.9.25//lib/ \
-##     -latlas -lf77blas -lcblas 
-print
-print
-print "#############      F2py            ############"
 logl = loglf2py
 data['xb'] = zeros(yvec.shape[0])
 data['xmatf']=asfortranarray(xmat)
