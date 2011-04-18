@@ -1350,7 +1350,6 @@ class MCMC:
         '''
         nrow = param.shape[0]
         dim = param.shape[1:]
-        print dim
         if not prange:
             prange = [np.unravel_index(i,dim) for i in range(np.prod(dim))]
         itnumbers = np.arange(start, start + nrow, thin)
@@ -1462,9 +1461,12 @@ class MCMC:
         else:
             ## then we make up a dictionary ourselves:
             parameters = {}
-            for blockname in self.keys:
-                if self.storeblock[blockname].get_store() =='all':
-                    parameters[blockname] = {}
+            for i in range(self.nblocks):
+                groupname = self.group_names[i]
+                thisblock = self.storeblock[groupname]
+                thisname = thisblock.get_name()
+                if thisblock.get_store() == 'all':
+                    parameters[thisname] = {}
         offset = 0
         for blockname in parameters.keys():
             if kwargs.has_key('exclude_burnin') and kwargs['exclude_burnin']:
