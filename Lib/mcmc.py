@@ -1584,17 +1584,22 @@ class MCMC:
                         "{0: >0{colwidth}}".format("NA", colwidth = colwidth - 1),
                     summary_vals[2] = np.nan
                     summary_vals[3] = np.nan
-		if ifactor[position[0]].dtype == np.dtype('|S2'):
+
+                thisifactor = ifactor[position[0]]
+                ##check for Chris's nan value
+                if thisifactor == -9999:
+                    thisifactor = 'NA'
+		if type(thisifactor) == type('a string'):
                     ## then not numeric.
                     ## Is there a better way of testing?
 		    print  >>destination,     \
-                       "{val1: >0{colwidth}}".format(val1 = ifactor[position],
-                                                        colwidth = colwidth)
+                       "{val1: >0{colwidth}}".format(val1 = thisifactor,
+                                                     colwidth = colwidth)
                     summary_vals[4] = np.nan
                 else:
                     print >>destination,      \
                           "{val1: >0{colwidth}.{sigfigs}g}".format(
-                        val1 = ifactor[position],
+                        val1 = thisifactor,
                         colwidth = colwidth, sigfigs = sigfigs)
                     summary_vals[4] = ifactor[position]
                 all_summary_vals = np.r_[all_summary_vals,summary_vals]
