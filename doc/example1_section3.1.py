@@ -36,7 +36,7 @@ data['SS'] = SSVS
 """initialise gamma"""
 initgamma = zeros(xmat.shape[1], dtype ='i')
 initgamma[0] = 1
-simgam = CFsampler(samplegamma, initgamma, 'gamma', store ='none')
+simgam = CFsampler(samplegamma, initgamma, 'gamma', store ='all')
 
 
 # initialise class for MCMC samper
@@ -49,6 +49,6 @@ ms.output(custom = SSVS.output)
 txmat = SSVS.extract_regressors(0)
 g_prior = ['g_prior', 0.0, 100.]
 breg = BayesRegression(yvec,txmat,prior = g_prior)
-breg.output(filename = 'SSVS1.out')
+breg.output()
 
 breg.plot()
