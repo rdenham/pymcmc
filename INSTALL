@@ -69,8 +69,8 @@ and also http://www.mingw.org/wiki/msys/.
 I installed 1.0.11. The DTK provides everything you need (bzip2, 
 diffutils, gawk,make,binutils)
 
-Install cygwin, and and build atlas from there.
-To use gfortran, might have to change your path, for example:
+Install cygwin, and build atlas from there.
+To use gfortran, you might have to change your path, for example:
 export PATH=/usr/local/bin:/bin:/c/Program\ Files/gfortran/libexec/gcc/i586-pc-mingw32/4.6.0:/c/Program\ Files/gfortran/bin:/c/python26
 
 Unpack the pymcmc archive, and modify the setup.py file to make sure 

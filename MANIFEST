@@ -12,9 +12,7 @@ data/count.txt
 data/yld2.txt
 examples/ex_AR1.py
 examples/ex_loglinear.py
-examples/ex_loglinear_f2py.py
-examples/ex_loglinear_loop.py
-examples/ex_loglinear_weave.py
+examples/using_pymcmc_efficiently.py
 examples/ex_variable_selection.py
 examples/loglinear.f
 examples/matplotlibrc
