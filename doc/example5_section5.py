@@ -63,6 +63,29 @@ def initial_values(yvec,xmat):
     scale = array(modsummary.rx2('cov.unscaled'))
     return init_beta,scale
 
+def ptitle(mystr,ncol=80):
+    '''
+    Little function for printing a header
+    to separate the output a bit.
+    '''
+    ##force mystr to be a list
+    if type(mystr) == type('a string'):
+        mystr = [(mystr)]
+    print '{0:#^{1}}'.format('',ncol)
+    print '##{0:^{1}}##'.format("",ncol-4)
+    for element in mystr:
+        print '##{0:^{1}}##'.format(element,ncol-4)
+    print '##{0:^{1}}##'.format("",ncol-4)
+    print '{0:#^{1}}'.format('',ncol)
+
+intro = '''This example uses R via Rpy2 to set    
+the initial values. It also writes the output   
+in CODA format, suitable for reading in with R.
+You might like to run example5_section5.R from R
+to see how this works.                           '''
+
+print
+ptitle(intro.split('\n'))
 
 
 # main program
@@ -85,5 +108,5 @@ ms = MCMC(20000, 4000, data, [samplebeta],
           loglike = (logl, xmat.shape[1], 'yvec'))
 ms.sampler()
 ms.output()
-ms.CODAoutput(filename="loglinear_eg",parameters='beta') 
+ms.CODAoutput(filename="loglinear_eg") 
 
